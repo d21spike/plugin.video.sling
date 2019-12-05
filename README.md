@@ -4,7 +4,7 @@ Sling TV Add-On for Kodi
 ![](https://github.com/d21spike/plugin.video.sling/blob/master/resources/images/icon.png?raw=true)
 
 ![Build Status](https://img.shields.io/badge/Build-Beta-orange)
-![License](https://img.shields.io/badge/License-GPL--2.0--only-success.svg)
+![License](https://img.shields.io/badge/License-GPL--3.0--only-success.svg)
 ![Kodi Version](https://img.shields.io/badge/Kodi-Leia%2B-brightgreen)
 ![Contributors](https://img.shields.io/badge/Contributors-d21spike%2C%20eracknaphobia-darkgray)
 
