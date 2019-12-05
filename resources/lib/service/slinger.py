@@ -89,10 +89,10 @@ class Slinger(object):
                 self.updateChannels()
             if (self.Guide_Updated + self.Guide_Interval) < timestamp:
                 self.updateGuide()
-            if (self.Shows_Updated + self.Shows_Interval) < timestamp:
-                self.updateShows()
             if (self.On_Demand_Updated + self.On_Demand_Interval) < timestamp:
                 self.updateOnDemand()
+            if (self.Shows_Updated + self.Shows_Interval) < timestamp:
+                self.updateShows()
             if (self.VOD_Updated + self.VOD_Interval) < timestamp:
                 self.updateVOD()
 
