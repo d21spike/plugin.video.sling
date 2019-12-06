@@ -66,6 +66,8 @@ def myTVRibbon(self):
                                     start = show.Seasons[0]['Episodes'][0]['Start']
                                     stop = show.Seasons[0]['Episodes'][0]['Stop']
                                 elif len(show.Seasons) > 1:
+                                    if 'season_number' not in tile:
+                                        tile['season_number'] = 0
                                     episode = show.Seasons[tile['season_number']]['Episodes'][tile['episode_number']]
                                     start = episode['Start']
                                     stop = episode['Stop']

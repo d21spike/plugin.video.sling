@@ -119,7 +119,7 @@ class Show(object):
             for season in show_json['seasons']:
                 new_season, season_query = self.processSeason(season, new_show, season_query, cursor)
                 new_show['Seasons'][new_season['Number']] = new_season
-        elif 'programs' in show_json:
+        if 'programs' in show_json:
             new_season, season_query = self.processSeason(show_json, new_show, season_query, cursor)
             new_show['Seasons'][new_season['Number']] = new_season
 
@@ -328,6 +328,7 @@ class Show(object):
     def getSeasons(self, update=False, silent=False):
         if self.GUID == '': return False
         cursor = self.DB.cursor()
+        timestamp = int(time.time())
 
         season_query = "SELECT * FROM Seasons WHERE Show_GUID = '%s'" % self.GUID
         cursor.execute(season_query)

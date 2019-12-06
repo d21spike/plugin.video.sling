@@ -8,7 +8,8 @@ from resources.lib.globals import *
 
 
 def getFavorites(self):
-    favorites_url = '%s/watchlists/v4/watches?product=sling&platform=browser' % self.endPoints['cmw_url']
+    log(json.dumps(self.endPoints, indent=4))
+    favorites_url = '%s/watchlists/v4/watches?product=sling&platform=browser' % self.endPoints['cmwnext_url']
     response = requests.get(favorites_url, headers=HEADERS, verify=VERIFY, auth=self.auth.getAuth())
     if response is not None and response.status_code == 200:
         response = response.json()

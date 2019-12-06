@@ -550,9 +550,22 @@ class Slinger(object):
                 show_count = 0
                 for show in shows:
                     show_guid = show[0]
-                    db_show = Show(show_guid, self.EndPoints, self.DB, silent=True)
-                    if db_show.GUID != '':
-                        db_show.getSeasons(update=True, silent=True)
+                    query = "SELECT Last_Update AS Updated FROM Seasons WHERE Seasons.Show_GUID = '%s' " \
+                            "ORDER BY Last_Update ASC LIMIT 1" % show_guid
+                    cursor.execute(query)
+                    update_check = cursor.fetchone()
+                    if update_check is not None:
+                        if len(update_check) == 1:
+                            check_timestamp = update_check[0]
+                        else:
+                            check_timestamp = 0
+                    else:
+                        check_timestamp = 0
+                    timestamp = int(time.time()) - self.Shows_Interval
+                    if check_timestamp < timestamp:
+                        db_show = Show(show_guid, self.EndPoints, self.DB, silent=True)
+                        if db_show.GUID != '':
+                            db_show.getSeasons(update=True, silent=True)
                     show_count += 1
                     progress.update(int((float(show_count) / len(shows)) * 100))
                     if self.Monitor.abortRequested():
