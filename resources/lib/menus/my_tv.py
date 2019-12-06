@@ -71,13 +71,12 @@ def myTVRibbon(self):
                                     episode = show.Seasons[tile['season_number']]['Episodes'][tile['episode_number']]
                                     start = episode['Start']
                                     stop = episode['Stop']
-
                                 asset = {
                                     'Name': tile['title'],
                                     'Thumbnail': tile['thumbnail']['url'] or show.Thumbnail,
                                     'Poster': response['program']['background_image']['url'] or show.Poster,
                                     'Description': response['program']['description'] if 'description' in response['program'] else show.Description,
-                                    'Rating': tile['ratings'][0].replace('_', ' ') or '',
+                                    'Rating': tile['ratings'][0].replace('_', ' ') if 'ratings' in tile else '',
                                     'Duration': tile['duration'],
                                     'Year': tile['release_year'] if 'release_year' in tile else '',
                                     'Start': start,
