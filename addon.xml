@@ -16,7 +16,7 @@
     </extension>
     <extension point="xbmc.service" library="service.py" start="startup" />
     <extension point="xbmc.addon.metadata">
-        <description lang="en_GB"> </description>
+        <description lang="en_GB">A database driven SlingTV Kodi add-on. Providing many of the offered features/services you've come to expect from the official SlingTV interface. Choose anything from Live Channels, to On Demand, to binge watching shows. It's all there.</description>
         <platform>all</platform>
         <license>GNU GENERAL PUBLIC LICENSE. Version 3, June 2007</license>
         <source>https://github.com/d21spike/plugin.video.sling</source>
