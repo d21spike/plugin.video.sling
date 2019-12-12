@@ -685,11 +685,12 @@ class Channel(object):
                     if rating.replace('_', ' ') not in ratings:
                         ratings = '%s, %s' % (ratings, rating.replace('_', ' ')) if len(ratings) > 0 else rating.replace('_', ' ')
                 new_asset['Rating'] = ratings
-                genres = ''
+            genres = ''
+            if 'genre' in asset['metadata']:
                 for genre in asset['metadata']['genre']:
                     if genre.replace('_', ' ') not in genres:
                         genres = '%s, %s' % (genres, genre.replace('_', ' ')) if len(genres) > 0 else genre.replace('_', ' ')
-                new_asset['Genre'] = genres
+            new_asset['Genre'] = genres
             if new_asset['Type'] == 'episode':
                 if 'episode_title' in asset['metadata'] and 'episode_season' in asset['metadata'] and \
                         'episode_number' in asset['metadata']:
