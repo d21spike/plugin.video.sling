@@ -8,8 +8,8 @@
 
     <category label="30119">
         <setting label="30120" type="lsep" />
-        <setting id="Channels_Interval" type="slider" label="30121" default="1" range="1,1,7" option="int" />
-        <setting id="Guide_Interval" type="slider" label="30122" default="1" range="1,1,7" option="int" />
+        <setting id="Channels_Interval" type="slider" label="30121" default="12" range="1,12,24" option="int" />
+        <setting id="Guide_Interval" type="slider" label="30122" default="12" range="1,12,24" option="int" />
         <setting id="Shows_Interval" type="slider" label="30123" default="7" range="1,1,30" option="int" />
         <setting id="On_Demand_Interval" type="slider" label="30124" default="7" range="1,1,30" option="int" />
         <setting id="VOD_Interval" type="slider" label="30125" default="1" range="1,1,30" option="int" />

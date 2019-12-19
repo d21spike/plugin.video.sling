@@ -334,7 +334,7 @@ class Auth(object):
                     log('getPlaylist, Inside Disney/ABC')
                     utc_datetime = str(time.mktime(datetime.datetime.utcnow().timetuple())).split('.')[0]
                     sha1_user_id = hashlib.sha1(SUBSCRIBER_ID.encode()).hexdigest()
-                    rsa_sign_url = '%s/cmw/v1/rsa/sign' % end_points['cmw_url']
+                    rsa_sign_url = '%s/cmw/v1/rsa/sign' % end_points['cmwnext_url']
                     stream_headers = HEADERS
                     stream_headers['Content-Type'] = 'application/x-www-form-urlencoded'
                     payload = 'document=%s_%s_' % (sha1_user_id, utc_datetime)
