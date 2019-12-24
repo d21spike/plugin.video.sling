@@ -220,8 +220,19 @@ class Sling(object):
 
         if self.params['name'] != 'delete_db':
             log('Changing setting %s to value %s' % (self.params['name'], self.params['value']))
-            SETTINGS.setSetting(self.params['name'], self.params['value'])
-            log('New setting %s value: %s' % (self.params['name'], SETTINGS.getSetting(self.params['name'])))
+            # SETTINGS.setSetting(self.params['name'], self.params['value'])
+            # log('New setting %s value: %s' % (self.params['name'], SETTINGS.getSetting(self.params['name'])))
+
+            if self.params['name'] == 'update_channels' and self.params['value'] == 'true':
+                self.setUpdate('Update Channels')
+            if self.params['name'] == 'update_guide' and self.params['value'] == 'true':
+                self.setUpdate('Update Guide')
+            if self.params['name'] == 'update_on_demand' and self.params['value'] == 'true':
+                self.setUpdate('Update On Demand')
+            if self.params['name'] == 'update_shows' and self.params['value'] == 'true':
+                self.setUpdate('Update Shows')
+            if self.params['name'] == 'update_vod' and self.params['value'] == 'true':
+                self.setUpdate('Update VOD')
         else:
             log('Deleting DB contents...')
             query = 'DELETE FROM Channels; ' \
@@ -242,3 +253,52 @@ class Sling(object):
                 log('setSetting(): Failed to clear data from DB, error => %s' % err)
             except Exception as exc:
                 log('setSetting(): Failed to clear data from DB, exception => %s' % exc)
+
+    def setUpdate(self, update):
+        if not xbmcvfs.exists(TRACKER_PATH):
+            temp_json = {
+                "Tasks": {},
+                "State": "",
+                "Current_Job": "",
+                "Last_Update": "",
+                "Last_Error": ""
+            }
+            with open(TRACKER_PATH, 'w') as tracker_file:
+                json.dump(temp_json, tracker_file, indent=4)
+
+        with open(TRACKER_PATH) as tracker_file:
+            task = update
+
+            json_data = json.load(tracker_file)
+            if 'Tasks' in json_data:
+                tasks = json_data['Tasks']
+            if 'State' in json_data:
+                state = json_data['State']
+            if 'Current_Job' in json_data:
+                current_job = json_data['Current_Job']
+            if 'Last_Update' in json_data:
+                last_update = json_data['Last_Update']
+            if 'Last_Error' in json_data:
+                last_error = json_data['Last_Error']
+
+            location = -1
+            for id in tasks:
+                if tasks[id] == task:
+                    location = int(id)
+            
+            if location != -1:
+                del tasks[str(location)]
+            location = -1 * int(time.time())
+            tasks[location] = task
+
+            temp_json = {
+                "Tasks": tasks,
+                "State": state,
+                "Current_Job": current_job,
+                "Last_Update": last_update,
+                "Last_Error": last_error
+            }
+            with open(TRACKER_PATH, 'w') as tracker_file:
+                json.dump(temp_json, tracker_file, indent=4)
+
+        return

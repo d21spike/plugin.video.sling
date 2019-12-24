@@ -60,6 +60,8 @@ VERIFY = False
 PRINTABLE = set(string.printable)
 CONTENT_TYPE = 'Episodes'
 
+TRACKER_PATH = xbmc.translatePath(os.path.join(SETTINGS_LOC, 'slinger.json'))
+
 if sys.version_info[0] < 3:
     PY = 2
     import urlparse

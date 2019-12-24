@@ -1,17 +1,6 @@
 from resources.lib.globals import *
 from resources.lib.classes.auth import Auth
 
-class MyMonitor(xbmc.Monitor):
-    def __init__(self, *args, **kwargs):
-        xbmc.Monitor.__init__(self)
-        self.action = kwargs['action']
-
-    def onSettingsChanged(self):
-        log('MyMonitor.onSettingsChanged() triggered....')
-        log('Setting update_guide: %s' % SETTINGS.getSetting('update_guide'))
-        if SETTINGS.getSetting('update_guide') == 'true':
-            self.action()
-
 class Slinger(object):
 
     Channels_Updated = 0
@@ -34,14 +23,19 @@ class Slinger(object):
     Auth = None
     DB = None
     EndPoints = None
-    Force_Guide_Update = False
+    
+    First_Pass = True
+    Force_Update = False
+    Tasks = {}
+    State = "Idle"
+    Current_Job = ""
+    Last_Update = ""
+    Last_Error = ""
 
     def __init__(self):
         global USER_SUBS, USER_DMA, USER_OFFSET
         log('Slinger function:  __init__')
-        # self.Monitor = xbmc.Monitor()
-        self.Monitor = MyMonitor(action=self.updateGuide)
-
+        self.Monitor = xbmc.Monitor()
         self.EndPoints = self.buildEndPoints()
         self.Auth = Auth()
         loginURL = '%s/sling-api/oauth/authenticate-user' % self.EndPoints['micro_ums_url']
@@ -66,6 +60,9 @@ class Slinger(object):
                 log("__init__: Failed to get User Subscriptions, exiting.")
                 self.close()
 
+        if not xbmcvfs.exists(TRACKER_PATH):
+            self.updateTracker(state="Init", job="Creating tracker file")
+
         if not xbmcvfs.exists(DB_PATH):
             self.createDB()
         self.DB = sqlite3.connect(DB_PATH)
@@ -78,43 +75,142 @@ class Slinger(object):
 
     def main(self):
         log('Slinger function: main()')
-
+        
         self.checkLastUpdate()
         self.checkUpdateIntervals()
 
         while not self.Monitor.abortRequested():
             timestamp = int(time.time())
 
+            self.checkTracker()
             if (self.Channels_Updated + self.Channels_Interval) < timestamp:
-                self.updateChannels()
+                if not self.inTasks("Update Channels")[0]:
+                    log('Channels need updated')
+                    self.Tasks[timestamp] = "Update Channels"
             if (self.Guide_Updated + self.Guide_Interval) < timestamp:
-                self.updateGuide()
+                if not self.inTasks("Update Guide")[0]:
+                    self.Tasks[timestamp + 1] = "Update Guide"
             if (self.On_Demand_Updated + self.On_Demand_Interval) < timestamp:
-                self.updateOnDemand()
+                if not self.inTasks("Update On Demand")[0]:
+                    self.Tasks[timestamp + 2] = "Update On Demand"
             if (self.Shows_Updated + self.Shows_Interval) < timestamp:
-                self.updateShows()
+                if not self.inTasks("Update Shows")[0]:
+                    self.Tasks[timestamp + 3] = "Update Shows"
             if (self.VOD_Updated + self.VOD_Interval) < timestamp:
-                self.updateVOD()
+                if not self.inTasks("Update VOD")[0]:
+                    self.Tasks[timestamp + 4] = "Update VOD"
+            self.updateTracker(state="Idle", job="")
 
+            if len(self.Tasks):
+                self.doTasks()
+            
             # Sleep for 30 minutes or exit on break
-            if self.Monitor.waitForAbort(1800):
-                log("shutting down slinger service...")
+            count = 0
+            abort = False
+            while count < 30:
+                self.updateTracker(state="Sleeping", job="Sleeping for 60 seconds")
+                if self.Monitor.waitForAbort(60):
+                    log("shutting down slinger service...")
+                    abort = True
+                    break
+                
+                self.checkTracker()
+                if len(self.Tasks):
+                    break
+
+                self.updateTracker(state="Idle", job="")
+                count += 1
+
+            if abort:
                 break
+            else:
+                self.doTasks()
 
             self.checkLastUpdate()
             self.checkUpdateIntervals()
 
         self.close()
 
-    def checkForceUpdate(self):
-        log('Slinger function: checkForceUpdate()')
-        if SETTINGS.getSetting('update_guide') == 'true':
-            log('checkForceUpdate(): Setting Force_Guide_Update flag')
-            self.Force_Guide_Update = True
+    def checkTracker(self, ):
+        log('Slinger function: checkTracker()')
 
-    def clearForceUpdate(self):
-        log('Slinger function: clearForceUpdate()')
-        SETTINGS.setSetting('update_guide', 'false')
+        with open(TRACKER_PATH) as tracker_file:
+            json_data = json.load(tracker_file)
+            for key in json_data:
+                log('%s: %s' % (key, str(json_data[key])))
+                if key == "Tasks":
+                    self.Tasks = json_data[key]
+                if key == "State":
+                    self.State = json_data[key]
+                if key == "Current_Job":
+                    self.Current_Job = json_data[key]
+                if key == "Last_Update":
+                    self.Last_Update = json_data[key]
+                if key == "Last_Error":
+                    self.Last_Error = json_data[key]
+
+        return
+
+    def updateTracker(self, state, job):
+        log('Slinger function: updateTracker()')
+        
+        self.State = state
+        self.Current_Job = job
+        if self.First_Pass:
+            self.Last_Error = ""
+            self.First_Pass = False
+
+        temp_json = {
+            "Tasks": self.Tasks,
+            "State": self.State,
+            "Current_Job": self.Current_Job,
+            "Last_Update": self.Last_Update,
+            "Last_Error": self.Last_Error
+        }
+        log(str(temp_json))
+        with open(TRACKER_PATH, 'w') as tracker_file:
+            json.dump(temp_json, tracker_file, indent=4)
+
+        return
+
+    def inTasks(self, task):
+        log('Slinger function: inTasks()')
+        found = False
+        location = -1
+        for id in self.Tasks:
+            if self.Tasks[id] == task:
+                found = True
+                location = id
+
+        return found, location
+
+    def doTasks(self):
+        log('Slinger function: doTasks()')
+        for id in sorted(self.Tasks):
+            if int(id) < 0:
+                self.Force_Update = True
+            if self.Tasks[id] == "Update Channels":
+                self.updateTracker(state="Working", job="Updating Channels")
+                self.updateChannels()
+            if self.Tasks[id] == "Update Guide":
+                self.updateTracker(state="Working", job="Updating Guide")
+                self.updateGuide()
+            if self.Tasks[id] == "Update On Demand":
+                self.updateTracker(state="Working", job="Updating On Demand")
+                self.updateOnDemand()
+            if self.Tasks[id] == "Update Shows":
+                self.updateTracker(state="Working", job="Updating Shows")
+                self.updateShows()
+            if self.Tasks[id] == "Update VOD":
+                self.updateTracker(state="Working", job="Updating VOD")
+                self.updateVOD()
+
+            self.Last_Update = self.Tasks[id]
+            del self.Tasks[id]
+            self.updateTracker(state="Idle", job="")
+            self.Force_Update = False
+
+        return
 
     def checkLastUpdate(self):
         log('Slinger function: checkLastUpdate()')
@@ -144,9 +240,13 @@ class Slinger(object):
 
                 result = True
         except sqlite3.Error as err:
-            log('checkLastUpdate(): Failed to read Last Update times from DB, error => %s' % err)
+            error = 'checkLastUpdate(): Failed to read Last Update times from DB, error => %s' % err
+            log(error)
+            self.Last_Error = error
         except Exception as exc:
-            log('checkLastUpdate(): Failed to read Last Update times from DB, exception => %s' % exc)
+            error = 'checkLastUpdate(): Failed to read Last Update times from DB, exception => %s' % exc
+            log(error)
+            self.Last_Error = error
 
         return result
 
@@ -188,7 +288,7 @@ class Slinger(object):
                             channels[channel['channel_guid']] = Channel(channel['channel_guid'], self.EndPoints,
                                                                         self.DB, update=True)
                             channel_count += 1
-                            progress.update(int((float(channel_count) / len(sub_pack['channels'])) * 100))
+                            progress.update(int((float(channel_count) / len(sub_pack['channels'])) * 100), 'Downloading Channel Info: %s' % channel['network_affiliate_name'])
                             if self.Monitor.abortRequested():
                                 break
                         progress.close()
@@ -212,23 +312,29 @@ class Slinger(object):
                         self.DB.commit()
                         result = True
                     except sqlite3.Error as err:
-                        log('updateChannels(): Failed to delete extra channels from DB, error => %s' % err)
+                        error = 'updateChannels(): Failed to delete extra channels from DB, error => %s' % err
+                        log(error)
+                        self.Last_Error = error
                     except Exception as exc:
-                        log('updateChannels(): Failed to delete extra channels from DB, exception => %s' % exc)
+                        error = 'updateChannels(): Failed to delete extra channels from DB, exception => %s' % exc
+                        log(error)
+                        self.Last_Error = error
                 else:
                     result = True
         except sqlite3.Error as err:
-            log('updateChannels(): Failed to read Last Update times from DB, error => %s' % err)
+            error = 'updateChannels(): Failed to read Last Update times from DB, error => %s' % err
+            log(error)
+            self.Last_Error = error
         except Exception as exc:
-            log('updateChannels(): Failed to read Last Update times from DB, exception => %s' % exc)
+            error = 'updateChannels(): Failed to read Last Update times from DB, exception => %s' % exc
+            log(error)
+            self.Last_Error = error
 
         return result
 
     def updateGuide(self):
         log('Slinger function: updateGuide()')
         result = False
-
-        self.checkForceUpdate()
 
         log('updateGuide(): Guide Days %i' % self.Guide_Days)
         for day in range(0, self.Guide_Days):  #Range is non-inclusive
@@ -238,7 +344,7 @@ class Slinger(object):
             log('updateGuide(): Timestamp: %i | URL Timestamp %s' % (timestamp, url_timestamp))
             current_timestamp = int(time.time())
             log('Start Timestamp: %i | Interval: %i' % (current_timestamp, self.Seconds_Per_Hour*24))
-            query = "SELECT GUID, Poster FROM Channels"
+            query = "SELECT GUID, Poster, Name FROM Channels"
             try:
                 cursor = self.DB.cursor()
                 cursor.execute(query)
@@ -251,6 +357,9 @@ class Slinger(object):
                     for channel in channels:
                         channel_guid = channel[0]
                         channel_poster = channel[1]
+                        channel_name = channel[2]
+                        progress.update(int((float(channel_count) / len(channels)) * 100), 'Downloading Day %i Guide Info: %s' % (day + 1, channel_name))
+
                         query = "SELECT Last_Update FROM Guide WHERE Guide.Channel_GUID = '%s' " \
                                 "ORDER BY Last_Update DESC LIMIT 1,1" % channel_guid
                         cursor.execute(query)
@@ -262,7 +371,7 @@ class Slinger(object):
                         update_day = int(datetime.datetime.fromtimestamp(last_update).strftime('%d'))
                         today_day = int(datetime.datetime.fromtimestamp(current_timestamp).strftime('%d'))
 
-                        if update_day < today_day or self.Force_Guide_Update:
+                        if update_day < today_day or self.Force_Update:
                             schedule_url = "%s/cms/publish3/channel/schedule/24/%s/1/%s.json" % \
                                            (self.EndPoints['cms_url'], url_timestamp, channel_guid)
                             log('updateGuide(): Schedule URL =>\r%s' % schedule_url)
@@ -273,16 +382,19 @@ class Slinger(object):
                                     self.processSchedule(channel_guid, channel_poster,
                                                          channel_json['schedule'], timestamp)
                         channel_count += 1
-                        progress.update(int((float(channel_count) / len(channels)) * 100))
                         if self.Monitor.abortRequested():
                             break
                     progress.close()
                 result = True
             except sqlite3.Error as err:
-                log('updateGuide(): Failed to retrieve channels from DB, error => %s' % err)
+                error = 'updateGuide(): Failed to retrieve channels from DB, error => %s' % err
+                log(error)
+                self.Last_Error = error
                 result = False
             except Exception as exc:
-                log('updateGuide(): Failed to retrieve channels from DB, exception => %s' % exc)
+                error = 'updateGuide(): Failed to retrieve channels from DB, exception => %s' % exc
+                log(error)
+                self.Last_Error = error
                 result = False
         self.cleanGuide()
 
@@ -291,9 +403,6 @@ class Slinger(object):
             self.buildEPG()
             self.checkIPTV()
             self.toggleIPTV()
-
-        if self.Force_Guide_Update:
-            self.clearForceUpdate()
 
         return result
 
@@ -379,9 +488,13 @@ class Slinger(object):
                                         new_slot['Rating'], timestamp))
             self.DB.commit()
         except sqlite3.Error as err:
-            log('saveSlot(): Failed to save slot %s to DB, error => %s\rJSON => %s' % (new_slot['Name'], err, json.dumps(new_slot, indent=4)))
+            error = 'saveSlot(): Failed to save slot %s to DB, error => %s\rJSON => %s' % (new_slot['Name'], err, json.dumps(new_slot, indent=4))
+            log(error)
+            self.Last_Error = error
         except Exception as exc:
-            log('saveSlot(): Failed to save slot %s to DB, exception => %s\rJSON => %s' % (new_slot['Name'], exc, json.dumps(new_slot, indent=4)))
+            error = 'saveSlot(): Failed to save slot %s to DB, exception => %s\rJSON => %s' % (new_slot['Name'], exc, json.dumps(new_slot, indent=4))
+            log(error)
+            self.Last_Error = error
 
     def cleanGuide(self):
         log('Slinger function: cleanGuide()')
@@ -393,9 +506,13 @@ class Slinger(object):
             cursor.execute(query)
             self.DB.commit()
         except sqlite3.Error as err:
-            log('saveSlot(): Failed to clean guide in DB, error => %s' % err)
+            error = 'saveSlot(): Failed to clean guide in DB, error => %s' % err
+            log(error)
+            self.Last_Error = error
         except Exception as exc:
-            log('saveSlot(): Failed to clean guide in DB, exception => %s' % exc)
+            error = 'saveSlot(): Failed to clean guide in DB, exception => %s' % exc
+            log(error)
+            self.Last_Error = error
 
     def getChannels(self):
         log('Slinger function: getChannels()')
@@ -410,15 +527,19 @@ class Slinger(object):
             if db_channels is not None and len(db_channels):
                 for row in db_channels:
                     id = str(row[0])
-                    title = str(row[1]).replace("''", "'")
+                    title = strip(str(row[1]).replace("''", "'"))
                     logo = str(row[2])
                     url = str(row[3])
                     genre = str(row[4])
                     channels.append([id, title, logo, url, genre])
         except sqlite3.Error as err:
-            log('getChannels(): Failed to retrieve channels from DB, error => %s\rQuery => %s' % (err, query))
+            error = 'getChannels(): Failed to retrieve channels from DB, error => %s\rQuery => %s' % (err, query)
+            log(error)
+            self.Last_Error = error
         except Exception as exc:
-            log('getChannels(): Failed to retrieve channels from DB, exception => %s\rQuery => %s' % (exc, query))
+            error = 'getChannels(): Failed to retrieve channels from DB, exception => %s\rQuery => %s' % (exc, query)
+            log(error)
+            self.Last_Error = error
 
         return channels
 
@@ -501,9 +622,13 @@ class Slinger(object):
             progress.close()
 
         except sqlite3.Error as err:
-            log('buildEPG(): Failed to retrieve guide data from DB, error => %s\rQuery => %s' % (err, query))
+            error = 'buildEPG(): Failed to retrieve guide data from DB, error => %s\rQuery => %s' % (err, query)
+            log(error)
+            self.Last_Error = error
         except Exception as exc:
-            log('buildEPG(): Failed to retrieve retrieve guide data from DB, exception => %s\rQuery => %s' % (exc, query))
+            error = 'buildEPG(): Failed to retrieve retrieve guide data from DB, exception => %s\rQuery => %s' % (exc, query)
+            log(error)
+            self.Last_Error = error
 
         master_file.write('</tv>')
         master_file.close()
@@ -550,6 +675,8 @@ class Slinger(object):
                 show_count = 0
                 for show in shows:
                     show_guid = show[0]
+                    show_name = show[1]
+                    progress.update(int((float(show_count) / len(shows)) * 100), 'Updating Shows: %s' % show_name)
                     query = "SELECT Last_Update AS Updated FROM Seasons WHERE Seasons.Show_GUID = '%s' " \
                             "ORDER BY Last_Update ASC LIMIT 1" % show_guid
                     cursor.execute(query)
@@ -562,28 +689,31 @@ class Slinger(object):
                     else:
                         check_timestamp = 0
                     timestamp = int(time.time()) - self.Shows_Interval
-                    if check_timestamp < timestamp:
+                    if check_timestamp < timestamp or self.Force_Update:
                         db_show = Show(show_guid, self.EndPoints, self.DB, silent=True)
                         if db_show.GUID != '':
                             db_show.getSeasons(update=True, silent=True)
                     show_count += 1
-                    progress.update(int((float(show_count) / len(shows)) * 100))
                     if self.Monitor.abortRequested():
                         break
                 progress.close()
             result = True
         except sqlite3.Error as err:
-            log('updateShows(): Failed to retrieve shows from DB, error => %s' % err)
+            error = 'updateShows(): Failed to retrieve shows from DB, error => %s' % err
+            log(error)
+            self.Last_Error = error
             result = False
         except Exception as exc:
-            log('updateShows(): Failed to retrieve shows from DB, exception => %s' % exc)
+            error = 'updateShows(): Failed to retrieve shows from DB, exception => %s' % exc
+            log(error)
+            self.Last_Error = error
             result = False
         return result
 
     def updateOnDemand(self):
         log('Slinger function: updateOnDemand()')
         timestamp = int(time.time())
-        query = "SELECT GUID FROM Channels WHERE On_Demand = 1"
+        query = "SELECT GUID, Name FROM Channels WHERE On_Demand = 1 ORDER BY Name ASC"
         try:
             cursor = self.DB.cursor()
             cursor.execute(query)
@@ -595,15 +725,29 @@ class Slinger(object):
                 channel_count = 0
                 for channel in channels:
                     channel_guid = channel[0]
-                    db_channel = Channel(channel_guid, self.EndPoints, self.DB)
-                    if db_channel.GUID != '':
-                        categories = db_channel.getOnDemandCategories()
-                        for category in categories:
-                            db_channel.getOnDemandAssets(category['Name'], update=True)
-                            if self.Monitor.abortRequested():
-                                break
+                    channel_name = channel[1]
+                    progress.update(int((float(channel_count) / len(channels)) * 100), 'Updating On Demand: %s' % channel_name)
+                    query = "SELECT Last_Update AS Updated FROM On_Demand_Folders Folders WHERE Folders.Channel_GUID = '%s' " \
+                            "ORDER BY Last_Update ASC LIMIT 1" % channel_guid
+                    cursor.execute(query)
+                    update_check = cursor.fetchone()
+                    if update_check is not None:
+                        if len(update_check) == 1:
+                            check_timestamp = update_check[0]
+                        else:
+                            check_timestamp = 0
+                    else:
+                        check_timestamp = 0
+                    timestamp = int(time.time()) - self.On_Demand_Interval
+                    if check_timestamp < timestamp:
+                        db_channel = Channel(channel_guid, self.EndPoints, self.DB)
+                        if db_channel.GUID != '':
+                            categories = db_channel.getOnDemandCategories()
+                            for category in categories:
+                                db_channel.getOnDemandAssets(category['Name'], update=True)
+                                if self.Monitor.abortRequested():
+                                    break
                     channel_count += 1
-                    progress.update(int((float(channel_count) / len(channels)) * 100))
                     if self.Monitor.abortRequested():
                         break
 
@@ -613,10 +757,14 @@ class Slinger(object):
                 progress.close()
             result = True
         except sqlite3.Error as err:
-            log('updateShows(): Failed to retrieve On Demand Channels from DB, error => %s' % err)
+            error = 'updateOnDemand(): Failed to retrieve On Demand Channels from DB, error => %s' % err
+            log(error)
+            self.Last_Error = error
             result = False
         except Exception as exc:
-            log('updateShows(): Failed to retrieve On Demand Channels from DB, exception => %s' % exc)
+            error = 'updateOnDemand(): Failed to retrieve On Demand Channels from DB, exception => %s' % exc
+            log(error)
+            self.Last_Error = error
             result = False
         return result
 
@@ -632,10 +780,14 @@ class Slinger(object):
             self.DB.commit()
             result = True
         except sqlite3.Error as err:
-            log('updateShows(): Failed to clean up VOD from DB, error => %s' % err)
+            error = 'updateShows(): Failed to clean up VOD from DB, error => %s' % err
+            log(error)
+            self.Last_Error = error
             result = False
         except Exception as exc:
-            log('updateShows(): Failed to clean up VOD from DB, exception => %s' % exc)
+            error = 'updateShows(): Failed to clean up VOD from DB, exception => %s' % exc
+            log(error)
+            self.Last_Error = error
             result = False
         return result
 
@@ -652,9 +804,13 @@ class Slinger(object):
                 cursor.executescript(sql)
                 db.commit()
             except sqlite3.Error as err:
-                log('createDB(): Failed to create DB tables, error => %s' % err)
+                error = 'createDB(): Failed to create DB tables, error => %s' % err
+                log(error)
+                self.Last_Error = error
             except Exception as exc:
-                log('createDB(): Failed to create DB tables, exception => %s' % exc)
+                error = 'createDB(): Failed to create DB tables, exception => %s' % exc
+                log(error)
+                self.Last_Error = error
         db.close()
 
     def buildEndPoints(self):

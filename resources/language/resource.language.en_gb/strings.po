@@ -177,7 +177,7 @@ msgid "Enable EPG into IPTV"
 msgstr ""
 
 msgctxt "#30129"
-msgid "Trigger Guide Update"
+msgid ""
 msgstr ""
 
 msgctxt "#30130"
@@ -202,4 +202,28 @@ msgstr ""
 
 msgctxt "#30135"
 msgid "Debug"
+msgstr ""
+
+msgctxt "#30136"
+msgid "Service Requests"
+msgstr ""
+
+msgctxt "#30137"
+msgid "Channels Update"
+msgstr ""
+
+msgctxt "#30138"
+msgid "Guide Update"
+msgstr ""
+
+msgctxt "#30139"
+msgid "On Demand Update"
+msgstr ""
+
+msgctxt "#30140"
+msgid "Shows Update"
+msgstr ""
+
+msgctxt "#30141"
+msgid "VOD Update"
 msgstr ""

@@ -16,7 +16,12 @@
         <setting label="30127" type="lsep" />
         <setting id="Enable_EPG" type="bool" label="30128" default="false" />
         <setting id="Guide_Days" type="slider" label="30126" default="2" range="1,1,5" option="int" enable="eq(-1,true)" />
-        <setting id="Guide_Update" type="action" label="30129" action="RunPlugin(plugin://plugin.video.sling/?mode=setting&name=update_guide&value=true)" option="close" enable="eq(-2,true)" />
+        <setting label="30136" type="lsep" />
+        <setting id="Channels_Update" type="action" label="30137" action="RunPlugin(plugin://plugin.video.sling/?mode=setting&name=update_channels&value=true)" option="close" />
+        <setting id="Guide_Update" type="action" label="30138" action="RunPlugin(plugin://plugin.video.sling/?mode=setting&name=update_guide&value=true)" option="close" />
+        <setting id="On_Demand_Update" type="action" label="30139" action="RunPlugin(plugin://plugin.video.sling/?mode=setting&name=update_on_demand&value=true)" option="close" />
+        <setting id="Shows_Update" type="action" label="30140" action="RunPlugin(plugin://plugin.video.sling/?mode=setting&name=update_shows&value=true)" option="close" />
+        <setting id="VOD_Update" type="action" label="30141" action="RunPlugin(plugin://plugin.video.sling/?mode=setting&name=update_vod&value=true)" option="close" />
     </category>
     <category label="30130">
         <setting id="Delete_DB" type="action" label="30131" action="RunPlugin(plugin://plugin.video.sling/?mode=setting&name=delete_db&value=true)" option="close" />
