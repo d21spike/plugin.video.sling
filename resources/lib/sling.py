@@ -136,6 +136,47 @@ class Sling(object):
         global DEBUG_CODE
         DEBUG_CODE = SETTINGS.getSetting('Debug')
 
+        debug = dict(urlParse.parse_qsl(DEBUG_CODE))
+        if 'sql_add' in debug:
+            sql_array = debug['sql_add'].split(',')
+            for sql in sql_array:
+                temp = Channel(sql, self.endPoints, self.db)
+                query = "UPDATE Channels SET Protected = 1 WHERE GUID = '%s'" % sql
+                try:
+                    cursor = self.db.cursor()
+                    cursor.execute(query)
+                    self.db.commit()
+                except sqlite3.Error as err:
+                    log('setSetting(): Failed execute sql_add for %s in DB, error => %s' % (sql, err))
+                except Exception as exc:
+                    log('setSetting(): Failed execute sql_add for %s in DB, exception => %s' % (sql, exc))
+        if 'sql_del' in debug:
+            temp_list = ''
+            if ',' in debug['sql_del']:
+                sql_array = debug['sql_del'].split(',')
+                for sql in sql_array:
+                    temp_list += "'%s'" % sql if temp_list == '' else ",'%s'" % sql
+            else:
+                temp_list = "'%s'" % debug['sql_del']
+            
+            query = "DELETE FROM Channels WHERE GUID IN (%s)" % temp_list
+            try:
+                cursor = self.db.cursor()
+                cursor.execute(query)
+                self.db.commit()
+            except sqlite3.Error as err:
+                log('setSetting(): Failed execute sql_del for %s in DB, error => %s' % (temp_list, err))
+            except Exception as exc:
+                log('setSetting(): Failed execute sql_del for %s in DB, exception => %s' % (temp_list, exc))
+        new_debug = ''
+        for key in debug:
+            new_debug += '&%s=%s' % (key, debug[key]) if key not in ('sql_add', 'sql_del') else ''
+        new_debug = new_debug[1:]
+        DEBUG_CODE = new_debug
+        SETTINGS.setSetting('Debug', DEBUG_CODE)
+
+        return
+
     def getParams(self):
         log('Retrieving parameters')
 
@@ -233,6 +274,10 @@ class Sling(object):
                 self.setUpdate('Update Shows')
             if self.params['name'] == 'update_vod' and self.params['value'] == 'true':
                 self.setUpdate('Update VOD')
+            if self.params['name'] == 'hide_channel' and self.params['value'] != '':
+                self.hideChannel(self.params['value'])
+            if self.params['name'] == 'reset_hidden' and self.params['value'] == 'true':
+                self.hiddenReset()
         else:
             log('Deleting DB contents...')
             query = 'DELETE FROM Channels; ' \
@@ -300,5 +345,35 @@ class Sling(object):
             }
             with open(TRACKER_PATH, 'w') as tracker_file:
                 json.dump(temp_json, tracker_file, indent=4)
+
+        return
+
+    def hideChannel(self, channel_guid):
+        log('Hiding channel %s...' % channel_guid)
+        query = "UPDATE Channels SET Hidden = 1 WHERE GUID = '%s'" % channel_guid
+        try:
+            cursor = self.db.cursor()
+            cursor.execute(query)
+            self.db.commit()
+            notificationDialog(LANGUAGE(30142))
+        except sqlite3.Error as err:
+            log('setSetting(): Failed to hide channel %s in DB, error => %s' % (channel_guid, err))
+        except Exception as exc:
+            log('setSetting(): Failed to hide channel %s in DB, exception => %s' % (channel_guid, exc))
+        
+        return
+
+    def hiddenReset(self):
+        log('Resetting hidden channels...')
+        query = "UPDATE Channels SET Hidden = 0"
+        try:
+            cursor = self.db.cursor()
+            cursor.execute(query)
+            self.db.commit()
+            notificationDialog(LANGUAGE(30144))
+        except sqlite3.Error as err:
+            log('setSetting(): Failed to reset hidden channels in DB, error => %s' % err)
+        except Exception as exc:
+            log('setSetting(): Failed to reset hidden channels in DB, exception => %s' % exc)
 
         return

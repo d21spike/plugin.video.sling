@@ -27,7 +27,21 @@ def getChannels(self):
             for sub_pack in sub_packs:
                 if 'channels' in sub_pack:
                     for channel in sub_pack['channels']:
-                        self.Channels[channel['channel_guid']] = Channel(channel['channel_guid'], self.endPoints, self.db)
+                        if 'Sling' not in channel['network_affiliate_name']:
+                            self.Channels[channel['channel_guid']] = Channel(channel['channel_guid'], self.endPoints, self.db)
+                    
+                    query = "SELECT GUID FROM Channels WHERE Protected = 1"
+                    try:
+                        cursor = self.db.cursor()
+                        cursor.execute(query)
+                        protected = cursor.fetchall()
+                        for record in protected:
+                            if record[0] not in self.Channels:
+                                self.Channels[record[0]] = Channel(record[0], self.endPoints, self.db)
+                    except sqlite3.Error as err:
+                        log('setSetting(): Failed retrieve protected records from DB, error => %s' % err)
+                    except Exception as exc:
+                        log('setSetting(): Failed retrieve protected records from DB, exception => %s' % exc)
 
 
 def myChannels(self):
@@ -36,33 +50,32 @@ def myChannels(self):
     if len(self.Channels) == 0: getChannels(self)
 
     for guid in self.Channels:
-        if len(self.Channels[guid].On_Now) == 0 or self.Channels[guid].On_Now['Stop'] < timestamp:
-            result, on_now = self.Channels[guid].onNow()
-            if result: self.Channels[guid].On_Now = on_now
-        infoArt = self.Channels[guid].infoArt()
-        if self.Channels[guid].On_Now != {} and self.Channels[guid].On_Now['Stop'] >= timestamp:
-            infoArt['thumb'] = self.Channels[guid].On_Now['Thumbnail']
-            infoArt['poster'] = self.Channels[guid].On_Now['Poster']
+        if not self.Channels[guid].Hidden:
+            if len(self.Channels[guid].On_Now) == 0 or self.Channels[guid].On_Now['Stop'] < timestamp:
+                result, on_now = self.Channels[guid].onNow()
+                if result: self.Channels[guid].On_Now = on_now
+            infoArt = self.Channels[guid].infoArt()
+            if self.Channels[guid].On_Now != {} and self.Channels[guid].On_Now['Stop'] >= timestamp:
+                infoArt['thumb'] = self.Channels[guid].On_Now['Thumbnail']
+                infoArt['poster'] = self.Channels[guid].On_Now['Poster']
 
-        if self.Channels[guid].infoLabels()['duration'] > 0 and 'OFF-AIR' not in \
-                self.Channels[guid].infoLabels()['plot']:
-            if self.Channels[guid].On_Demand:
-                url = ('%s?mode=demand&guid=%s' % (ADDON_URL, guid))
+            if self.Channels[guid].infoLabels()['duration'] > 0 and 'OFF-AIR' not in \
+                    self.Channels[guid].infoLabels()['plot']:
+                if self.Channels[guid].On_Demand:
+                    url = ('%s?mode=demand&guid=%s' % (ADDON_URL, guid))
 
-            context_items = []
-            if self.Channels[guid].On_Demand:
+                context_items = [('Hide Channel', 'RunPlugin(plugin://plugin.video.sling/?'
+                                'mode=setting&name=%s&value=%s)' % ('hide_channel', guid))]
+                if self.Channels[guid].On_Demand:
+                    context_items.append(('View On Demand', 'Container.Update(plugin://plugin.video.sling/?'
+                                        'mode=demand&guid=%s&name=%s)' % (guid, self.Channels[guid].Name)))
+                    context_items.sort(reverse=True)
+                addLink(self.Channels[guid].Name, self.handleID, self.Channels[guid].Qvt_Url, 'play',
+                        self.Channels[guid].infoLabels(), infoArt, self.Channels[guid].ID, context_items)
+            elif self.Channels[guid].infoLabels()['duration'] == 0:
                 context_items = [
-                    ('View On Demand', 'Container.Update(plugin://plugin.video.sling/?'
-                                       'mode=demand&guid=%s&name=%s)' % (guid, self.Channels[guid].Name))
+                    ('Update On Demand Content', 'RunPlugin(plugin://plugin.video.sling/?mode=demand&guid=%s&'
+                                                'action=update)' % guid)
                 ]
-            addLink(self.Channels[guid].Name, self.handleID, self.Channels[guid].Qvt_Url, 'play',
-                    self.Channels[guid].infoLabels(), infoArt, self.Channels[guid].ID, context_items)
-        elif self.Channels[guid].infoLabels()['duration'] == 0:
-            context_items = [
-                ('Update On Demand Content', 'RunPlugin(plugin://plugin.video.sling/?mode=demand&guid=%s&'
-                                             'action=update)' % guid)
-            ]
-            addDir(self.Channels[guid].Name, self.handleID, '', 'demand&guid=%s' % guid,
-                   self.Channels[guid].infoLabels(), self.Channels[guid].infoArt(), context_items)
-
-    xbmc.executebuiltin('Container.NextSortMethod()')
+                addDir(self.Channels[guid].Name, self.handleID, '', 'demand&guid=%s' % guid,
+                    self.Channels[guid].infoLabels(), self.Channels[guid].infoArt(), context_items)

@@ -86,7 +86,6 @@ def myShows(self):
             log('Failed to retrieve shows from DB, error => %s\r%s' % (err, query))
         except Exception as exc:
             log('Failed to retrieve shows from DB, exception => %s\r%s' % (exc, query))
-        xbmc.executebuiltin('Container.NextSortMethod()')
 
 
 def myShowsSeasons(self):
@@ -101,7 +100,6 @@ def myShowsSeasons(self):
         else:
             addLink(season['infoLabels']['title'], self.handleID, '', season['Mode'], season['infoLabels'],
                     season['infoArt'])
-    xbmc.executebuiltin('Container.NextSortMethod()')
 
 
 def myShowsEpisodes(self):
@@ -114,7 +112,6 @@ def myShowsEpisodes(self):
         episode = season['Episodes'][episode_number]
         addLink(episode['Name'], self.handleID, episode['Playlist_URL'], episode['Mode'], episode['infoLabels'],
                 episode['infoArt'])
-    xbmc.executebuiltin('Container.NextSortMethod()')
 
 
 def myShowsSetFavorite(self):

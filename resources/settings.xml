@@ -26,6 +26,7 @@
     <category label="30130">
         <setting id="Delete_DB" type="action" label="30131" action="RunPlugin(plugin://plugin.video.sling/?mode=setting&name=delete_db&value=true)" option="close" />
         <setting id="Debug" type="text" label="30135" default="" />
+        <setting id="Reset_Hidden" type="action" label="30143" action="RunPlugin(plugin://plugin.video.sling/?mode=setting&name=reset_hidden&value=true)" option="close" />
     </category>
     <!-- Hidden -->
     <setting id="access" type="text" default="" visible="false"/>

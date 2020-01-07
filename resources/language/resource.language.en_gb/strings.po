@@ -227,3 +227,15 @@ msgstr ""
 msgctxt "#30141"
 msgid "VOD Update"
 msgstr ""
+
+msgctxt "#30142"
+msgid "Channel hidden successfully"
+msgstr ""
+
+msgctxt "#30143"
+msgid "Reset hidden channels"
+msgstr ""
+
+msgctxt "#30144"
+msgid "Hidden channels reset successfully"
+msgstr ""

@@ -54,4 +54,3 @@ def myFavorites(self):
             addDir(self.Favorites[guid].Name, self.handleID, '', 'demand&guid=%s' % guid,
                    self.Favorites[guid].infoLabels(), self.Favorites[guid].infoArt(), context_items)
 
-    xbmc.executebuiltin('Container.NextSortMethod()')

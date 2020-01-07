@@ -35,7 +35,6 @@ def onNow(self):
                                 if len(response['tiles']) > 0:
                                     addDir(ribbon['title'], self.handleID, ribbon['_href'], 'on_now', infoLabels,
                                            infoArt)
-    xbmc.executebuiltin('Container.NextSortMethod()')
 
 
 def onNowRibbon(self):
@@ -74,4 +73,3 @@ def onNowRibbon(self):
                         ]
                         addDir(channel.Name, self.handleID, '', 'demand&guid=%s' % channel.GUID,
                                channel.infoLabels(), channel.infoArt(), context_items)
-    xbmc.executebuiltin('Container.NextSortMethod()')

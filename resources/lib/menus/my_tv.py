@@ -33,8 +33,7 @@ def myTV(self):
                 if response['total_tiles'] > 0:
                     infoLabels['title'] = response['title']
                     addDir(response['title'], self.handleID, ribbon_url, 'my_tv', infoLabels, infoArt)
-    xbmc.executebuiltin('Container.NextSortMethod()')
-
+    
 
 def myTVRibbon(self):
     log('My TV Ribbon Menu')
@@ -196,4 +195,3 @@ def myTVRibbon(self):
                         if start <= timestamp <= stop or start == stop:
                             addLink(tile['title'], self.handleID, playlist, 'play',
                                     infoLabels, infoArt)
-    xbmc.executebuiltin('Container.NextSortMethod()')

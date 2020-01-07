@@ -14,7 +14,7 @@ def onDemand(self):
         getChannels(self)
 
     for guid in self.Channels:
-        if self.Channels[guid].On_Demand:
+        if self.Channels[guid].On_Demand and not self.Channels[guid].Hidden:
             infoLabels = self.Channels[guid].infoLabels()
             infoLabels['plot'] = ''
             infoLabels['genre'] = ''
@@ -26,8 +26,7 @@ def onDemand(self):
             ]
             addDir(self.Channels[guid].Name, self.handleID, '', 'demand&guid=%s' % guid, infoLabels,
                    self.Channels[guid].infoArt(), context_items)
-    xbmc.executebuiltin('Container.NextSortMethod()')
-
+    
 
 def onDemandChannel(self):
     if len(self.Channels) == 0:
@@ -48,8 +47,7 @@ def onDemandChannel(self):
     for category in categories:
         addDir(category['Name'], self.handleID, '', 'demand&guid=%s&category=%s' %
                (self.params['guid'], binascii.hexlify(strip(category['Name']).encode()).decode()), infoLabels, channel.infoArt())
-    xbmc.executebuiltin('Container.NextSortMethod()')
-
+    
 
 def onDemandChannelCategory(self):
     if len(self.Channels) == 0:
@@ -138,7 +136,6 @@ def onDemandChannelCategory(self):
                                 'action=update)' % asset['Asset_GUID'])
             ]
             addDir(title, self.handleID, '', 'show&guid=%s' % asset['Asset_GUID'], infoLabels, infoArt, context_items)
-    xbmc.executebuiltin('Container.NextSortMethod()')
 
 
 def onDemandUpdate(self):

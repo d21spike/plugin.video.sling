@@ -293,7 +293,7 @@ class Slinger(object):
                                 break
                         progress.close()
 
-        query = "SELECT GUID FROM Channels"
+        query = "SELECT GUID FROM Channels WHERE Protected = 0"
         try:
             cursor = self.DB.cursor()
             cursor.execute(query)
@@ -303,7 +303,7 @@ class Slinger(object):
                 for channel in db_channels:
                     guid = channel[0]
                     if guid not in channels:
-                        temp_query = "DELETE FROM Channels WHERE GUID = '%s'" % guid
+                        temp_query = "DELETE FROM Channels WHERE GUID = '%s' AND Protected = 0" % guid
                         delete_query = '%s; %s' % (delete_query, temp_query) if delete_query != '' else temp_query
                         log('Channel %s not in Subscription package, will DELETE.' % guid)
                 if delete_query != '':
@@ -344,7 +344,7 @@ class Slinger(object):
             log('updateGuide(): Timestamp: %i | URL Timestamp %s' % (timestamp, url_timestamp))
             current_timestamp = int(time.time())
             log('Start Timestamp: %i | Interval: %i' % (current_timestamp, self.Seconds_Per_Hour*24))
-            query = "SELECT GUID, Poster, Name FROM Channels"
+            query = "SELECT GUID, Poster, Name FROM Channels WHERE Hidden = 0"
             try:
                 cursor = self.DB.cursor()
                 cursor.execute(query)
@@ -517,9 +517,9 @@ class Slinger(object):
     def getChannels(self):
         log('Slinger function: getChannels()')
         channels = []
-        query = 'SELECT DISTINCT Channels.id, Channels.name, Channels.thumbnail, Channels.qvt_url, Channels.genre ' \
-                'FROM Channels ' \
-                'inner JOIN Guide on Channels.GUID = Guide.Channel_GUID order by Channels.Call_Sign asc'
+        query = "SELECT DISTINCT Channels.id, Channels.name, Channels.thumbnail, Channels.qvt_url, Channels.genre " \
+                "FROM Channels " \
+                "inner JOIN Guide on Channels.GUID = Guide.Channel_GUID  WHERE Channels.Name NOT LIKE '%Sling%' AND Channels.Hidden = 0 ORDER BY Channels.Call_Sign asc"
         try:
             cursor = self.DB.cursor()
             cursor.execute(query)
@@ -582,7 +582,8 @@ class Slinger(object):
                 "strftime('%Y%m%d%H%M%S',datetime(Guide.Stop, 'unixepoch')) as stop, " \
                 "Channels.id, Guide.Name, '' AS sub_title, Guide.Description, Guide.Thumbnail, Guide.Genre " \
                 "FROM Guide " \
-                "INNER JOIN Channels ON Channels.GUID = Guide.Channel_GUID ORDER BY Channels.Call_Sign ASC"
+                "INNER JOIN Channels ON Channels.GUID = Guide.Channel_GUID WHERE Channels.Name NOT LIKE '%Sling%' " \
+                "AND Channels.Hidden = 0 ORDER BY Channels.Call_Sign ASC"
         try:
             cursor = self.DB.cursor()
             cursor.execute(query)
@@ -612,7 +613,7 @@ class Slinger(object):
                 prg += '    <sub-title lang="en">%s</sub-title>\n' % sub_title
                 prg += '    <desc lang="en">%s</desc>\n' % desc
                 for genre in genres:
-                    prg += '    <category lang="en">%s</category>\n' % str(genre).strip().capitalize()
+                    prg += '    <category lang="en">%s</category>\n' % strip(str(genre)).strip().capitalize()
                 prg += '    <icon src="%s"/>\n' % icon
                 prg += '</programme>\n'
 
@@ -713,7 +714,7 @@ class Slinger(object):
     def updateOnDemand(self):
         log('Slinger function: updateOnDemand()')
         timestamp = int(time.time())
-        query = "SELECT GUID, Name FROM Channels WHERE On_Demand = 1 ORDER BY Name ASC"
+        query = "SELECT GUID, Name FROM Channels WHERE Hidden = 0 AND On_Demand = 1 ORDER BY Name ASC"
         try:
             cursor = self.DB.cursor()
             cursor.execute(query)

@@ -14,6 +14,8 @@ class Channel(object):
     Offered = True
     Qvt_Url = ''
     On_Demand = -1
+    Hidden = False
+    Protected = False
 
     Endpoints = None
     DB = None
@@ -35,9 +37,11 @@ class Channel(object):
             self.Poster = db_channel['Poster']
             self.Language = db_channel['Language']
             self.Genre = db_channel['Genre']
-            self.Offered = db_channel['Offered']
+            self.Offered = bool(db_channel['Offered'])
             self.Qvt_Url = db_channel['Qvt_Url']
-            self.On_Demand = db_channel['On_Demand']
+            self.On_Demand = bool(db_channel['On_Demand'])
+            self.Hidden = bool(db_channel['Hidden'])
+            self.Protected = bool(db_channel['Protected'])
 
             # log('Added DB channel => \r%s' % json.dumps(self.channelInfo(), indent=4))
         else:
@@ -519,11 +523,11 @@ class Channel(object):
 
         try:
             channel_query = "REPLACE INTO Channels (GUID, ID, Name, Call_Sign, Language, Genre, Thumbnail, Poster, " \
-                            "Offered, Qvt_Url, On_Demand, Last_Update) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+                            "Offered, Qvt_Url, On_Demand, Last_Update, Hidden, Protected) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
 
             cursor.execute(channel_query, (self.GUID, self.ID, self.Name.replace("'", "''"), self.Call_Sign,
                                            self.Language, self.Genre, self.Thumbnail, self.Poster, int(self.Offered),
-                                           self.Qvt_Url, int(self.On_Demand), timestamp))
+                                           self.Qvt_Url, int(self.On_Demand), timestamp, int(self.Hidden), int(self.Protected)))
             self.DB.commit()
         except sqlite3.Error as err:
             log('Failed to save channel %s to DB, error => %s\rQuery => %s' % (self.Name, err, json.dumps(self.channelInfo(), indent=4)))
@@ -554,21 +558,24 @@ class Channel(object):
                 'Poster': channel[7],
                 'Offered': bool(channel[8]),
                 'Qvt_Url': channel[9],
-                'On_Demand': channel[10]
+                'On_Demand': channel[10],
+                'Last_Update': channel[11],
+                'Hidden': channel[12],
+                'Protected': channel[13]
             }
 
             on_now = {}
             if channel[11] == channel[0]:
                 on_now = {
-                    'Channel_GUID': channel[11],
-                    'Start': channel[12],
-                    'Stop': channel[13],
-                    'Name': channel[14].replace("''", "'"),
-                    'Description': channel[15].replace("''", "'"),
-                    'Thumbnail': channel[16],
-                    'Poster': channel[17],
-                    'Genre': channel[18],
-                    'Rating': channel[19]
+                    'Channel_GUID': channel[14],
+                    'Start': channel[15],
+                    'Stop': channel[16],
+                    'Name': channel[17].replace("''", "'"),
+                    'Description': channel[18].replace("''", "'"),
+                    'Thumbnail': channel[19],
+                    'Poster': channel[20],
+                    'Genre': channel[21],
+                    'Rating': channel[22]
                 }
             db_channel['On_Now'] = on_now
 
