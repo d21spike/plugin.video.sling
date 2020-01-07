@@ -126,7 +126,7 @@ class Auth(object):
             debug = dict(urlParse.parse_qsl(DEBUG_CODE))
             log('Debug Code: %s' % json.dumps(debug, indent=4))
             if 'user_subs' in debug:
-                sub_packs = debug['user_subs']
+                sub_packs = debug['user_subs'].replace(',', '+')
             if 'legacy_subs' in debug:
                 legacy_subs = debug['legacy_subs']
 
