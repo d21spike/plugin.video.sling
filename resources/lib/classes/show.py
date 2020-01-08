@@ -449,15 +449,22 @@ class Show(object):
                 if db_episode['Stop'] < timestamp or db_episode['Playlist_URL'] == '':
                     db_episode['Mode'] = 'info'
                     prefix = '[COLOR=red]Unavailable[/COLOR]'
-                    db_episode['infoLabels']['plot'] += '\n\nStart: %s\nStop: %s' % \
-                                                         (datetime.datetime.fromtimestamp(db_episode['Start']).strftime('%m/%d/%Y %H:%M:%S'),
-                                                          datetime.datetime.fromtimestamp(db_episode['Stop']).strftime('%m/%d/%Y %H:%M:%S'))
+                    try:
+                        db_episode['infoLabels']['plot'] += '\n\nStart: %s\nStop: %s' % \
+                                                            (datetime.datetime.fromtimestamp(db_episode['Start']).strftime('%m/%d/%Y %H:%M:%S'),
+                                                            datetime.datetime.fromtimestamp(db_episode['Stop']).strftime('%m/%d/%Y %H:%M:%S'))
+                    except:
+                        pass
                 if db_episode['Start'] > timestamp:
                     db_episode['Mode'] = 'info'
                     prefix = '[COLOR=yellow]Future[/COLOR]'
-                    db_episode['infoLabels']['plot'] += '\n\nStart: %s\nStop: %s' % \
-                                                        (datetime.datetime.fromtimestamp(db_episode['Start']).strftime('%m/%d/%Y %H:%M:%S'),
-                                                         datetime.datetime.fromtimestamp(db_episode['Stop']).strftime('%m/%d/%Y %H:%M:%S'))
+                    log(str(db_episode['Start']))
+                    try:
+                        db_episode['infoLabels']['plot'] += '\n\nStart: %s\nStop: %s' % \
+                                                            (datetime.datetime.fromtimestamp(db_episode['Start']).strftime('%m/%d/%Y %H:%M:%S'),
+                                                            datetime.datetime.fromtimestamp(db_episode['Stop']).strftime('%m/%d/%Y %H:%M:%S'))
+                    except:
+                        pass
                 if db_season['Number'] != 0:
                     season_num = 'S%i' % db_season['Number']
                 if db_episode['Number'] != 0:

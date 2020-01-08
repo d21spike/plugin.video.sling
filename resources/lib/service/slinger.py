@@ -699,6 +699,7 @@ class Slinger(object):
                         break
                 progress.close()
             result = True
+        
         except sqlite3.Error as err:
             error = 'updateShows(): Failed to retrieve shows from DB, error => %s' % err
             log(error)
@@ -709,6 +710,7 @@ class Slinger(object):
             log(error)
             self.Last_Error = error
             result = False
+        
         return result
 
     def updateOnDemand(self):
