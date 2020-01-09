@@ -80,7 +80,7 @@ def onDemandChannelCategory(self):
                     title = '[COLOR=red]Ended[/COLOR] - %s' % asset['Name']
                     mode = 'info'
         elif asset['Type'] == 'linear':
-            asset['Description'] += '\n\nStart: %s\nStop: %s' % \
+            asset['Description'] += '[CR][CR]Start: %s[CR]Stop: %s' % \
                                     (datetime.datetime.fromtimestamp(asset['Start']).strftime('%m/%d/%Y %H:%M:%S'),
                                      datetime.datetime.fromtimestamp(asset['Stop']).strftime('%m/%d/%Y %H:%M:%S'))
             if asset['Start'] <= timestamp <= asset['Start'] + asset['Duration']:

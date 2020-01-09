@@ -450,7 +450,7 @@ class Show(object):
                     db_episode['Mode'] = 'info'
                     prefix = '[COLOR=red]Unavailable[/COLOR]'
                     try:
-                        db_episode['infoLabels']['plot'] += '\n\nStart: %s\nStop: %s' % \
+                        db_episode['infoLabels']['plot'] += '[CR][CR]Start: %s[CR]Stop: %s' % \
                                                             (datetime.datetime.fromtimestamp(db_episode['Start']).strftime('%m/%d/%Y %H:%M:%S'),
                                                             datetime.datetime.fromtimestamp(db_episode['Stop']).strftime('%m/%d/%Y %H:%M:%S'))
                     except:
@@ -460,7 +460,7 @@ class Show(object):
                     prefix = '[COLOR=yellow]Future[/COLOR]'
                     log(str(db_episode['Start']))
                     try:
-                        db_episode['infoLabels']['plot'] += '\n\nStart: %s\nStop: %s' % \
+                        db_episode['infoLabels']['plot'] += '[CR][CR]Start: %s[CR]Stop: %s' % \
                                                             (datetime.datetime.fromtimestamp(db_episode['Start']).strftime('%m/%d/%Y %H:%M:%S'),
                                                             datetime.datetime.fromtimestamp(db_episode['Stop']).strftime('%m/%d/%Y %H:%M:%S'))
                     except:

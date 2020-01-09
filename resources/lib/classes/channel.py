@@ -111,7 +111,8 @@ class Channel(object):
             if timestamp < self.On_Now['Stop']:
                 duration = self.On_Now['Stop'] - self.On_Now['Start']
             if self.On_Now['Name'].strip() != self.On_Now['Description'].strip():
-                plot = '%s\r\n%s\n\nStart: %s\nStop: %s' % (self.On_Now['Name'], self.On_Now['Description'], start, stop)
+                plot = '[B]%s[/B][CR][CR]%s[CR][CR]Start: %s[CR]Stop: %s' % (
+                    self.On_Now['Name'], self.On_Now['Description'], start, stop)
             else:
                 plot = self.On_Now['Name']
         return {

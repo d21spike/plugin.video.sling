@@ -88,7 +88,7 @@ def myTVRibbon(self):
                                     'Playlist_URL': tile['qvt'],
                                     'Mode': 'play'
                                 }
-                                asset['Description'] += '\n\nStart: %s\nStop: %s' % \
+                                asset['Description'] += '[CR][CR]Start: %s[CR]Stop: %s' % \
                                                         (datetime.datetime.fromtimestamp(start).strftime('%m/%d/%Y %H:%M:%S'),
                                                          datetime.datetime.fromtimestamp(stop).strftime('%m/%d/%Y %H:%M:%S'))
                                 if tile['availability_type'] != 'svod':
