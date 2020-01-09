@@ -209,23 +209,23 @@ msgid "Service Requests"
 msgstr ""
 
 msgctxt "#30137"
-msgid "Channels Update"
+msgid "Update Channels"
 msgstr ""
 
 msgctxt "#30138"
-msgid "Guide Update"
+msgid "Update Guide"
 msgstr ""
 
 msgctxt "#30139"
-msgid "On Demand Update"
+msgid "Update On Demand"
 msgstr ""
 
 msgctxt "#30140"
-msgid "Shows Update"
+msgid "Update Shows"
 msgstr ""
 
 msgctxt "#30141"
-msgid "VOD Update"
+msgid "Update VOD"
 msgstr ""
 
 msgctxt "#30142"
