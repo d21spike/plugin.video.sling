@@ -191,10 +191,10 @@ class Show(object):
                 cursor.executescript(episode_query)
                 self.DB.commit()
             except sqlite3.Error as err:
-                log('Failed to save  show %s episodes to DB, error => %s\r%s' % (self.Name, err, season_query))
+                log('Failed to save show %s episodes to DB, error => %s\r%s' % (self.Name, err, episode_query))
                 result = False
             except Exception as exc:
-                log('Failed to save  show %s episodes to DB, exception => %s\r%s' % (self.Name, exc, season_query))
+                log('Failed to save show %s episodes to DB, exception => %s\r%s' % (self.Name, exc, episode_query))
                 result = False
 
         return new_season, season_query
@@ -208,7 +208,7 @@ class Show(object):
             'Show_GUID': new_show['GUID'],
             'Season_GUID': new_season['GUID'],
             'Name': episode['name'],
-            'Number': int(episode['episode_number']) if 'episode_number' in episode else len(new_season['Episodes']),
+            'Number': int(episode['episode_number']) if 'episode_number' in episode else episode['guid'],
             'Description': '',
             'Thumbnail': new_season['Thumbnail'],
             'Poster': new_show['Poster'],
@@ -284,7 +284,7 @@ class Show(object):
         }
         episode_query += "REPLACE INTO Episodes (GUID, ID, Show_GUID, Season_GUID, Name, Number, Description, " \
                          "Thumbnail, Poster, Rating, Start, Stop, Duration, Playlist_URL, Last_Update) VALUES " \
-                         "('%s', %i, '%s', '%s', '%s', %i, '%s', '%s', '%s', '%s', %i, %i, %i, '%s', %i); " % \
+                         "('%s', %i, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %i, %i, %i, '%s', %i); " % \
                          (new_episode['GUID'], new_episode['ID'], new_episode['Show_GUID'],
                           new_episode['Season_GUID'], new_episode['Name'].replace("'", "''"),
                           new_episode['Number'], new_episode['Description'].replace("'", "''"),
@@ -467,8 +467,8 @@ class Show(object):
                         pass
                 if db_season['Number'] != 0:
                     season_num = 'S%i' % db_season['Number']
-                if db_episode['Number'] != 0:
-                    episode_num = 'E%i' % db_episode['Number']
+                if db_episode['Number'] != db_episode['GUID']:
+                    episode_num = 'E%s' % db_episode['Number']
                 title = '%s %s%s - %s' % (prefix, season_num, episode_num, db_episode['Name'])
                 db_episode['infoLabels']['title'] = title
                 # ==========================================================================

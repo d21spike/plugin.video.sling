@@ -56,7 +56,7 @@ USER_INFO_URL = '%s/v2/user.json' % BASE_API
 WEB_ENDPOINTS = '%s/config/env-list/browser-sling.json' % (BASE_WEB)
 MYTV = '%s/config/shared/pages/mytv.json' % (BASE_WEB)
 CONFIG = '%s/config/browser/sling/config.json' % (BASE_WEB)
-VERIFY = False
+VERIFY = True
 PRINTABLE = set(string.printable)
 CONTENT_TYPE = 'Episodes'
 

@@ -62,11 +62,16 @@ def myTVRibbon(self):
                                     stop = timeStamp(stringToDate(tile['stop_time'].replace('T', ' ').replace('Z', '').replace('0001', '2019'),
                                                                    '%Y-%m-%d %H:%M:%S').replace(tzinfo=timezone('UTC')))
                                 elif len(show.Seasons) == 1:
-                                    start = show.Seasons[0]['Episodes'][0]['Start']
-                                    stop = show.Seasons[0]['Episodes'][0]['Stop']
+                                    start = show.Seasons[0]['Episodes'][response['program']['guid']]['Start']
+                                    stop = show.Seasons[0]['Episodes'][response['program']['guid']]['Stop']
                                 elif len(show.Seasons) > 1:
+                                    # log(json.dumps(response, indent=4))
+                                    # log(json.dumps(tile, indent=4))
                                     if 'season_number' not in tile:
                                         tile['season_number'] = 0
+                                    if 'episode_number' not in tile:
+                                        tile['episode_number'] = response['program']['guid']
+                                    
                                     episode = show.Seasons[tile['season_number']]['Episodes'][tile['episode_number']]
                                     start = episode['Start']
                                     stop = episode['Stop']

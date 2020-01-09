@@ -104,7 +104,7 @@ CREATE TABLE IF NOT EXISTS Episodes (
     Show_GUID TEXT,
     Season_GUID	TEXT,
     Name TEXT,
-    Number INTEGER,
+    Number TEXT,
     Description	TEXT,
     Thumbnail TEXT,
     Poster TEXT,
