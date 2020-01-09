@@ -527,7 +527,7 @@ class Slinger(object):
             if db_channels is not None and len(db_channels):
                 for row in db_channels:
                     id = str(row[0])
-                    title = strip(str(row[1]).replace("''", "'"))
+                    title = str(strip(row[1]).replace("''", "'"))
                     logo = str(row[2])
                     url = str(row[3])
                     genre = str(row[4])
@@ -613,7 +613,7 @@ class Slinger(object):
                 prg += '    <sub-title lang="en">%s</sub-title>\n' % sub_title
                 prg += '    <desc lang="en">%s</desc>\n' % desc
                 for genre in genres:
-                    prg += '    <category lang="en">%s</category>\n' % strip(str(genre)).strip().capitalize()
+                    prg += '    <category lang="en">%s</category>\n' % str(strip(genre)).strip().capitalize()
                 prg += '    <icon src="%s"/>\n' % icon
                 prg += '</programme>\n'
 
