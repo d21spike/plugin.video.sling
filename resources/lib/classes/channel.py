@@ -677,7 +677,7 @@ class Channel(object):
                     ratings = '%s, %s' % (ratings, rating.replace('_', ' ')) if len(ratings) > 0 else rating.replace('_', ' ')
             new_asset['Rating'] = ratings
             if 'thumbnail' in asset['program']:
-                if asset['program']['thumbnail']['url'] is not None:
+                if asset['program']['thumbnail'] is not None:
                     new_asset['Thumbnail'] = asset['program']['thumbnail']['url']
             if 'background_image' in asset['program'] and new_asset['Poster'] == '':
                 new_asset['Poster'] = asset['program']['background_image']['url']
