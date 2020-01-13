@@ -90,6 +90,8 @@ class Sling(object):
                     elif self.params['action'] == 'update':
                         myShowsUpdate(self)
                         sys.exit()
+                    elif self.params['action'] == 'play':
+                        self.playEpisode()
                 elif 'season' not in self.params:
                     myShowsSeasons(self)
                 else:
@@ -377,3 +379,24 @@ class Sling(object):
             log('setSetting(): Failed to reset hidden channels in DB, exception => %s' % exc)
 
         return
+
+    def playEpisode(self):
+        guid = self.params['guid']
+        log('playEpisode() attempting to play %s' % guid)
+
+        query = "SELECT Name, Playlist_URL FROM Episodes WHERE GUID = '%s'" % guid
+        try:
+            cursor = self.db.cursor()
+            cursor.execute(query)
+            episode = cursor.fetchone()
+            if episode is not None:
+                episode_name = episode[0]
+                episode_url = episode[1]
+
+                self.name = episode_name
+                self.url = episode_url
+                self.play()
+        except sqlite3.Error as err:
+            log('playEpisode(): Failed to play episode %s from DB, error => %s' % (guid, err))
+        except Exception as exc:
+            log('playEpisode(): Failed to play episode %s from DB, exception => %s' % (guid, exc))

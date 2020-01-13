@@ -522,6 +522,8 @@ class Channel(object):
         cursor = self.DB.cursor()
         channel_query = ''
 
+        self.checkFlags()
+
         try:
             channel_query = "REPLACE INTO Channels (GUID, ID, Name, Call_Sign, Language, Genre, Thumbnail, Poster, " \
                             "Offered, Qvt_Url, On_Demand, Last_Update, Hidden, Protected) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
@@ -534,6 +536,27 @@ class Channel(object):
             log('Failed to save channel %s to DB, error => %s\rQuery => %s' % (self.Name, err, json.dumps(self.channelInfo(), indent=4)))
         except Exception as exc:
             log('Failed to save channel %s to DB, exception => %s\rQuery => %s' % (self.Name, exc, json.dumps(self.channelInfo(), indent=4)))
+
+    def checkFlags(self):
+        log('Checking flags for channel %s in DB' % self.Name)
+        cursor = self.DB.cursor()
+
+        try:
+            flag_query = "SELECT Hidden, Protected FROM Channels WHERE GUID = '%s'" % self.GUID
+
+            cursor.execute(flag_query)
+            flags = cursor.fetchone()
+            if flags is not None:
+                self.Hidden = bool(flags[0])
+                self.Protected = bool(flags[1])
+
+                log('Retrieved channel %s flags from DB, Hidden = %s and Protected = %s' % (self.Name, str(self.Hidden), str(self.Protected)))
+        except sqlite3.Error as err:
+            log('Failed to check flags for channel %s in DB, error => %s\rQuery => %s' %
+                (self.Name, err, json.dumps(self.channelInfo(), indent=4)))
+        except Exception as exc:
+            log('Failed to check flags for channel %s in DB, exception => %s\rQuery => %s' % (
+                self.Name, exc, json.dumps(self.channelInfo(), indent=4)))
 
     def getDBChannel(self, guid):
         # log('Retrieving channel %s from DB' % guid)

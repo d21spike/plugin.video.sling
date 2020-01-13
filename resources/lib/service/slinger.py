@@ -217,7 +217,7 @@ class Slinger(object):
         result = False  # Return False if something needs updated, else True
 
         query = "SELECT \
-                (SELECT Last_Update FROM Channels ORDER BY Last_Update ASC LIMIT 1, 1) AS Channels_Last_Update, \
+                (SELECT Last_Update FROM Channels WHERE Hidden = 0 ORDER BY Last_Update ASC LIMIT 1, 1) AS Channels_Last_Update, \
                 (SELECT Last_Update FROM Guide ORDER BY Last_Update ASC LIMIT 1, 1) AS Guide_Last_Update, \
                 (SELECT Last_Update FROM Shows ORDER BY Last_Update ASC LIMIT 1, 1) AS Shows_Last_Update, \
                 (SELECT Last_Update FROM On_Demand_Folders ORDER BY Last_Update ASC LIMIT 1, 1) AS On_Demand_Last_Update, \
@@ -269,6 +269,26 @@ class Slinger(object):
         result = False
         channels = {}
 
+        db_channels = {}
+        try:
+            db_query = "SELECT GUID, Hidden, Protected FROM Channels"
+            cursor = self.DB.cursor()
+            cursor.execute(db_query)
+            db_data = cursor.fetchall()
+            for channel in db_data:
+                db_channels[channel[0]] = {
+                    'Hidden': bool(channel[1]),
+                    'Protected': bool(channel[2])
+                }
+        except sqlite3.Error as err:
+            error = 'updateChannels(): Failed to retrieve channels from DB, error => %s' % err
+            log(error)
+            self.Last_Error = error
+        except Exception as exc:
+            error = 'updateChannels(): Failed to retrieve channels from DB, exception => %s' % exc
+            log(error)
+            self.Last_Error = error
+        
         subs = binascii.b2a_base64(str.encode(LEGACY_SUBS.replace('+', ','))).decode().strip()
         channels_url = '%s/cms/publish3/domain/channels/v4/%s/%s/%s/1.json' % \
                        (self.EndPoints['cms_url'], USER_OFFSET, USER_DMA, subs)
@@ -285,13 +305,29 @@ class Slinger(object):
                         progress.create('Sling TV')
                         progress.update(0, 'Downloading Channel Info...')
                         for channel in sub_pack['channels']:
-                            channels[channel['channel_guid']] = Channel(channel['channel_guid'], self.EndPoints,
-                                                                        self.DB, update=True)
-                            channel_count += 1
+                            if channel['channel_guid'] not in db_channels or not db_channels[channel['channel_guid']]['Hidden']:
+                                channels[channel['channel_guid']] = Channel(channel['channel_guid'], self.EndPoints, self.DB, update=True)
+                                channel_count += 1
+                            else:
+                                log('Skipping channel %s\r\n%s' % (channel['network_affiliate_name'], json.dumps(db_channels[channel['channel_guid']], indent=4)))
+                                
                             progress.update(int((float(channel_count) / len(sub_pack['channels'])) * 100), 'Downloading Channel Info: %s' % channel['network_affiliate_name'])
                             if self.Monitor.abortRequested():
                                 break
                         progress.close()
+                        
+                        try:
+                            query = "SELECT GUID FROM Channels WHERE Protected = 1"
+                            cursor = self.DB.cursor()
+                            cursor.execute(query)
+                            protected = cursor.fetchall()
+                            for record in protected:
+                                if record[0] not in channels:
+                                    channels[record[0]] = Channel(record[0], self.EndPoints, self.DB, update=True)
+                        except sqlite3.Error as err:
+                            log('setSetting(): Failed retrieve protected records from DB, error => %s' % err)
+                        except Exception as exc:
+                            log('setSetting(): Failed retrieve protected records from DB, exception => %s' % exc)
 
         query = "SELECT GUID FROM Channels WHERE Protected = 0"
         try:
