@@ -49,14 +49,16 @@ class Channel(object):
             channel_url = "%s/cms/publish3/channel/schedule/24/%s/1/%s.json" % (self.Endpoints['cms_url'],
                                                                                 url_timestamp, channel_guid)
             response = requests.get(channel_url, headers=HEADERS, verify=VERIFY)
+            log(channel_url)
             if response is not None and response.status_code == 200:
                 channel_json = response.json()
                 if channel_json is not None:
-                    self.processJSON(channel_json['schedule'])
-                    log('Added channel => \r%s' % json.dumps(self.channelInfo(), indent=4))
-                    result, onNow = self.onNow(channel_json)
-                    if result: self.On_Now = onNow
-                    log('Added channel %s On Now => \r%s' % (self.Name, json.dumps(self.On_Now, indent=4)))
+                    if 'channel_guid' in channel_json:
+                        self.processJSON(channel_json['schedule'])
+                        log('Added channel => \r%s' % json.dumps(self.channelInfo(), indent=4))
+                        result, onNow = self.onNow(channel_json)
+                        if result: self.On_Now = onNow
+                        log('Added channel %s On Now => \r%s' % (self.Name, json.dumps(self.On_Now, indent=4)))
 
     def processJSON(self, channel_json):
         log('Processing channel json')
@@ -523,19 +525,21 @@ class Channel(object):
         channel_query = ''
 
         self.checkFlags()
+        if self.GUID != '':
+            try:
+                channel_query = "REPLACE INTO Channels (GUID, ID, Name, Call_Sign, Language, Genre, Thumbnail, Poster, " \
+                                "Offered, Qvt_Url, On_Demand, Last_Update, Hidden, Protected) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
 
-        try:
-            channel_query = "REPLACE INTO Channels (GUID, ID, Name, Call_Sign, Language, Genre, Thumbnail, Poster, " \
-                            "Offered, Qvt_Url, On_Demand, Last_Update, Hidden, Protected) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-
-            cursor.execute(channel_query, (self.GUID, self.ID, self.Name.replace("'", "''"), self.Call_Sign,
-                                           self.Language, self.Genre, self.Thumbnail, self.Poster, int(self.Offered),
-                                           self.Qvt_Url, int(self.On_Demand), timestamp, int(self.Hidden), int(self.Protected)))
-            self.DB.commit()
-        except sqlite3.Error as err:
-            log('Failed to save channel %s to DB, error => %s\rQuery => %s' % (self.Name, err, json.dumps(self.channelInfo(), indent=4)))
-        except Exception as exc:
-            log('Failed to save channel %s to DB, exception => %s\rQuery => %s' % (self.Name, exc, json.dumps(self.channelInfo(), indent=4)))
+                cursor.execute(channel_query, (self.GUID, self.ID, self.Name.replace("'", "''"), self.Call_Sign,
+                                               self.Language, self.Genre, self.Thumbnail, self.Poster, int(self.Offered),
+                                               self.Qvt_Url, int(self.On_Demand), timestamp, int(self.Hidden), int(self.Protected)))
+                self.DB.commit()
+            except sqlite3.Error as err:
+                log('Failed to save channel %s to DB, error => %s\rQuery => %s' % (self.Name, err, json.dumps(self.channelInfo(), indent=4)))
+            except Exception as exc:
+                log('Failed to save channel %s to DB, exception => %s\rQuery => %s' % (self.Name, exc, json.dumps(self.channelInfo(), indent=4)))
+        else:
+            log('Channel GUID cannot be blank, not saving.')
 
     def checkFlags(self):
         log('Checking flags for channel %s in DB' % self.Name)

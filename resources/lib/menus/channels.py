@@ -29,7 +29,10 @@ def getChannels(self):
                     for channel in sub_pack['channels']:
                         if channel['network_affiliate_name'] is not None:
                             if 'Sling' not in channel['network_affiliate_name']:
-                                self.Channels[channel['channel_guid']] = Channel(channel['channel_guid'], self.endPoints, self.db)
+                                if channel['channel_guid'] != '':
+                                    temp_channel = Channel(channel['channel_guid'], self.endPoints, self.db)
+                                    if temp_channel.GUID != '':
+                                        self.Channels[channel['channel_guid']] = temp_channel
                     
                     query = "SELECT GUID FROM Channels WHERE Protected = 1"
                     try:
