@@ -21,7 +21,7 @@ class Channel(object):
     DB = None
 
     def __init__(self, channel_guid, endpoints=None, db=None, update=False):
-        # log('Channel initialization')
+        log('Channel initialization')
 
         self.Endpoints = endpoints
         self.DB = db
@@ -43,7 +43,7 @@ class Channel(object):
             self.Hidden = bool(db_channel['Hidden'])
             self.Protected = bool(db_channel['Protected'])
 
-            # log('Added DB channel => \r%s' % json.dumps(self.channelInfo(), indent=4))
+            log('Added DB channel => \r%s' % json.dumps(self.channelInfo(), indent=4))
         else:
             url_timestamp = datetime.date.today().strftime("%y%m%d") + USER_OFFSET.replace('-', '')
             channel_url = "%s/cms/publish3/channel/schedule/24/%s/1/%s.json" % (self.Endpoints['cms_url'],
@@ -53,7 +53,7 @@ class Channel(object):
             if response is not None and response.status_code == 200:
                 channel_json = response.json()
                 if channel_json is not None:
-                    if 'channel_guid' in channel_json:
+                    if 'channel_guid' in channel_json['schedule']:
                         self.processJSON(channel_json['schedule'])
                         log('Added channel => \r%s' % json.dumps(self.channelInfo(), indent=4))
                         result, onNow = self.onNow(channel_json)
