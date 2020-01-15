@@ -256,6 +256,20 @@ class Sling(object):
                 duration = int(float(xbmc.Player().getTotalTime()))
                 xbmc.Monitor().waitForAbort(3)
 
+            self.setResume(external_id, position, duration)
+
+    def setResume(self, external_id, position, duration):
+        # If there's only 2 min left delete the resume point
+        if duration - position < 120:
+            url = '%s/resumes/v4/resumes/%s' % (self.endPoints['cmwnext_url'], str(external_id))
+            payload = '{"platform":"browser","product":"sling"}'
+            requests.delete(url, headers=HEADERS, data=payload, auth=self.auth.getAuth(), verify=VERIFY)
+        else:
+            url = '%s/resumes/v4/resumes' % (self.endPoints['cmwnext_url'])
+            payload = '{"external_id":"' + str(external_id) + '","position":' + str(position) + ',"duration":' + str(
+                duration) + ',"resume_type":"fod","platform":"browser","product":"sling"}'
+            requests.put(url, headers=HEADERS, data=payload, auth=self.auth.getAuth(), verify=VERIFY)
+
     def buildEndPoints(self):
         log('Building endPoints\r%s' % WEB_ENDPOINTS)
         endpoints = {}

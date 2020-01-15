@@ -187,6 +187,7 @@ def addLink(name, handleID,  url, mode, info=None, art=None, total=0, contextMen
     else: link.setArt(art)
     if contextMenu is not None: link.addContextMenuItems(contextMenu)
     if properties is not None:
+        log('Adding Properties: %s' % str(properties))
         for key, value in properties.iteritems():
             link.setProperty(key, value)
     try:
