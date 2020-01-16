@@ -4,24 +4,25 @@
     <setting id="User_Email"       type="text"   label="30002" default="" />
     <setting id="User_Password"    type="text"   label="30003" default=""  option="hidden"/>
     <setting id="Log_Out"          type="action" label="30008" action="RunPlugin(plugin://plugin.video.sling/?mode=logout)" />
-    <setting id="Use_Slinger"      type="bool"   label="30118" default="false" />
 
     <category label="30119">
-        <setting label="30120" type="lsep" />
-        <setting id="Channels_Interval" type="slider" label="30121" default="12" range="1,12,24" option="int" />
-        <setting id="Guide_Interval" type="slider" label="30122" default="12" range="1,12,24" option="int" />
-        <setting id="Shows_Interval" type="slider" label="30123" default="7" range="1,1,30" option="int" />
-        <setting id="On_Demand_Interval" type="slider" label="30124" default="7" range="1,1,30" option="int" />
-        <setting id="VOD_Interval" type="slider" label="30125" default="1" range="1,1,30" option="int" />
+        <setting id="Use_Slinger"  type="bool"   label="30119" default="false" />
+        <setting label="30118" type="lsep" />
+        <setting id="Channels_Update" type="action" label="30137" action="RunPlugin(plugin://plugin.video.sling/?mode=setting&name=update_channels&value=true)" option="close" enable="eq(-2,true)" />
+        <setting id="Guide_Update" type="action" label="30138" action="RunPlugin(plugin://plugin.video.sling/?mode=setting&name=update_guide&value=true)" option="close" enable="eq(-3,true)" />
+        <setting id="On_Demand_Update" type="action" label="30139" action="RunPlugin(plugin://plugin.video.sling/?mode=setting&name=update_on_demand&value=true)" option="close" enable="eq(-4,true)" />
+        <setting id="Shows_Update" type="action" label="30140" action="RunPlugin(plugin://plugin.video.sling/?mode=setting&name=update_shows&value=true)" option="close" enable="eq(-5,true)" />
+        <setting id="VOD_Update" type="action" label="30141" action="RunPlugin(plugin://plugin.video.sling/?mode=setting&name=update_vod&value=true)" option="close" enable="eq(-6,true)" />
         <setting label="30127" type="lsep" />
-        <setting id="Enable_EPG" type="bool" label="30128" default="false" />
-        <setting id="Guide_Days" type="slider" label="30126" default="2" range="1,1,5" option="int" enable="eq(-1,true)" />
+        <setting id="Enable_EPG" type="bool" label="30128" default="false" enable="eq(-8,true)" />
+        <setting id="Guide_Days" type="slider" label="30126" default="2" range="1,1,5" option="int" enable="eq(-1,true) + eq(-9,true)" />
+        <setting label="30120" type="lsep" />
+        <setting id="Channels_Interval" type="slider" label="30121" default="12" range="1,12,24" option="int" enable="eq(-11,true)" />
+        <setting id="Guide_Interval" type="slider" label="30122" default="12" range="1,12,24" option="int" enable="eq(-12,true)" />
+        <setting id="Shows_Interval" type="slider" label="30123" default="7" range="1,1,30" option="int" enable="eq(-13,true)" />
+        <setting id="On_Demand_Interval" type="slider" label="30124" default="7" range="1,1,30" option="int" enable="eq(-14,true)" />
+        <setting id="VOD_Interval" type="slider" label="30125" default="1" range="1,1,30" option="int" enable="eq(-15,true)" />
         <setting label="30136" type="lsep" />
-        <setting id="Channels_Update" type="action" label="30137" action="RunPlugin(plugin://plugin.video.sling/?mode=setting&name=update_channels&value=true)" option="close" />
-        <setting id="Guide_Update" type="action" label="30138" action="RunPlugin(plugin://plugin.video.sling/?mode=setting&name=update_guide&value=true)" option="close" />
-        <setting id="On_Demand_Update" type="action" label="30139" action="RunPlugin(plugin://plugin.video.sling/?mode=setting&name=update_on_demand&value=true)" option="close" />
-        <setting id="Shows_Update" type="action" label="30140" action="RunPlugin(plugin://plugin.video.sling/?mode=setting&name=update_shows&value=true)" option="close" />
-        <setting id="VOD_Update" type="action" label="30141" action="RunPlugin(plugin://plugin.video.sling/?mode=setting&name=update_vod&value=true)" option="close" />
     </category>
     <category label="30130">
         <setting id="Delete_DB" type="action" label="30131" action="RunPlugin(plugin://plugin.video.sling/?mode=setting&name=delete_db&value=true)" option="close" />

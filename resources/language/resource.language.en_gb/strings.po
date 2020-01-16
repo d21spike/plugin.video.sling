@@ -133,7 +133,7 @@ msgid "Failed to update On Demand content for channel"
 msgstr ""
 
 msgctxt "#30118"
-msgid "User Slinger Service"
+msgid "Manual Update"
 msgstr ""
 
 msgctxt "#30119"
