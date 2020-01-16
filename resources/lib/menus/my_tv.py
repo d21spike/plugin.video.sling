@@ -29,12 +29,11 @@ def myTV(self):
     # ======================== Check for debug codes ========================
     debug = dict(urlParse.parse_qsl(DEBUG_CODE))
     log('Debug Code: %s' % json.dumps(debug, indent=4))
+    allow = False
     if 'rental' in debug:
         if debug['rental'] == 'True':
             allow = True
-        else:
-            allow = False
-
+    
     # ======================== Retrieve My TV Data ========================
     mytv_url = '%s/pg/v1/my_tv_tvod?dma=%s&timezone=%s' % (self.endPoints['cmwnext_url'], USER_DMA, USER_OFFSET)
     log('myTV(): URL => %s' % mytv_url)
