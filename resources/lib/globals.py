@@ -188,8 +188,8 @@ def addLink(name, handleID,  url, mode, info=None, art=None, total=0, contextMen
     if contextMenu is not None: link.addContextMenuItems(contextMenu)
     if properties is not None:
         log('Adding Properties: %s' % str(properties))
-        for key, value in properties.iteritems():
-            link.setProperty(key, value)
+        for key, value in properties.items():
+            link.setProperty(key, str(value))
     try:
         name = urlLib.quote_plus(name)
     except:

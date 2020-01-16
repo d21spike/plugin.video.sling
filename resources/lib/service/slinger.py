@@ -624,8 +624,8 @@ class Slinger(object):
             cursor = self.DB.cursor()
             cursor.execute(query)
             schedule = cursor.fetchall()
-            log('Schedule is %s and length is %i' % (str(schedule is None), len(schedule)))
-            log(json.dumps(schedule, indent=4))
+            # log('Schedule is %s and length is %i' % (str(schedule is None), len(schedule)))
+            # log(json.dumps(schedule, indent=4))
             
             i = 0
             progress = xbmcgui.DialogProgressBG()

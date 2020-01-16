@@ -9,7 +9,6 @@ from resources.lib.menus.on_demand import *
 from resources.lib.menus.shows import *
 from resources.lib.menus.on_now import *
 from resources.lib.menus.my_tv import *
-from resources.lib.menus.tv_on_demand import *
 from resources.lib.menus.search import *
 
 class Sling(object):
@@ -120,11 +119,6 @@ class Sling(object):
                 myTV(self)
             else:
                 myTVRibbon(self)
-        if self.mode == 'tvod':
-            if 'url' not in self.params:
-                tvOnDemand(self)
-            else:
-                tvodRibbon(self)
         if self.mode == 'search':
             if 'query' not in self.params:
                 search(self)
@@ -211,7 +205,6 @@ class Sling(object):
             addDir(LANGUAGE(30103), self.handleID, '', mode='show')
             addDir(LANGUAGE(30104), self.handleID, '', mode='on_now')
             addDir(LANGUAGE(30105), self.handleID, '', mode='my_tv')
-            addDir('TV On Demand', self.handleID, '', mode='tvod')
             addDir(LANGUAGE(30106), self.handleID, '', mode='search')
 
     def play(self):

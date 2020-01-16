@@ -291,10 +291,9 @@ class Auth(object):
             if video is None or 'message' in video: return
             if 'playback_info' not in video: sys.exit()
             mpd_url = video['playback_info']['dash_manifest_url']
-            # qmx_url = video['playback_info']['clips'][0]['location']
             for clip in video['playback_info']['clips']:
-                qmx_url = clip['location']
-                if qmx_url != "":
+                if clip['location'] != '':
+                    qmx_url = clip['location']
                     break
             if 'UNKNOWN' not in mpd_url:
                 response = requests.get(qmx_url, headers=HEADERS, verify=VERIFY)
@@ -380,8 +379,8 @@ class Auth(object):
             asset_id = ''
             if 'entitlement' in video and 'asset_id' in video['entitlement']:
                 asset_id = video['entitlement']['asset_id']
-            elif 'playback_info' in video and 'asset' in video['playback_info'] and 'guid' in video['playback_info'][
-                'asset']:
+            elif 'playback_info' in video and 'asset' in video['playback_info'] and 'guid' in \
+                    video['playback_info']['asset']:
                 asset_id = video['playback_info']['asset']['guid']
 
             return mpd_url, license_key, asset_id
