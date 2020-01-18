@@ -320,8 +320,8 @@ class Auth(object):
                         channel_id = ''
 
                     if lic_url != '':
-                        license_key = '%s||{"env":"production","user_id":"%s","channel_id":"%s","message":[D{SSM}]}|' % (
-                            lic_url, self.getUserID(), channel_id)
+                        license_key = '%s|User-Agent=%s|{"env":"production","user_id":"%s","channel_id":"%s","message":[D{SSM}]}|' % (
+                            lic_url, USER_AGENT, self.getUserID(), channel_id)
 
                     log('license_key = ' + license_key)
             else:
