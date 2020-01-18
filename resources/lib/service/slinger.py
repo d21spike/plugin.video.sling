@@ -415,8 +415,16 @@ class Slinger(object):
                             if response is not None and response.status_code == 200:
                                 channel_json = response.json()
                                 if channel_json is not None:
-                                    self.processSchedule(channel_guid, channel_poster,
-                                                         channel_json['schedule'], timestamp)
+                                    try:
+                                        self.processSchedule(channel_guid, channel_poster, channel_json['schedule'], timestamp)
+                                    except sqlite3.Error as err:
+                                        error = 'updateGuide(): Failed to process schedule for channel %s, error => %s' % (channel_guid, err)
+                                        log(error)
+                                        self.Last_Error = error
+                                    except Exception as exc:
+                                        error = 'updateGuide(): Failed to process schedule for channel %s, exception => %s' % (channel_guid, exc)
+                                        log(error)
+                                        self.Last_Error = error
                         channel_count += 1
                         if self.Monitor.abortRequested():
                             break
@@ -427,11 +435,14 @@ class Slinger(object):
                 log(error)
                 self.Last_Error = error
                 result = False
+                progress.close()
             except Exception as exc:
                 error = 'updateGuide(): Failed to retrieve channels from DB, exception => %s' % exc
                 log(error)
                 self.Last_Error = error
                 result = False
+                progress.close()
+
         self.cleanGuide()
 
         if xbmc.getCondVisibility('System.HasAddon(pvr.iptvsimple)') and SETTINGS.getSetting('Enable_EPG') == 'true':
@@ -452,12 +463,16 @@ class Slinger(object):
         if 'scheduleList' in json_data:
             for slot in json_data['scheduleList']:
                 new_slot = {'Name': slot['title'] if 'title' in slot else '',
-                            'Thumbnail': slot['thumbnail']['url'] if 'thumbnail' in slot else '',
-                            'Poster': '',
+                            'Thumbnail': ICON,
+                            'Poster': ICON,
                             'Rating': '',
                             'Genre': '',
                             'Start': int(slot['schedule_start'].split('.')[0]),
                             'Stop': int(slot['schedule_stop'].split('.')[0])}
+                if 'thumbnail' in slot:
+                    if slot['thumbnail'] is not None:
+                        if 'url' in slot['thumbnail']:
+                            new_slot['Thumbnail'] = slot['thumbnail']['url']
                 if 'metadata' in slot:
                     metadata = slot['metadata']
                     ratings = ''
