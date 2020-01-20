@@ -294,6 +294,8 @@ class Sling(object):
                 self.hideChannel(self.params['value'])
             if self.params['name'] == 'reset_hidden' and self.params['value'] == 'true':
                 self.hiddenReset()
+            if self.params['name'] == 'view_slinger' and self.params['value'] == 'true':
+                self.viewSlinger()
         else:
             log('Deleting DB contents...')
             query = 'DELETE FROM Channels; ' \
@@ -393,6 +395,22 @@ class Sling(object):
             log('setSetting(): Failed to reset hidden channels in DB, exception => %s' % exc)
 
         return
+
+    def viewSlinger(self):
+        log('viewSlinger(): Displaying Slinger.json file')
+
+        window_id = 10147 #Kodi textviewer window id
+        label = 1
+        textbox = 5
+
+        json_data = {}
+        with open(TRACKER_PATH) as tracker_file:
+            json_data = json.load(tracker_file)
+
+        xbmc.executebuiltin("ActivateWindow({})".format(window_id))
+        window = xbmcgui.Window(window_id)
+        window.getControl(label).setLabel(LANGUAGE(30146))
+        window.getControl(textbox).setText(json.dumps(json_data, indent=4))
 
     def playEpisode(self):
         guid = self.params['guid']

@@ -575,6 +575,7 @@ class Slinger(object):
             cursor = self.DB.cursor()
             cursor.execute(query)
             db_channels = cursor.fetchall()
+            channel_names = ''
             if db_channels is not None and len(db_channels):
                 for row in db_channels:
                     id = str(row[0])
@@ -582,7 +583,9 @@ class Slinger(object):
                     logo = str(row[2])
                     url = str(row[3])
                     genre = str(row[4])
-                    channels.append([id, title, logo, url, genre])
+                    if title not in channel_names:
+                        channel_names = '%s,%s' % (channel_names, title) if channel_names != '' else title
+                        channels.append([id, title, logo, url, genre])
         except sqlite3.Error as err:
             error = 'getChannels(): Failed to retrieve channels from DB, error => %s\rQuery => %s' % (err, query)
             log(error)
