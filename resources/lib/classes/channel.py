@@ -593,7 +593,7 @@ class Channel(object):
             }
 
             on_now = {}
-            if channel[11] == channel[0]:
+            if channel[14] == channel[0]:
                 on_now = {
                     'Channel_GUID': channel[14],
                     'Start': channel[15],

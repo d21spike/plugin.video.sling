@@ -329,7 +329,7 @@ class Slinger(object):
                         except Exception as exc:
                             log('setSetting(): Failed retrieve protected records from DB, exception => %s' % exc)
 
-        query = "SELECT GUID FROM Channels WHERE Protected = 0"
+        query = "SELECT GUID FROM Channels WHERE Hidden = 0 and Protected = 0"
         try:
             cursor = self.DB.cursor()
             cursor.execute(query)

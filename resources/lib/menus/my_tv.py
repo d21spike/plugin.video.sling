@@ -146,7 +146,8 @@ def myTVProgram(self, tile):
             log(json.dumps(asset, indent=4))
 
             context_items = []
-            if asset['Show_GUID'] != '':
+            if asset['Show_GUID'] != '' and (asset['Name'] != asset['Show_Name']) and \
+                    (asset['Episode'] != '' and asset['Season'] != ''):
                 context_items = [
                     ('View Show', 'Container.Update(plugin://plugin.video.sling/?mode=show&guid=%s&name=%s)' %
                      (asset['Show_GUID'], asset['Show_Name']))
