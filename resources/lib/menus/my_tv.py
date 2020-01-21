@@ -325,7 +325,7 @@ def assetJSON(self, myjson, asset):
         for schedule in myjson['schedules']:
             if 'schedule_guid' in schedule:
                 if schedule['schedule_guid'] == asset['GUID'] or ('channel_guid' in schedule and schedule['channel_guid'] == asset['Channel_GUID']) or \
-                        ('channel_title' in schedule and schedule['channel_title'].upper() == asset['Channel_Name'].upper()):
+                        ('channel_title' in schedule and schedule['channel_title'].upper() == asset['Channel_Name'].upper()) or len(myjson['schedules']) == 1:
                     if 'playback_info' in schedule:
                         if asset['Playlist_URL'] == '' and schedule['playback_info'] != '':
                             asset['Playlist_URL'] = schedule['playback_info']
@@ -411,7 +411,7 @@ def assetJSON(self, myjson, asset):
             if asset['Start'] > timestamp:
                 name = '[COLOR=yellow]Upcomming[/COLOR] %s' % asset['Name']
                 asset['Mode'] = 'info'
-            elif asset['Start'] <= timestamp <= asset['Stop']:
+            elif asset['Start'] <= timestamp <= asset['Stop'] and (asset['Start'] != asset['Stop']):
                 name = '[COLOR=green]Live[/COLOR] %s' % asset['Name']
             else:
                 name = '[COLOR=gray]Replay[/COLOR] %s' % asset['Name']

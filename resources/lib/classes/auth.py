@@ -305,20 +305,11 @@ class Auth(object):
                         lic_url = qmx['encryption']['providers']['widevine']['proxy_url']
                         log('resolverURL, lic_url = ' + lic_url)
 
-                    if 'channel_guid' in video:
-                        channel_id = video['channel_guid']
-                    if 'playback' in video and 'linear_info' in video['playback_info']:
-                        channel_id = video['playback_info']['linear_info']['channel_guid']
-                    elif 'playback_info' in video and 'asset' in video['playback_info']:
-                        channel_id = video['playback_info']['asset']['channel_guid']
-                    elif 'playback_info' in video and 'vod_info' in video['playback_info']:
-                        try:
-                            channel_id = video['playback_info']['vod_info']['svod_channels'][0]
-                        except:
-                            channel_id = ''
+                    if 'playback_info' in playlist_url:
+                        channel_id = playlist_url.split('/')[-4]
                     else:
-                        channel_id = ''
-
+                        channel_id = playlist_url.split('/')[-2]
+                    
                     if lic_url != '':
                         license_key = '%s|User-Agent=%s|{"env":"production","user_id":"%s","channel_id":"%s","message":[D{SSM}]}|' % (
                             lic_url, ANDROID_USER_AGENT, SUBSCRIBER_ID, channel_id)
