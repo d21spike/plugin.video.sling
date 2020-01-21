@@ -321,7 +321,7 @@ class Auth(object):
 
                     if lic_url != '':
                         license_key = '%s|User-Agent=%s|{"env":"production","user_id":"%s","channel_id":"%s","message":[D{SSM}]}|' % (
-                            lic_url, USER_AGENT, SUBSCRIBER_ID, channel_id)
+                            lic_url, ANDROID_USER_AGENT, SUBSCRIBER_ID, channel_id)
 
                     log('license_key = ' + license_key)
             else:
