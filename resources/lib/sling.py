@@ -244,12 +244,14 @@ class Sling(object):
             xbmc.Player().setAudioStream(0)
 
         if external_id != '':
+            play_back_started = time.time()
             while xbmc.Player().isPlayingVideo() and not xbmc.Monitor().abortRequested():
                 position = int(float(xbmc.Player().getTime()))
                 duration = int(float(xbmc.Player().getTotalTime()))
                 xbmc.Monitor().waitForAbort(3)
 
-            self.setResume(external_id, position, duration)
+            if int(time.time() - play_back_started) > 45:
+                self.setResume(external_id, position, duration)
 
     def setResume(self, external_id, position, duration):
         # If there's only 2 min left delete the resume point
