@@ -309,7 +309,10 @@ class Auth(object):
                         channel_id = playlist_url.split('/')[-4]
                     else:
                         channel_id = playlist_url.split('/')[-2]
-                    
+
+                    debug = dict(urlParse.parse_qsl(DEBUG_CODE))
+                    if 'channel' in debug:
+                        channel_id = debug['channel']
                     if lic_url != '':
                         license_key = '%s|User-Agent=%s|{"env":"production","user_id":"%s","channel_id":"%s","message":[D{SSM}]}|' % (
                             lic_url, ANDROID_USER_AGENT, SUBSCRIBER_ID, channel_id)

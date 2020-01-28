@@ -38,7 +38,7 @@ UPDATE_LISTING = False
 DEBUG = SETTINGS.getSetting('Enable_Debugging') == 'true'
 DEBUG_CODE = SETTINGS.getSetting('Debug')
 
-ANDROID_USER_AGENT = 'SlingTV/6.17.8 (Linux;Android 10) ExoPlayerLib/2.7.1'
+ANDROID_USER_AGENT = 'SlingTV/6.17.9 (Linux;Android 10) ExoPlayerLib/2.7.1'
 USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) ' \
              'Chrome/69.0.3497.100 Safari/537.36'
 

@@ -176,12 +176,16 @@ class Channel(object):
                     if 'scheduleList' in response_json['schedule']:
                         for slot in response_json['schedule']['scheduleList']:
                             new_slot = {'Name': slot['title'] if 'title' in slot else '',
-                                        'Thumbnail': slot['thumbnail']['url'] if 'thumbnail' in slot else '',
+                                        'Thumbnail': ICON,
                                         'Poster': '',
                                         'Rating': '',
                                         'Genre': '',
                                         'Start': int(slot['schedule_start'].split('.')[0]),
                                         'Stop': int(slot['schedule_stop'].split('.')[0])}
+                            if 'thumbnail' in slot:
+                                if slot['thumbnail'] is not None:
+                                    if 'url' in slot['thumbnail']:
+                                        slot['thumbnail']['url']
                             if 'metadata' in slot:
                                 metadata = slot['metadata']
                                 ratings = ''

@@ -31,7 +31,8 @@ def getChannels(self):
                         if channel['network_affiliate_name'] is not None:
                             if 'Sling' not in channel['network_affiliate_name']:
                                 if channel['channel_guid'] != '' and channel['network_affiliate_name'] not in channel_names:
-                                    channel_names = '%s,%s' % (channel_names, channel['network_affiliate_name']) if channel_names != '' else channel['network_affiliate_name']
+                                    if channel['network_affiliate_name'] not in ('FOX', 'ABC', 'NBC', 'CBS'):
+                                        channel_names = '%s,%s' % (channel_names, channel['network_affiliate_name']) if channel_names != '' else channel['network_affiliate_name']
                                     temp_channel = Channel(channel['channel_guid'], self.endPoints, self.db)
                                     if temp_channel.GUID != '':
                                         self.Channels[channel['channel_guid']] = temp_channel
