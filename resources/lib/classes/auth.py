@@ -76,7 +76,24 @@ class Auth(object):
             "Accept-Language": "en-US,en;q=0.9"
         }
         response = requests.get(regionUrl, headers=headers, verify=VERIFY)
-        log("getRegionInfo Response = > " + str(response.json()))
+        temp_response = response.json()
+        if response is not None:
+            if 'lookup_address' in temp_response:
+                temp_response['lookup_address'] = '***REDACTED***'
+            if 'city' in temp_response:
+                temp_response['city'] = '***REDACTED***'
+            if 'state' in temp_response:
+                temp_response['state'] = '***REDACTED***'
+            if 'zip_code' in temp_response:
+                temp_response['zip_code'] = '***REDACTED***'
+            if 'country' in temp_response:
+                temp_response['country'] = '***REDACTED***'
+            if 'latitude' in temp_response:
+                temp_response['latitude'] = '***REDACTED***'
+            if 'longitude' in temp_response:
+                temp_response['longitude'] = '***REDACTED***'
+            
+            log("getRegionInfo Response = > " + json.dumps(temp_response, indent=4))
         if response.status_code == 200:
             response = response.json()
             USER_DMA = str(response.get('dma', {}) or '')
@@ -106,7 +123,20 @@ class Auth(object):
         if not self.loggedIn(): return False, 'Must be logged in to retrieve subscriptions.'
         auth = OAuth1(self.OCK, self.OCS, self.OTK, self.OTS)
         response = requests.get(subURL, headers=HEADERS, auth=auth, verify=VERIFY)
-        log("getUserSubscriptions Response = > " + str(response.json()))
+        temp_response = response.json()
+        if temp_response is not None:
+            if 'postal_code' in temp_response:
+                temp_response['postal_code'] = '***REDACTED***'
+            if 'billing_zipcode' in temp_response:
+                temp_response['billing_zipcode'] = '***REDACTED***'
+            if 'email' in temp_response:
+                temp_response['email'] = '***REDACTED***'
+            if 'billing_method' in temp_response:
+                temp_response['billing_method'] = '***REDACTED***'
+            if 'name' in temp_response:
+                temp_response['name'] = '***REDACTED***'
+
+            log("getUserSubscriptions Response = > " + json.dumps(temp_response, indent=4))
         if response.status_code == 200:
             if SUBSCRIBER_ID == '':
                 SUBSCRIBER_ID = response.json()['guid']
@@ -196,7 +226,7 @@ class Auth(object):
 
     def logIn(self, loginURL, email=USER_EMAIL, password=USER_PASSWORD):
         global ACCESS_TOKEN, USER_EMAIL, USER_PASSWORD
-        log("logIn => URL: " + loginURL + " email: " + email)
+        log("logIn => URL: " + loginURL + " email: " + email[:5])
         status, message = self.loggedIn()
         if status: return status, 'Already logged in.'
 
