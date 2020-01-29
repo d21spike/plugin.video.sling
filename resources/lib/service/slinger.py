@@ -569,9 +569,10 @@ class Slinger(object):
     def getChannels(self):
         log('Slinger function: getChannels()')
         channels = []
-        query = "SELECT DISTINCT Channels.id, Channels.name, Channels.thumbnail, Channels.qvt_url, Channels.genre " \
+        query = "SELECT DISTINCT Channels.Guid, Channels.name, Channels.thumbnail, Channels.qvt_url, Channels.genre " \
                 "FROM Channels " \
-                "inner JOIN Guide on Channels.GUID = Guide.Channel_GUID  WHERE Channels.Name NOT LIKE '%Sling%' AND Channels.Hidden = 0 ORDER BY Channels.Call_Sign asc"
+                "INNER JOIN Guide on Channels.GUID = Guide.Channel_GUID " \
+                "WHERE Channels.Name NOT LIKE '%Sling%' AND Channels.Hidden = 0 ORDER BY Channels.Name asc"
         try:
             cursor = self.DB.cursor()
             cursor.execute(query)
@@ -601,18 +602,16 @@ class Slinger(object):
     def buildPlaylist(self):
         log('Slinger function: buildPlaylist()')
         m3u_file = xbmcvfs.File(self.Playlist_Path, 'w')
-        m3u_file.write("#EXTM3U")
-        m3u_file.write("\n")
+        m3u_file.write("#EXTM3U\n")
         channels = self.getChannels()
         for channel_id, title, logo, url, genre in channels:
             m3u_file.write("\n")
-            channel_info = '#EXTINF:-1 tvg-id="%s" tvg-name="%s"' % (channel_id, title)
+            channel_info = '#EXTINF:-1 tvg-id="%s" tvg-name="%s"' % (channel_id, title.replace(' ', '_'))
             if logo is not None:
                 channel_info += ' tvg-logo="%s"' % logo
-            channel_info += ' group_title="Sling TV %s",%s' % (genre, title)
+            channel_info += ' group-title="Sling TV; %s",%s' % (genre, title)
             m3u_file.write(channel_info + "\n")
-            url = 'plugin://plugin.video.sling/?mode=play&url=%s' % url
-            m3u_file.write(url + "\n")
+            m3u_file.write("plugin://plugin.video.sling/?mode=play&url=%s\n" % url)
             if self.Monitor.abortRequested():
                 m3u_file.close()
                 break
@@ -635,7 +634,7 @@ class Slinger(object):
 
         query = "SELECT strftime('%Y%m%d%H%M%S',datetime(Guide.Start, 'unixepoch')) as start, " \
                 "strftime('%Y%m%d%H%M%S',datetime(Guide.Stop, 'unixepoch')) as stop, " \
-                "Channels.id, Guide.Name, '' AS sub_title, Guide.Description, Guide.Thumbnail, Guide.Genre " \
+                "Channels.Guid, Guide.Name, '' AS sub_title, Guide.Description, Guide.Thumbnail, Guide.Genre " \
                 "FROM Guide " \
                 "INNER JOIN Channels ON Channels.GUID = Guide.Channel_GUID WHERE Channels.Name NOT LIKE '%Sling%' " \
                 "AND Channels.Hidden = 0 ORDER BY Channels.Call_Sign ASC"
