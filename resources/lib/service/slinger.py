@@ -380,7 +380,7 @@ class Slinger(object):
             log('updateGuide(): Timestamp: %i | URL Timestamp %s' % (timestamp, url_timestamp))
             current_timestamp = int(time.time())
             log('Start Timestamp: %i | Interval: %i' % (current_timestamp, self.Seconds_Per_Hour*24))
-            query = "SELECT GUID, Poster, Name FROM Channels WHERE Hidden = 0"
+            query = "SELECT GUID, Poster, Name FROM Channels WHERE Hidden = 0 ORDER BY Name ASC"
             try:
                 cursor = self.DB.cursor()
                 cursor.execute(query)
@@ -407,10 +407,11 @@ class Slinger(object):
                         update_day = int(datetime.datetime.fromtimestamp(last_update).strftime('%d'))
                         today_day = int(datetime.datetime.fromtimestamp(current_timestamp).strftime('%d'))
 
+                        log('Channel: %s | Last Update: %i | Force Update: %s' % (channel_name, last_update, str(self.Force_Update)))
                         if update_day < today_day or self.Force_Update:
                             schedule_url = "%s/cms/publish3/channel/schedule/24/%s/1/%s.json" % \
                                            (self.EndPoints['cms_url'], url_timestamp, channel_guid)
-                            log('updateGuide(): Schedule URL =>\r%s' % schedule_url)
+                            log('updateGuide(): %s Schedule URL =>\r%s' % (channel_name, schedule_url))
                             response = requests.get(schedule_url, headers=HEADERS, verify=VERIFY)
                             if response is not None and response.status_code == 200:
                                 channel_json = response.json()
@@ -583,8 +584,8 @@ class Slinger(object):
                     logo = str(row[2])
                     url = str(row[3])
                     genre = str(row[4])
-                    if title not in channel_names:
-                        channel_names = '%s,%s' % (channel_names, title) if channel_names != '' else title
+                    if '"%s"' % title not in channel_names:
+                        channel_names = '%s,"%s"' % (channel_names, title) if channel_names != '' else '"%s"' % title
                         channels.append([id, title, logo, url, genre])
         except sqlite3.Error as err:
             error = 'getChannels(): Failed to retrieve channels from DB, error => %s\rQuery => %s' % (err, query)
