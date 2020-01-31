@@ -411,6 +411,7 @@ class Sling(object):
 
         xbmc.executebuiltin("ActivateWindow({})".format(window_id))
         window = xbmcgui.Window(window_id)
+        window.show()
         window.getControl(label).setLabel(LANGUAGE(30146))
         window.getControl(textbox).setText(json.dumps(json_data, indent=4))
 

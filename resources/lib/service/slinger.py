@@ -1,6 +1,9 @@
 from resources.lib.globals import *
 from resources.lib.classes.auth import Auth
 
+from resources.lib.service.guide import Guide
+import threading
+
 class Slinger(object):
 
     Channels_Updated = 0
@@ -32,9 +35,16 @@ class Slinger(object):
     Last_Update = ""
     Last_Error = ""
 
+    Guide_Thread = None
+
     def __init__(self):
         global USER_SUBS, USER_DMA, USER_OFFSET
-        log('Slinger function:  __init__')
+        log('Slinger Service:  __init__')
+
+        self.Guide_Thread = threading.Thread(target=Guide)
+        self.Guide_Thread.daemon = True
+        self.Guide_Thread.start()
+
         self.Monitor = xbmc.Monitor()
         self.EndPoints = self.buildEndPoints()
         self.Auth = Auth()
@@ -74,7 +84,7 @@ class Slinger(object):
             self.close()
 
     def main(self):
-        log('Slinger function: main()')
+        log('Slinger Service: main()')
         
         self.checkLastUpdate()
         self.checkUpdateIntervals()
@@ -110,7 +120,11 @@ class Slinger(object):
             while count < 30:
                 self.updateTracker(state="Sleeping", job="Sleeping for 60 seconds")
                 if self.Monitor.waitForAbort(60):
-                    log("shutting down slinger service...")
+                    log("Shutting down slinger service...")
+                    try:
+                        requests.get('http://%s:9999/stop' % xbmc.getIPAddress())
+                    except:
+                        log('Guide Service has been shut down.')
                     abort = True
                     break
                 
@@ -122,6 +136,7 @@ class Slinger(object):
                 count += 1
 
             if abort:
+                log('Slinger Service: Stopping...')
                 break
             else:
                 self.doTasks()
@@ -132,7 +147,7 @@ class Slinger(object):
         self.close()
 
     def checkTracker(self, ):
-        log('Slinger function: checkTracker()')
+        log('Slinger Service: checkTracker()')
 
         with open(TRACKER_PATH) as tracker_file:
             json_data = json.load(tracker_file)
@@ -152,7 +167,7 @@ class Slinger(object):
         return
 
     def updateTracker(self, state, job):
-        log('Slinger function: updateTracker()')
+        log('Slinger Service: updateTracker()')
         
         self.State = state
         self.Current_Job = job
@@ -174,7 +189,7 @@ class Slinger(object):
         return
 
     def inTasks(self, task):
-        log('Slinger function: inTasks()')
+        log('Slinger Service: inTasks()')
         found = False
         location = -1
         for id in self.Tasks:
@@ -185,7 +200,7 @@ class Slinger(object):
         return found, location
 
     def doTasks(self):
-        log('Slinger function: doTasks()')
+        log('Slinger Service: doTasks()')
         for id in sorted(self.Tasks):
             if int(id) < 0:
                 self.Force_Update = True
@@ -213,7 +228,7 @@ class Slinger(object):
         return
 
     def checkLastUpdate(self):
-        log('Slinger function: checkLastUpdate()')
+        log('Slinger Service: checkLastUpdate()')
         result = False  # Return False if something needs updated, else True
 
         query = "SELECT \
@@ -251,7 +266,7 @@ class Slinger(object):
         return result
 
     def checkUpdateIntervals(self):
-        log('Slinger function: checkUpdateIntervals()')
+        log('Slinger Service: checkUpdateIntervals()')
 
         self.Channels_Interval = int(SETTINGS.getSetting('Channels_Interval')) * 24 * self.Seconds_Per_Hour
         self.Guide_Interval = int(SETTINGS.getSetting('Guide_Interval')) * 24 * self.Seconds_Per_Hour
@@ -265,7 +280,7 @@ class Slinger(object):
              self.VOD_Interval))
 
     def updateChannels(self):
-        log('Slinger function: updateChannels()')
+        log('Slinger Service: updateChannels()')
         result = False
         channels = {}
 
@@ -369,7 +384,7 @@ class Slinger(object):
         return result
 
     def updateGuide(self):
-        log('Slinger function: updateGuide()')
+        log('Slinger Service: updateGuide()')
         result = False
 
         log('updateGuide(): Guide Days %i' % self.Guide_Days)
@@ -447,15 +462,13 @@ class Slinger(object):
         self.cleanGuide()
 
         if xbmc.getCondVisibility('System.HasAddon(pvr.iptvsimple)') and SETTINGS.getSetting('Enable_EPG') == 'true':
-            self.buildPlaylist()
-            self.buildEPG()
             self.checkIPTV()
             self.toggleIPTV()
 
         return result
 
     def processSchedule(self, channel_guid, channel_poster, json_data, timestamp):
-        log('Slinger function: processSchedule()')
+        log('Slinger Service: processSchedule()')
         result = False
         schedule = {}
 
@@ -525,7 +538,7 @@ class Slinger(object):
         return result
 
     def saveSlot(self, channel_guid, new_slot):
-        log('Slinger function: saveSlot()')
+        log('Slinger Service: saveSlot()')
 
         timestamp = int(time.time())
         log('saveSlot(): Saving guide slot %s into DB for channel %s' % (new_slot['Name'], channel_guid))
@@ -549,7 +562,7 @@ class Slinger(object):
             self.Last_Error = error
 
     def cleanGuide(self):
-        log('Slinger function: cleanGuide()')
+        log('Slinger Service: cleanGuide()')
 
         timestamp = int(time.time()) - (60 * 60 * 12)
         query = "DELETE FROM Guide WHERE Stop < %i" % timestamp
@@ -566,138 +579,20 @@ class Slinger(object):
             log(error)
             self.Last_Error = error
 
-    def getChannels(self):
-        log('Slinger function: getChannels()')
-        channels = []
-        query = "SELECT DISTINCT Channels.Guid, Channels.name, Channels.thumbnail, Channels.qvt_url, Channels.genre " \
-                "FROM Channels " \
-                "INNER JOIN Guide on Channels.GUID = Guide.Channel_GUID " \
-                "WHERE Channels.Name NOT LIKE '%Sling%' AND Channels.Hidden = 0 ORDER BY Channels.Name asc"
-        try:
-            cursor = self.DB.cursor()
-            cursor.execute(query)
-            db_channels = cursor.fetchall()
-            channel_names = ''
-            if db_channels is not None and len(db_channels):
-                for row in db_channels:
-                    id = str(row[0])
-                    title = str(strip(row[1]).replace("''", "'"))
-                    logo = str(row[2])
-                    url = str(row[3])
-                    genre = str(row[4])
-                    if '"%s"' % title not in channel_names:
-                        channel_names = '%s,"%s"' % (channel_names, title) if channel_names != '' else '"%s"' % title
-                        channels.append([id, title, logo, url, genre])
-        except sqlite3.Error as err:
-            error = 'getChannels(): Failed to retrieve channels from DB, error => %s\rQuery => %s' % (err, query)
-            log(error)
-            self.Last_Error = error
-        except Exception as exc:
-            error = 'getChannels(): Failed to retrieve channels from DB, exception => %s\rQuery => %s' % (exc, query)
-            log(error)
-            self.Last_Error = error
-
-        return channels
-
-    def buildPlaylist(self):
-        log('Slinger function: buildPlaylist()')
-        m3u_file = xbmcvfs.File(self.Playlist_Path, 'w')
-        m3u_file.write("#EXTM3U\n")
-        channels = self.getChannels()
-        for channel_id, title, logo, url, genre in channels:
-            m3u_file.write("\n")
-            channel_info = '#EXTINF:-1 tvg-id="%s" tvg-name="%s"' % (channel_id, title.replace(' ', '_'))
-            if logo is not None:
-                channel_info += ' tvg-logo="%s"' % logo
-            channel_info += ' group-title="Sling TV; %s",%s' % (genre, title)
-            m3u_file.write(channel_info + "\n")
-            m3u_file.write("plugin://plugin.video.sling/?mode=play&url=%s\n" % url)
-            if self.Monitor.abortRequested():
-                m3u_file.close()
-                break
-
-        m3u_file.close()
-
-    def buildEPG(self):
-        log('Slinger function: buildEPG()')
-        master_file = xbmcvfs.File(self.EPG_Path, 'w')
-        master_file.write('<?xml version="1.0" encoding="utf-8" ?>\n')
-        master_file.write("<tv>\n")
-
-        channels = self.getChannels()
-        for channel_id, title, logo, url, genre in channels:
-            master_file.write('<channel id="%s">\n' % channel_id)
-            master_file.write('    <display-name lang="en">%s</display-name>\n' % title)
-            master_file.write('</channel>\n')
-            if self.Monitor.abortRequested():
-                break
-
-        query = "SELECT strftime('%Y%m%d%H%M%S',datetime(Guide.Start, 'unixepoch')) as start, " \
-                "strftime('%Y%m%d%H%M%S',datetime(Guide.Stop, 'unixepoch')) as stop, " \
-                "Channels.Guid, Guide.Name, '' AS sub_title, Guide.Description, Guide.Thumbnail, Guide.Genre " \
-                "FROM Guide " \
-                "INNER JOIN Channels ON Channels.GUID = Guide.Channel_GUID WHERE Channels.Name NOT LIKE '%Sling%' " \
-                "AND Channels.Hidden = 0 ORDER BY Channels.Call_Sign ASC"
-        try:
-            cursor = self.DB.cursor()
-            cursor.execute(query)
-            schedule = cursor.fetchall()
-            # log('Schedule is %s and length is %i' % (str(schedule is None), len(schedule)))
-            # log(json.dumps(schedule, indent=4))
-            
-            i = 0
-            progress = xbmcgui.DialogProgressBG()
-            progress.create('Sling TV')
-            progress.update(i, 'Building EPG XML...')
-            for row in schedule:
-                i += 1
-                percent = int((float(i) / len(schedule)) * 100)
-                progress.update(percent)
-                start_time = str(row[0])
-                stop_time = str(row[1])
-                channel_id = str(row[2])
-                title = strip(row[3]).replace("''", "'")
-                sub_title = strip(row[4]).replace("''", "'")
-                desc = strip(row[5]).replace("''", "'")
-                icon = str(row[6])
-                genres = row[7]
-                genres = genres.split(',')
-
-                prg = ''
-                prg += '<programme start="%s" stop="%s" channel="%s">\n' % (start_time, stop_time, channel_id)
-                prg += '    <title lang="en">%s</title>\n' % title
-                prg += '    <sub-title lang="en">%s</sub-title>\n' % sub_title
-                prg += '    <desc lang="en">%s</desc>\n' % desc
-                for genre in genres:
-                    prg += '    <category lang="en">%s</category>\n' % str(strip(genre)).strip().capitalize()
-                prg += '    <icon src="%s"/>\n' % icon
-                prg += '</programme>\n'
-
-                master_file.write(str(prg))
-                if self.Monitor.abortRequested():
-                    break
-            progress.close()
-
-        except sqlite3.Error as err:
-            error = 'buildEPG(): Failed to retrieve guide data from DB, error => %s\rQuery => %s' % (err, query)
-            log(error)
-            self.Last_Error = error
-        except Exception as exc:
-            error = 'buildEPG(): Failed to retrieve retrieve guide data from DB, exception => %s\rQuery => %s' % (exc, query)
-            log(error)
-            self.Last_Error = error
-
-        master_file.write('</tv>')
-        master_file.close()
-
     def checkIPTV(self):
-        log('Slinger function: checkIPTV()')
+        log('Slinger Service: checkIPTV()')
+
+        channels_url = 'http://%s:9999/channels.m3u' % xbmc.getIPAddress()
+        guide_url = 'http://%s:9999/guide.xml' % xbmc.getIPAddress()
+
         if xbmc.getCondVisibility('System.HasAddon(pvr.iptvsimple)'):
-            iptv_settings = [['epgPathType', '0'],
+            iptv_settings = [['epgPathType', '1'],
                              ['epgTSOverride', 'true'],
-                             ['epgPath', self.EPG_Path],
-                             ['m3uPathType', '0'],
-                             ['m3uPath', self.Playlist_Path],
+                             ['epgUrl', guide_url],
+                             ['epgCache', 'false'],
+                             ['m3uPathType', '1'],
+                             ['m3uUrl', channels_url],
+                             ['m3uCache', 'false'],
                              ['logoFromEpg', '1'],
                              ['logoPathType', '1']
                              ]
@@ -706,7 +601,8 @@ class Slinger(object):
                     xbmcaddon.Addon('pvr.iptvsimple').setSetting(id=id, value=value)
 
     def toggleIPTV(self):
-        log('Slinger function: toggleIPTV()')
+        log('Slinger Service: toggleIPTV()')
+        
         if not xbmc.getCondVisibility('System.HasAddon(pvr.iptvsimple)'):
             dialog = xbmcgui.Dialog()
             dialog.notification('Sling', 'Please enable PVR IPTV Simple Client', xbmcgui.NOTIFICATION_INFO, 5000, False)
@@ -719,7 +615,7 @@ class Slinger(object):
             xbmc.executeJSONRPC(pvr_toggle_on)
 
     def updateShows(self):
-        log('Slinger function: updateShows()')
+        log('Slinger Service: updateShows()')
         query = "SELECT * FROM Shows ORDER BY Name ASC"
         try:
             cursor = self.DB.cursor()
@@ -770,7 +666,7 @@ class Slinger(object):
         return result
 
     def updateOnDemand(self):
-        log('Slinger function: updateOnDemand()')
+        log('Slinger Service: updateOnDemand()')
         timestamp = int(time.time())
         query = "SELECT GUID, Name FROM Channels WHERE Hidden = 0 AND On_Demand = 1 ORDER BY Name ASC"
         try:
@@ -829,7 +725,7 @@ class Slinger(object):
 
 
     def updateVOD(self):
-        log('Slinger function: updateVOD()')
+        log('Slinger Service: updateVOD()')
         timestamp = int(time.time())
 
         query = "DELETE FROM VOD_Assets WHERE Stop < %i" % timestamp
@@ -851,7 +747,7 @@ class Slinger(object):
         return result
 
     def createDB(self):
-        log('Slinger function: createDB()')
+        log('Slinger Service: createDB()')
         sql_file = xbmcvfs.File(SQL_PATH)
         sql = sql_file.read()
         sql_file.close()
@@ -873,7 +769,7 @@ class Slinger(object):
         db.close()
 
     def buildEndPoints(self):
-        log('Slinger function: buildEndPoints()\r%s' % WEB_ENDPOINTS)
+        log('Slinger Service: buildEndPoints()\r%s' % WEB_ENDPOINTS)
         endpoints = {}
         response = requests.get(WEB_ENDPOINTS, headers=HEADERS, verify=VERIFY)
         if response is not None and response.status_code == 200:
@@ -882,6 +778,6 @@ class Slinger(object):
         return endpoints
 
     def close(self):
-        log('Slinger function: close()')
+        log('Slinger Service: close()')
         self.DB.close()
         del self.Monitor
