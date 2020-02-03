@@ -170,7 +170,7 @@ class Auth(object):
 
     def getOTK(self):
         if not self.loggedIn(): return False, 'Must be logged in to retrieve OTK.'
-        self.deviceID();
+        self.deviceID()
         self.getAccess()
 
         if self.OTL == '':
@@ -339,7 +339,7 @@ class Auth(object):
                         channel_id = playlist_url.split('/')[-4]
                     else:
                         channel_id = playlist_url.split('/')[-2]
-                        if channel_id == 'scheduleqvt':
+                        if 'channel=' in playlist_url:
                             channel_id = playlist_url.split('?')[-1].split('=')[-1]                        
 
                     debug = dict(urlParse.parse_qsl(DEBUG_CODE))
