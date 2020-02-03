@@ -589,10 +589,10 @@ class Slinger(object):
             iptv_settings = [['epgPathType', '1'],
                              ['epgTSOverride', 'true'],
                              ['epgUrl', guide_url],
-                             ['epgCache', 'false'],
+                             ['epgCache', 'true'],
                              ['m3uPathType', '1'],
                              ['m3uUrl', channels_url],
-                             ['m3uCache', 'false'],
+                             ['m3uCache', 'true'],
                              ['logoFromEpg', '1'],
                              ['logoPathType', '1']
                              ]

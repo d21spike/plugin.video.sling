@@ -339,6 +339,8 @@ class Auth(object):
                         channel_id = playlist_url.split('/')[-4]
                     else:
                         channel_id = playlist_url.split('/')[-2]
+                        if channel_id == 'scheduleqvt':
+                            channel_id = playlist_url.split('?')[-1].split('=')[-1]                        
 
                     debug = dict(urlParse.parse_qsl(DEBUG_CODE))
                     if 'channel' in debug:

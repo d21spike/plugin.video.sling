@@ -152,6 +152,8 @@ def myTVProgram(self, tile):
                     ('View Show', 'Container.Update(plugin://plugin.video.sling/?mode=show&guid=%s&name=%s)' %
                      (asset['Show_GUID'], asset['Show_Name']))
                 ]
+            if asset['Playlist_URL'].split('/')[-2] == 'scheduleqvt':
+                asset['Playlist_URL'] += '?channel=%s' % asset['Channel_GUID']
             addLink(asset['Name'], self.handleID, asset['Playlist_URL'], asset['Mode'],
                     asset['infoLabels'], asset['infoArt'], 1, context_items)
 
