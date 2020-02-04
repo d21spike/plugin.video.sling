@@ -13,7 +13,7 @@ class Slinger(object):
     VOD_Updated = 0
 
     Seconds_Per_Hour = 60 * 60
-    Channels_Interval = 168 * Seconds_Per_Hour  # One Week
+    Channels_Interval = 24 * Seconds_Per_Hour  # One Week
     Guide_Interval = 12 * Seconds_Per_Hour  # Twelve Hours
     Shows_Interval = 168 * Seconds_Per_Hour  # One Week
     On_Demand_Interval = 168 * Seconds_Per_Hour  # One Week
@@ -88,6 +88,10 @@ class Slinger(object):
         
         self.checkLastUpdate()
         self.checkUpdateIntervals()
+        if SETTINGS.getSetting('Enable_EPG') == 'true':
+            self.pvrON()
+            xbmc.executebuiltin("ActivateWindow(TVGuide)")
+            xbmc.executebuiltin("ActivateWindow(Home)")
 
         while not self.Monitor.abortRequested():
             timestamp = int(time.time())
@@ -269,7 +273,7 @@ class Slinger(object):
         log('Slinger Service: checkUpdateIntervals()')
 
         self.Channels_Interval = int(SETTINGS.getSetting('Channels_Interval')) * 24 * self.Seconds_Per_Hour
-        self.Guide_Interval = int(SETTINGS.getSetting('Guide_Interval')) * 24 * self.Seconds_Per_Hour
+        self.Guide_Interval = float(SETTINGS.getSetting('Guide_Interval')) * 24 * self.Seconds_Per_Hour
         self.Shows_Interval = int(SETTINGS.getSetting('Shows_Interval')) * 24 * self.Seconds_Per_Hour
         self.On_Demand_Interval = int(SETTINGS.getSetting('On_Demand_Interval')) * 24 * self.Seconds_Per_Hour
         self.VOD_Interval = int(SETTINGS.getSetting('Shows_Interval')) * 24 * self.Seconds_Per_Hour
@@ -463,7 +467,8 @@ class Slinger(object):
 
         if xbmc.getCondVisibility('System.HasAddon(pvr.iptvsimple)') and SETTINGS.getSetting('Enable_EPG') == 'true':
             self.checkIPTV()
-            self.toggleIPTV()
+            if self.Force_Update:
+                self.toggleIPTV()
 
         return result
 
@@ -607,12 +612,18 @@ class Slinger(object):
             dialog = xbmcgui.Dialog()
             dialog.notification('Sling', 'Please enable PVR IPTV Simple Client', xbmcgui.NOTIFICATION_INFO, 5000, False)
         else:
-            pvr_toggle_off = '{"jsonrpc": "2.0", "method": "Addons.SetAddonEnabled", "params": ' \
-                             '{"addonid": "pvr.iptvsimple", "enabled": false}, "id": 1}'
-            pvr_toggle_on = '{"jsonrpc": "2.0", "method": "Addons.SetAddonEnabled", "params": ' \
-                            '{"addonid": "pvr.iptvsimple", "enabled": true}, "id": 1}'
-            xbmc.executeJSONRPC(pvr_toggle_off)
-            xbmc.executeJSONRPC(pvr_toggle_on)
+            self.pvrOFF()
+            self.pvrON()
+
+    def pvrOFF(self):
+        pvr_toggle_off = '{"jsonrpc": "2.0", "method": "Addons.SetAddonEnabled", "params": ' \
+                         '{"addonid": "pvr.iptvsimple", "enabled": false}, "id": 1}'
+        xbmc.executeJSONRPC(pvr_toggle_off)
+
+    def pvrON(self):
+        pvr_toggle_on = '{"jsonrpc": "2.0", "method": "Addons.SetAddonEnabled", "params": ' \
+                        '{"addonid": "pvr.iptvsimple", "enabled": true}, "id": 1}'
+        xbmc.executeJSONRPC(pvr_toggle_on)
 
     def updateShows(self):
         log('Slinger Service: updateShows()')
@@ -779,5 +790,6 @@ class Slinger(object):
 
     def close(self):
         log('Slinger Service: close()')
+        self.pvrOFF()
         self.DB.close()
         del self.Monitor
