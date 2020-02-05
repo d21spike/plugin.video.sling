@@ -91,7 +91,8 @@ class Slinger(object):
         if SETTINGS.getSetting('Enable_EPG') == 'true':
             self.pvrON()
             xbmc.executebuiltin("ActivateWindow(TVGuide)")
-            xbmc.executebuiltin("ActivateWindow(Home)")
+            if not GUIDE_ON_START:
+                xbmc.executebuiltin("ActivateWindow(Home)")
 
         while not self.Monitor.abortRequested():
             timestamp = int(time.time())
@@ -415,19 +416,20 @@ class Slinger(object):
                         channel_name = channel[2]
                         progress.update(int((float(channel_count) / len(channels)) * 100), 'Downloading Day %i Guide Info: %s' % (day + 1, channel_name))
 
-                        query = "SELECT Last_Update FROM Guide WHERE Guide.Channel_GUID = '%s' " \
-                                "ORDER BY Last_Update DESC LIMIT 1,1" % channel_guid
+                        query = "SELECT Last_Update, strftime('%d', datetime('now', 'localtime')) as Current_Day, " \
+                                "strftime('%d', datetime(Start, 'unixepoch', 'localtime')) as Last_Guide_Day FROM Guide WHERE Guide.Channel_GUID = '"+channel_guid+"' " \
+                                "ORDER BY Start DESC LIMIT 1,1"
                         cursor.execute(query)
                         db_last_update = cursor.fetchone()
                         if db_last_update is not None and len(db_last_update):
                             last_update = db_last_update[0]
+                            cur_day = int(db_last_update[1]) + day
+                            guide_day = int(db_last_update[2])
                         else:
-                            last_update = current_timestamp - (60 * 60 * 24)
-                        update_day = int(datetime.datetime.fromtimestamp(last_update).strftime('%d'))
-                        today_day = int(datetime.datetime.fromtimestamp(current_timestamp).strftime('%d'))
+                            cur_day = 0
 
-                        log('Channel: %s | Last Update: %i | Force Update: %s' % (channel_name, last_update, str(self.Force_Update)))
-                        if update_day < today_day or self.Force_Update:
+                        log('Channel: %s | Current Day: %i | Last Guide Day: %i' % (channel_name, cur_day, guide_day))
+                        if guide_day < cur_day or self.Force_Update:
                             schedule_url = "%s/cms/publish3/channel/schedule/24/%s/1/%s.json" % \
                                            (self.EndPoints['cms_url'], url_timestamp, channel_guid)
                             log('updateGuide(): %s Schedule URL =>\r%s' % (channel_name, schedule_url))

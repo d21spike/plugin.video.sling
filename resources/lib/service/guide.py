@@ -13,6 +13,10 @@ class httpHandler(SimpleHTTPRequestHandler):
     @staticmethod
     def set_Parent(self, parent):
         self.Parent = parent
+    def do_HEAD(self):
+        self.send_response(200)
+        self.send_header('Content-type', 'text/xml')
+        self.end_headers()
 
     def do_GET(self):
         self.send_response(200)

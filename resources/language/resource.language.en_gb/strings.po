@@ -247,3 +247,7 @@ msgstr ""
 msgctxt "#30146"
 msgid "Slinger Runtime File"
 msgstr ""
+
+msgctxt "#30147"
+msgid "Open guide on startup"
+msgstr ""
