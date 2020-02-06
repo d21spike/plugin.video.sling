@@ -45,7 +45,7 @@ class Channel(object):
 
             log('Added DB channel => \r%s' % json.dumps(self.channelInfo(), indent=4))
         else:
-            url_timestamp = datetime.date.today().strftime("%y%m%d") + USER_OFFSET.replace('-', '')
+            url_timestamp = datetime.date.today().strftime("%y%m%d") + datetime.datetime.utcnow().strftime("%H%M")
             channel_url = "%s/cms/publish3/channel/schedule/24/%s/1/%s.json" % (self.Endpoints['cms_url'],
                                                                                 url_timestamp, channel_guid)
             response = requests.get(channel_url, headers=HEADERS, verify=VERIFY)
@@ -168,7 +168,7 @@ class Channel(object):
         else:
             log('Retrieving channel %s guide from Sling' % self.Name)
             if response_json is None and self.Endpoints is not None:
-                url_timestamp = datetime.date.today().strftime("%y%m%d") + USER_OFFSET.replace('-', '')
+                url_timestamp = datetime.date.today().strftime("%y%m%d") + datetime.datetime.utcnow().strftime("%H%M")
                 channel_url = "%s/cms/publish3/channel/schedule/24/%s/1/%s.json" % (self.Endpoints['cms_url'],
                                                                                     url_timestamp, self.GUID)
                 response = requests.get(channel_url, headers=HEADERS, verify=VERIFY)

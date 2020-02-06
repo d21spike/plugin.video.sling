@@ -396,7 +396,7 @@ class Slinger(object):
         for day in range(0, self.Guide_Days):  #Range is non-inclusive
             timestamp = timeStamp(datetime.date.today() + datetime.timedelta(days=day))
             url_timestamp = (datetime.date.today() + datetime.timedelta(days=day)).strftime("%y%m%d") + \
-                            USER_OFFSET.replace('-', '')
+                            datetime.datetime.utcnow().strftime("%H%M")
             log('updateGuide(): Timestamp: %i | URL Timestamp %s' % (timestamp, url_timestamp))
             current_timestamp = int(time.time())
             log('Start Timestamp: %i | Interval: %i' % (current_timestamp, self.Seconds_Per_Hour*24))
@@ -427,6 +427,7 @@ class Slinger(object):
                             guide_day = int(db_last_update[2])
                         else:
                             cur_day = 0
+                            guide_day = 0
 
                         log('Channel: %s | Current Day: %i | Last Guide Day: %i' % (channel_name, cur_day, guide_day))
                         if guide_day < cur_day or self.Force_Update:
@@ -482,6 +483,7 @@ class Slinger(object):
         log('processSchedule(): Retrieving channel %s guide from Sling for %i' %
             (channel_guid, timestamp))
         if 'scheduleList' in json_data:
+            schedule_list = []
             for slot in json_data['scheduleList']:
                 new_slot = {'Name': slot['title'] if 'title' in slot else '',
                             'Thumbnail': ICON,
@@ -536,7 +538,16 @@ class Slinger(object):
                 new_slot['Rating'] = new_slot['Rating'].strip().replace('_', ' ')
 
                 schedule[new_slot['Start']] = new_slot
-                self.saveSlot(channel_guid, new_slot)
+
+                schedule_list.append(
+                    (channel_guid, new_slot['Start'], new_slot['Stop'],
+                     new_slot['Name'].replace("'", "''"), new_slot['Description'].replace("'", "''"),
+                     new_slot['Thumbnail'], new_slot['Poster'], new_slot['Genre'],
+                     new_slot['Rating'], int(time.time()))
+                )
+
+            if schedule_list:
+                self.saveSlot(channel_guid, schedule_list)
         else:
             log('processSchedule(): scheduleList is empty, skipping.' )
         if len(schedule):
@@ -544,21 +555,15 @@ class Slinger(object):
 
         return result
 
-    def saveSlot(self, channel_guid, new_slot):
+    def saveSlot(self, channel_guid, schedule_list):
         log('Slinger Service: saveSlot()')
-
-        timestamp = int(time.time())
-        log('saveSlot(): Saving guide slot %s into DB for channel %s' % (new_slot['Name'], channel_guid))
-        cursor = self.DB.cursor()
+        log('saveSlot(): Saving guide slot into DB for channel %s' %  channel_guid)
 
         try:
             slot_query = "REPLACE INTO Guide (Channel_GUID, Start, Stop, Name, Description, Thumbnail, Poster, " \
                          "Genre, Rating, Last_Update) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-            cursor.execute(slot_query, (channel_guid, new_slot['Start'], new_slot['Stop'],
-                                        new_slot['Name'].replace("'", "''"), new_slot['Description'].replace("'", "''"),
-                                        new_slot['Thumbnail'], new_slot['Poster'], new_slot['Genre'],
-                                        new_slot['Rating'], timestamp))
-            self.DB.commit()
+            self.DB.executemany(slot_query, schedule_list)
+
         except sqlite3.Error as err:
             error = 'saveSlot(): Failed to save slot %s to DB, error => %s\rJSON => %s' % (new_slot['Name'], err, json.dumps(new_slot, indent=4))
             log(error)
