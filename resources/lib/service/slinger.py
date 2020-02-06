@@ -159,7 +159,9 @@ class Slinger(object):
             for key in json_data:
                 log('%s: %s' % (key, str(json_data[key])))
                 if key == "Tasks":
-                    self.Tasks = json_data[key]
+                    self.Tasks = {}
+                    for task_id in json_data[key]:
+                        self.Tasks[int(task_id)] = json_data[key][task_id]
                 if key == "State":
                     self.State = json_data[key]
                 if key == "Current_Job":
@@ -206,8 +208,8 @@ class Slinger(object):
 
     def doTasks(self):
         log('Slinger Service: doTasks()')
-        for id in sorted(self.Tasks):
-            if int(id) < 0:
+        for id in sorted(self.Tasks.keys()):
+            if id < 0:
                 self.Force_Update = True
             if self.Tasks[id] == "Update Channels":
                 self.updateTracker(state="Working", job="Updating Channels")
@@ -410,27 +412,32 @@ class Slinger(object):
                     progress.create('Sling TV')
                     progress.update(0, 'Downloading Day %i Guide Info...' % (day + 1))
                     channel_count = 0
+
+                    start_str = time.strftime("%m/%d/%Y") + " 00:00:00"
+                    end_str = time.strftime("%m/%d/%Y ") + " 23:59:59"
+                    start_ts = int(time.mktime(time.strptime(start_str, "%m/%d/%Y %H:%M:%S")))
+                    end_ts = int(time.mktime(time.strptime(end_str, "%m/%d/%Y %H:%M:%S")))
+
                     for channel in channels:
                         channel_guid = channel[0]
                         channel_poster = channel[1]
                         channel_name = channel[2]
                         progress.update(int((float(channel_count) / len(channels)) * 100), 'Downloading Day %i Guide Info: %s' % (day + 1, channel_name))
 
-                        query = "SELECT Last_Update, strftime('%d', datetime('now', 'localtime')) as Current_Day, " \
-                                "strftime('%d', datetime(Start, 'unixepoch', 'localtime')) as Last_Guide_Day FROM Guide WHERE Guide.Channel_GUID = '"+channel_guid+"' " \
-                                "ORDER BY Start DESC LIMIT 1,1"
+                        query = "SELECT Stop AS Guide_TS FROM Guide Where Channel_GUID = '%s' Order By Stop ASC LIMIT 1, 1" % channel_guid
                         cursor.execute(query)
                         db_last_update = cursor.fetchone()
                         if db_last_update is not None and len(db_last_update):
-                            last_update = db_last_update[0]
-                            cur_day = int(db_last_update[1]) + day
-                            guide_day = int(db_last_update[2])
+                            first_ts = start_ts + (day * 24 * self.Seconds_Per_Hour)
+                            last_ts = end_ts + (day * 24 * self.Seconds_Per_Hour)
+                            guide_ts = int(db_last_update[0])
                         else:
-                            cur_day = 0
-                            guide_day = 0
+                            first_ts = start_ts + (day * 24 * self.Seconds_Per_Hour)
+                            last_ts = end_ts + (day * 24 * self.Seconds_Per_Hour)
+                            guide_ts = 0
 
-                        log('Channel: %s | Current Day: %i | Last Guide Day: %i' % (channel_name, cur_day, guide_day))
-                        if guide_day < cur_day or self.Force_Update:
+                        log('Channel: %s | Current Day: %i | First TS: %i | Last TS: %i | Guide TS: %i' % (channel_name, day, first_ts, last_ts, guide_ts))
+                        if guide_ts < first_ts or (first_ts <= guide_ts <= last_ts) or self.Force_Update:
                             schedule_url = "%s/cms/publish3/channel/schedule/24/%s/1/%s.json" % \
                                            (self.EndPoints['cms_url'], url_timestamp, channel_guid)
                             log('updateGuide(): %s Schedule URL =>\r%s' % (channel_name, schedule_url))
@@ -557,7 +564,7 @@ class Slinger(object):
 
     def saveSlot(self, channel_guid, schedule_list):
         log('Slinger Service: saveSlot()')
-        log('saveSlot(): Saving guide slot into DB for channel %s' %  channel_guid)
+        log('saveSlot(): Saving guide info into DB for channel %s' %  channel_guid)
 
         try:
             slot_query = "REPLACE INTO Guide (Channel_GUID, Start, Stop, Name, Description, Thumbnail, Poster, " \

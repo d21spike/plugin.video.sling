@@ -18,11 +18,11 @@
         <setting id="Guide_Days" type="slider" label="30126" default="2" range="1,1,5" option="int" enable="eq(-1,true) + eq(-9,true)" />
         <setting id="Start_Guide" type="bool" label="30147" default="false" enable="eq(-10,true)" />
         <setting label="30120" type="lsep" />
-        <setting id="Channels_Interval" type="slider" label="30121" default="1" range="1,1,7" option="int" enable="eq(-11,true)" />
-        <setting id="Guide_Interval" type="slider" label="30122" default="0.5" range="0,0.5,7" option="float" enable="eq(-12,true)" />
-        <setting id="Shows_Interval" type="slider" label="30123" default="7" range="1,1,30" option="int" enable="eq(-13,true)" />
-        <setting id="On_Demand_Interval" type="slider" label="30124" default="7" range="1,1,30" option="int" enable="eq(-14,true)" />
-        <setting id="VOD_Interval" type="slider" label="30125" default="1" range="1,1,30" option="int" enable="eq(-15,true)" />
+        <setting id="Channels_Interval" type="slider" label="30121" default="1" range="1,1,7" option="int" enable="eq(-12,true)" />
+        <setting id="Guide_Interval" type="slider" label="30122" default="0.5" range="0,0.5,7" option="float" enable="eq(-13,true)" />
+        <setting id="Shows_Interval" type="slider" label="30123" default="7" range="1,1,30" option="int" enable="eq(-14,true)" />
+        <setting id="On_Demand_Interval" type="slider" label="30124" default="7" range="1,1,30" option="int" enable="eq(-15,true)" />
+        <setting id="VOD_Interval" type="slider" label="30125" default="1" range="1,1,30" option="int" enable="eq(-16,true)" />
         <setting label="30136" type="lsep" />
     </category>
     <category label="30130">
