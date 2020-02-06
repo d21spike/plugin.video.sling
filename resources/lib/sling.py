@@ -279,8 +279,6 @@ class Sling(object):
 
         if self.params['name'] != 'delete_db':
             log('Changing setting %s to value %s' % (self.params['name'], self.params['value']))
-            # SETTINGS.setSetting(self.params['name'], self.params['value'])
-            # log('New setting %s value: %s' % (self.params['name'], SETTINGS.getSetting(self.params['name'])))
 
             if self.params['name'] == 'update_channels' and self.params['value'] == 'true':
                 self.setUpdate('Update Channels')
