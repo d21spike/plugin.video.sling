@@ -82,7 +82,9 @@ def myChannels(self):
             elif self.Channels[guid].infoLabels()['duration'] == 0:
                 context_items = [
                     ('Update On Demand Content', 'RunPlugin(plugin://plugin.video.sling/?mode=demand&guid=%s&'
-                                                'action=update)' % guid)
+                                                'action=update)' % guid),
+                    ('Hide Channel', 'RunPlugin(plugin://plugin.video.sling/?'
+                     'mode=setting&name=%s&value=%s)' % ('hide_channel', guid))
                 ]
                 addDir(self.Channels[guid].Name, self.handleID, '', 'demand&guid=%s' % guid,
                     self.Channels[guid].infoLabels(), self.Channels[guid].infoArt(), context_items)

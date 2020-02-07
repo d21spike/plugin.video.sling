@@ -134,6 +134,8 @@ class Sling(object):
         xbmcplugin.addSortMethod(int(self.sysARG[1]), xbmcplugin.SORT_METHOD_TITLE)
         xbmcplugin.endOfDirectory(int(self.sysARG[1]), updateListing=UPDATE_LISTING, cacheToDisc=CACHE)
 
+        xbmc.executebuiltin('Container.SetSortMethod(1)')
+
     def checkDebug(self):
         global DEBUG_CODE
         DEBUG_CODE = SETTINGS.getSetting('Debug')
