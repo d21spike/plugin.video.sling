@@ -490,8 +490,7 @@ class Slinger(object):
         log('processSchedule(): Retrieving channel %s guide from Sling for %i' %
             (channel_guid, timestamp))
         if 'scheduleList' in json_data:
-            # Temporary revert, fixing breaking changes
-            # schedule_list = []
+            schedule_list = []
             for slot in json_data['scheduleList']:
                 new_slot = {'Name': slot['title'] if 'title' in slot else '',
                             'Thumbnail': ICON,
@@ -546,9 +545,6 @@ class Slinger(object):
                 new_slot['Rating'] = new_slot['Rating'].strip().replace('_', ' ')
 
                 schedule[new_slot['Start']] = new_slot
-                self.saveSlot(channel_guid, new_slot)
-                # Temporary revert, fixing breaking changes
-                """
                 schedule_list.append(
                     (channel_guid, new_slot['Start'], new_slot['Stop'],
                      new_slot['Name'].replace("'", "''"), new_slot['Description'].replace("'", "''"),
@@ -558,7 +554,7 @@ class Slinger(object):
 
             if schedule_list:
                 self.saveSlot(channel_guid, schedule_list)
-                """
+                
         else:
             log('processSchedule(): scheduleList is empty, skipping.' )
         if len(schedule):
@@ -566,36 +562,24 @@ class Slinger(object):
 
         return result
 
-    # Temporary revert, fixing breaking changes
-    # def saveSlot(self, channel_guid, schedule_list):
-    def saveSlot(self, channel_guid, new_slot):
+    def saveSlot(self, channel_guid, schedule_list):
         log('Slinger Service: saveSlot()')
-
-        timestamp = int(time.time())
-        log('saveSlot(): Saving guide slot %s into DB for channel %s' % (new_slot['Name'], channel_guid))
+        
+        log('saveSlot(): Saving guide info into DB for channel %s' % channel_guid)
         cursor = self.DB.cursor()
-
-        # Temporary revert, fixing breaking changes
-        # log('saveSlot(): Saving guide info into DB for channel %s' %  channel_guid)
 
         try:
             slot_query = "REPLACE INTO Guide (Channel_GUID, Start, Stop, Name, Description, Thumbnail, Poster, " \
                          "Genre, Rating, Last_Update) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-            cursor.execute(slot_query, (
-            channel_guid, new_slot['Start'], new_slot['Stop'],
-            new_slot['Name'].replace("'", "''"), new_slot['Description'].replace("'", "''"),
-                           new_slot['Thumbnail'], new_slot['Poster'], new_slot['Genre'],
-                           new_slot['Rating'], timestamp))
+            
+            cursor.executemany(slot_query, schedule_list)
             self.DB.commit()
-            # Temporary revert, fixing breaking changes
-            # self.DB.executemany(slot_query, schedule_list)
-
         except sqlite3.Error as err:
-            error = 'saveSlot(): Failed to save slot %s to DB, error => %s\rJSON => %s' % (new_slot['Name'], err, json.dumps(new_slot, indent=4))
+            error = 'saveSlot(): Failed to save guide information for channel %s to DB, error => %s' % (channel_guid, err)
             log(error)
             self.Last_Error = error
         except Exception as exc:
-            error = 'saveSlot(): Failed to save slot %s to DB, exception => %s\rJSON => %s' % (new_slot['Name'], exc, json.dumps(new_slot, indent=4))
+            error = 'saveSlot(): Failed to save guide information for channel %s to DB, exception => %s' % (channel_guid, exc)
             log(error)
             self.Last_Error = error
 

@@ -77,8 +77,6 @@ class Channel(object):
         self.Offered = bool(channel_json['offered']) if 'offered' in channel_json else True
         self.Call_Sign = channel_json['call_sign'] if 'call_sign' in channel_json else ''
 
-        # Temporary revert, fixing breaking changes
-        # self.On_Demand = False
         if 'metadata' in channel_json:
             metadata = channel_json['metadata']
             self.Name = metadata['channel_name'] if 'channel_name' in metadata else self.Name
@@ -90,9 +88,6 @@ class Channel(object):
                 self.Genre = genres
             self.Poster = metadata['default_schedule_image']['url'] if 'default_schedule_image' in metadata else self.Poster
             self.Language = metadata['language'] if 'language' in metadata else ''
-            # Temporary revert, fixing breaking changes
-            # if 'ribbon_order' in metadata and 'On Demand' in metadata['ribbon_order']:
-            #     self.On_Demand = True
         if self.Poster == FANART and 'default_schedule_image' in channel_json:
             self.Poster = channel_json['default_schedule_image']['url'] if channel_json['default_schedule_image'] is not None else self.Poster
         if len(self.Language) == 0:
@@ -101,7 +96,6 @@ class Channel(object):
         self.Name = self.Name.strip()
         self.Genre = self.Genre.strip()
         self.Language = self.Language.strip()
-        # Temporary revert, fixing breaking changes
         self.On_Demand = self.onDemand()
 
         self.saveChannel()
@@ -163,6 +157,7 @@ class Channel(object):
 
         result = False
         on_now = {}
+        schedule = {}
 
         timestamp = int(time.time())
         found, db_on_now = self.getDBGuide(timestamp)
@@ -181,6 +176,7 @@ class Channel(object):
             if response_json is not None:
                 if 'schedule' in response_json:
                     if 'scheduleList' in response_json['schedule']:
+                        schedule_list = []
                         for slot in response_json['schedule']['scheduleList']:
                             new_slot = {'Name': slot['title'] if 'title' in slot else '',
                                         'Thumbnail': ICON,
@@ -236,7 +232,17 @@ class Channel(object):
                             new_slot['Genre'] = new_slot['Genre'].strip()
                             new_slot['Rating'] = new_slot['Rating'].strip().replace('_', ' ')
 
-                            self.saveSlot(new_slot)
+                            schedule[new_slot['Start']] = new_slot
+                            schedule_list.append(
+                                (self.GUID, new_slot['Start'], new_slot['Stop'],
+                                new_slot['Name'].replace(
+                                    "'", "''"), new_slot['Description'].replace("'", "''"),
+                                new_slot['Thumbnail'], new_slot['Poster'], new_slot['Genre'],
+                                new_slot['Rating'], int(time.time()))
+                            )
+
+                        if schedule_list:
+                            self.saveSlot(self.GUID, schedule_list)
 
                 result = True
 
@@ -624,22 +630,18 @@ class Channel(object):
 
         return found, db_channel
 
-    def saveSlot(self, new_slot):
-        log('Saving guide slot %s into DB for channel %s' % (new_slot['Name'], self.Name))
-        timestamp = int(time.time())
+    def saveSlot(self, channel_guid, schedule_list):
+        log('Saving guide info into DB for channel %s' % self.Name)
         cursor = self.DB.cursor()
 
         try:
             slot_query = "REPLACE INTO Guide (Channel_GUID, Start, Stop, Name, Description, Thumbnail, Poster, " \
                             "Genre, Rating, Last_Update) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-            cursor.execute(slot_query, (self.GUID, new_slot['Start'], new_slot['Stop'],
-                                        new_slot['Name'].replace("'", "''"), new_slot['Description'].replace("'", "''"),
-                                        new_slot['Thumbnail'], new_slot['Poster'], new_slot['Genre'],
-                                        new_slot['Rating'], timestamp))
+            cursor.executemany(slot_query, schedule_list)
         except sqlite3.Error as err:
-            log('Failed to save slot %s to DB, error => %s\rJSON => %s' % (new_slot['Name'], err, json.dumps(new_slot, indent=4)))
+            log('Failed to save guide info for channel %s into DB, error => %s' % (self.Name, err))
         except Exception as exc:
-            log('Failed to save slot %s to DB, exception => %s\rJSON => %s' % (new_slot['Name'], exc, json.dumps(new_slot, indent=4)))
+            log('Failed to save guide info for channel %s into DB, exception => %s' % (self.Name, exc))
 
         self.DB.commit()
 
