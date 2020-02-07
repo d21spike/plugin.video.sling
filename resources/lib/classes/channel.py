@@ -77,7 +77,8 @@ class Channel(object):
         self.Offered = bool(channel_json['offered']) if 'offered' in channel_json else True
         self.Call_Sign = channel_json['call_sign'] if 'call_sign' in channel_json else ''
 
-        self.On_Demand = False
+        # Temporary revert, fixing breaking changes
+        # self.On_Demand = False
         if 'metadata' in channel_json:
             metadata = channel_json['metadata']
             self.Name = metadata['channel_name'] if 'channel_name' in metadata else self.Name
@@ -89,8 +90,9 @@ class Channel(object):
                 self.Genre = genres
             self.Poster = metadata['default_schedule_image']['url'] if 'default_schedule_image' in metadata else self.Poster
             self.Language = metadata['language'] if 'language' in metadata else ''
-            if 'ribbon_order' in metadata and 'On Demand' in metadata['ribbon_order']:
-                self.On_Demand = True
+            # Temporary revert, fixing breaking changes
+            # if 'ribbon_order' in metadata and 'On Demand' in metadata['ribbon_order']:
+            #     self.On_Demand = True
         if self.Poster == FANART and 'default_schedule_image' in channel_json:
             self.Poster = channel_json['default_schedule_image']['url'] if channel_json['default_schedule_image'] is not None else self.Poster
         if len(self.Language) == 0:
@@ -99,6 +101,8 @@ class Channel(object):
         self.Name = self.Name.strip()
         self.Genre = self.Genre.strip()
         self.Language = self.Language.strip()
+        # Temporary revert, fixing breaking changes
+        self.On_Demand = self.onDemand()
 
         self.saveChannel()
 
