@@ -58,7 +58,7 @@ def myTVRibbon(self):
     response = requests.get(url, headers=TVOD_HEADERS, verify=VERIFY)
     if response is not None and response.status_code == 200:
         response = response.json()
-        log(json.dumps(response, indent=4))
+        # log(json.dumps(response, indent=4))
 
         # ======================== Process Ribbon Tiles ========================
         if 'tiles' in response:
