@@ -59,14 +59,14 @@ def executeSearch(self, query):
                                        show.infoArt(), context_items)
                                 gotResults = True
                     elif "MOVIES" in ribbon['title']:
-                        s = requests.Session()
+                        session = requests.Session()
                         for sling_movie in ribbon['tiles']:
                             if 'actions' in sling_movie:
                                 if 'PLAY_CONTENT' in sling_movie['actions']:
                                     playback_info = sling_movie['actions']['PLAY_CONTENT']['playback_info']
                                     if 'channel_guid' in playback_info:
                                         channel = Channel(playback_info['channel_guid'], self.endPoints, self.db)
-                                        movie_response = s.get(sling_movie['actions']['ASSET_IVIEW']['url'],
+                                        movie_response = session.get(sling_movie['actions']['ASSET_IVIEW']['url'],
                                                                       headers=HEADERS, verify=VERIFY)
                                         if movie_response is not None:
                                             movie_json = movie_response.json()
@@ -81,7 +81,7 @@ def executeSearch(self, query):
                                                     addLink(name, self.handleID, movie['Playlist_URL'], 'play',
                                                             infoLabels, movie['infoArt'])
                                                     gotResults = True
-                        s.close()
+                        session.close()
         if not gotResults:
             notificationDialog(LANGUAGE(30108))
             xbmc.executebuiltin('Action(Back)')

@@ -63,7 +63,7 @@ def myTVRibbon(self):
         # ======================== Process Ribbon Tiles ========================
         if 'tiles' in response:
             if len(response['tiles']) > 0:
-                s = requests.Session()
+                session = requests.Session()
                 for tile in response['tiles']:
                     action = tile['primary_action']
                     if action is None:
@@ -76,12 +76,12 @@ def myTVRibbon(self):
                     elif action == 'PLAY_CONTENT' and 'channel_name' in tile:
                         myTVChannel(self, tile)
                     elif action == 'ASSET_IVIEW':
-                        myTVProgram(self, tile, s)
+                        myTVProgram(self, tile, session)
                     elif action == 'FRANCHISE_IVIEW':
                         myTVShow(self, tile)
                     elif action == 'ASSET_RECORDING_IVIEW':
                         myTVRecording(self, tile)
-                s.close()
+                session.close()
 
 # ======================== My TV Channel (Uses Class) ========================
 def myTVChannel(self, tile):
