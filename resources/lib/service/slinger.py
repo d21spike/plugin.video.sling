@@ -52,14 +52,15 @@ class Slinger(object):
         loggedIn, message = self.Auth.logIn(loginURL, USER_EMAIL, USER_PASSWORD)
         log("__init__: logIn() ==> Success: " + str(loggedIn) + " | Message: " + message)
         if loggedIn:
+            s = requests.Session()
             log("__init__: self.user Subscriptions URL => " + USER_INFO_URL)
-            gotSubs, message = self.Auth.getUserSubscriptions(USER_INFO_URL)
+            gotSubs, message = self.Auth.getUserSubscriptions(USER_INFO_URL, s)
             log("__init__: self.user Subscription Attempt, Success => " + str(gotSubs) + "Message => " + message)
             self.Auth.getAccessJWT(self.EndPoints)
             if gotSubs:
                 USER_SUBS = message
 
-                success, region = self.Auth.getRegionInfo()
+                success, region = self.Auth.getRegionInfo(s)
                 if not success:
                     log("__init__: Failed to get User Region Info, exiting.")
                     self.close()
@@ -69,6 +70,7 @@ class Slinger(object):
             else:
                 log("__init__: Failed to get User Subscriptions, exiting.")
                 self.close()
+            s.close()
 
         if not xbmcvfs.exists(TRACKER_PATH):
             self.updateTracker(state="Init", job="Creating tracker file")
@@ -418,6 +420,7 @@ class Slinger(object):
                     start_ts = int(time.mktime(time.strptime(start_str, "%m/%d/%Y %H:%M:%S")))
                     end_ts = int(time.mktime(time.strptime(end_str, "%m/%d/%Y %H:%M:%S")))
 
+                    s = requests.Session()
                     for channel in channels:
                         channel_guid = channel[0]
                         channel_poster = channel[1]
@@ -441,8 +444,8 @@ class Slinger(object):
                             schedule_url = "%s/cms/publish3/channel/schedule/24/%s/1/%s.json" % \
                                            (self.EndPoints['cms_url'], url_timestamp, channel_guid)
                             log('updateGuide(): %s Schedule URL =>\r%s' % (channel_name, schedule_url))
-                            response = requests.get(schedule_url, headers=HEADERS, verify=VERIFY)
-                            if response is not None and response.status_code == 200:
+                            response = s.get(schedule_url, headers=HEADERS, verify=VERIFY)
+                            if response.status_code == 200:
                                 channel_json = response.json()
                                 if channel_json is not None:
                                     try:
@@ -458,6 +461,7 @@ class Slinger(object):
                         channel_count += 1
                         if self.Monitor.abortRequested():
                             break
+                    s.close()
                     progress.close()
                 result = True
             except sqlite3.Error as err:

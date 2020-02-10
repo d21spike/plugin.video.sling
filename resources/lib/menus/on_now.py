@@ -18,6 +18,7 @@ def onNow(self):
     if response is not None and response.status_code == 200:
         response = response.json()
         if 'ribbons' in response:
+            s = requests.Session()
             for ribbon in response['ribbons']:
                 if ribbon['total_tiles'] > 0:
                     infoLabels = {
@@ -27,14 +28,15 @@ def onNow(self):
                         'thumb': ICON, 'logo': ICON, 'clearlogo': ICON, 'poster': ICON, 'fanart': FANART
                     }
                     ribbon_url = ribbon['_href']
-                    response = requests.get(ribbon_url, headers=HEADERS, verify=VERIFY)
-                    if response is not None and response.status_code == 200:
+                    response = s.get(ribbon_url, headers=HEADERS, verify=VERIFY)
+                    if response.status_code == 200:
                         response = response.json()
                         if 'tiles' in response:
                             if response['tiles'] is not None:
                                 if len(response['tiles']) > 0:
                                     addDir(ribbon['title'], self.handleID, ribbon['_href'], 'on_now', infoLabels,
                                            infoArt)
+            s.close()
 
 
 def onNowRibbon(self):

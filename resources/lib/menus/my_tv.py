@@ -63,6 +63,7 @@ def myTVRibbon(self):
         # ======================== Process Ribbon Tiles ========================
         if 'tiles' in response:
             if len(response['tiles']) > 0:
+                s = requests.Session()
                 for tile in response['tiles']:
                     action = tile['primary_action']
                     if action is None:
@@ -75,11 +76,12 @@ def myTVRibbon(self):
                     elif action == 'PLAY_CONTENT' and 'channel_name' in tile:
                         myTVChannel(self, tile)
                     elif action == 'ASSET_IVIEW':
-                        myTVProgram(self, tile)
+                        myTVProgram(self, tile, s)
                     elif action == 'FRANCHISE_IVIEW':
                         myTVShow(self, tile)
                     elif action == 'ASSET_RECORDING_IVIEW':
                         myTVRecording(self, tile)
+                s.close()
 
 # ======================== My TV Channel (Uses Class) ========================
 def myTVChannel(self, tile):
@@ -128,7 +130,7 @@ def myTVChannel(self, tile):
                    channel.infoLabels(), channel.infoArt(), context_items)
 
 # ======================== My TV Program/Episode/Sport/Etc ========================
-def myTVProgram(self, tile):
+def myTVProgram(self, tile, session):
     log('myTVProgram(): Adding Program')
 
     asset = initAsset(self, None)
@@ -138,7 +140,7 @@ def myTVProgram(self, tile):
     if asset['GUID'] != '' and asset['URL'] != '':
 
         # ======================== Get Asset JSON ========================
-        response = requests.get(asset['URL'], headers=HEADERS, verify=VERIFY)
+        response = session.get(asset['URL'], headers=HEADERS, verify=VERIFY)
         if response is not None and response.status_code == 200:
             response = response.json()
             asset = assetJSON(self, response, asset)
@@ -176,7 +178,7 @@ def myTVShow(self, tile):
             addDir(show.Name, self.handleID, '', 'show&guid=%s' % show.GUID, show.infoLabels(), show.infoArt(), context_items)
 
 # ======================== My TV DVR ========================
-def myTVRecording(self, tile):
+def myTVRecording(self, tile, session):
     log('myTVRecording(): Adding asset')
 
     asset = initAsset(self, None)
@@ -184,8 +186,8 @@ def myTVRecording(self, tile):
 
     # ======================== Check if an Asset was returned ========================
     if asset['URL'] != '':
-        response = requests.get(asset['URL'], headers=HEADERS, verify=VERIFY)
-        if response is not None and response.status_code == 200:
+        response = session.get(asset['URL'], headers=HEADERS, verify=VERIFY)
+        if response.status_code == 200:
             response = response.json()
             asset = assetJSON(self, response, asset)
             asset = assetInfo(self, asset)
