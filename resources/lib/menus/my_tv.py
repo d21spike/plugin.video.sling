@@ -58,12 +58,12 @@ def myTVRibbon(self):
     response = requests.get(url, headers=TVOD_HEADERS, verify=VERIFY)
     if response is not None and response.status_code == 200:
         response = response.json()
-        # log(json.dumps(response, indent=4))
+        log(json.dumps(response, indent=4))
 
         # ======================== Process Ribbon Tiles ========================
         if 'tiles' in response:
             if len(response['tiles']) > 0:
-                s = requests.Session()
+                session = requests.Session()
                 for tile in response['tiles']:
                     action = tile['primary_action']
                     if action is None:
@@ -76,12 +76,12 @@ def myTVRibbon(self):
                     elif action == 'PLAY_CONTENT' and 'channel_name' in tile:
                         myTVChannel(self, tile)
                     elif action == 'ASSET_IVIEW':
-                        myTVProgram(self, tile, s)
+                        myTVProgram(self, tile, session)
                     elif action == 'FRANCHISE_IVIEW':
                         myTVShow(self, tile)
                     elif action == 'ASSET_RECORDING_IVIEW':
-                        myTVRecording(self, tile)
-                s.close()
+                        myTVRecording(self, tile, session)
+                session.close()
 
 # ======================== My TV Channel (Uses Class) ========================
 def myTVChannel(self, tile):
@@ -154,8 +154,9 @@ def myTVProgram(self, tile, session):
                     ('View Show', 'Container.Update(plugin://plugin.video.sling/?mode=show&guid=%s&name=%s)' %
                      (asset['Show_GUID'], asset['Show_Name']))
                 ]
-            if asset['Playlist_URL'].split('/')[-2] == 'scheduleqvt' and asset['Channel_GUID'] != '':
-                asset['Playlist_URL'] += '?channel=%s' % asset['Channel_GUID']
+            if asset['Playlist_URL'] != '':
+                if asset['Playlist_URL'].split('/')[-2] == 'scheduleqvt' and asset['Channel_GUID'] != '':
+                    asset['Playlist_URL'] += '?channel=%s' % asset['Channel_GUID']
             addLink(asset['Name'], self.handleID, asset['Playlist_URL'], asset['Mode'],
                     asset['infoLabels'], asset['infoArt'], 1, context_items)
 
@@ -331,7 +332,8 @@ def assetJSON(self, myjson, asset):
         for schedule in myjson['schedules']:
             if 'schedule_guid' in schedule:
                 if schedule['schedule_guid'] == asset['GUID'] or ('channel_guid' in schedule and schedule['channel_guid'] == asset['Channel_GUID']) or \
-                        ('channel_title' in schedule and schedule['channel_title'].upper() == asset['Channel_Name'].upper()) or len(myjson['schedules']) == 1:
+                        ('channel_title' in schedule and schedule['channel_title'].upper() == asset['Channel_Name'].upper()) or \
+                        len(myjson['schedules']) == 1 or subscribedChannel(self, schedule['channel_guid']):
                     if 'playback_info' in schedule:
                         if asset['Playlist_URL'] == '' and schedule['playback_info'] != '':
                             asset['Playlist_URL'] = schedule['playback_info']
@@ -391,7 +393,7 @@ def assetJSON(self, myjson, asset):
             for rating in metadata['ratings']:
                 ratings = '%s, %s' % (ratings, rating.replace('_', ' ')) if ratings != '' else rating.replace('_', ' ')
             asset['Rating'] = ratings
-    if 'entitlements' in myjson:
+    if 'entitlements' in myjson and asset['Playlist_URL'] == '':
         for entitlement in myjson['entitlements']:
             if 'playback_start' in entitlement:
                 if asset['Start'] == asset['Stop']:
@@ -447,3 +449,17 @@ def assetInfo(self, asset):
     asset['infoArt']['fanart'] = asset['Poster']
 
     return asset
+
+# ======================== Subscribed Channel Check ========================
+def subscribedChannel(self, channel_guid):
+    log('subscribedChannel(): Checking channel %s' % channel_guid)
+
+    subscribed = False
+    cursor = self.db.cursor()
+    query = "SELECT Name FROM Channels WHERE GUID = '%s'" % channel_guid
+    cursor.execute(query)
+    channel = cursor.fetchone()
+    if channel is not None:
+        subscribed = True
+
+    return subscribed
