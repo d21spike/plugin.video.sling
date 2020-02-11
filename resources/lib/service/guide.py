@@ -82,7 +82,7 @@ class Guide(object):
         query = "SELECT DISTINCT Channels.Guid, Channels.name, Channels.thumbnail, Channels.qvt_url, Channels.genre " \
                 "FROM Channels " \
                 "INNER JOIN Guide on Channels.GUID = Guide.Channel_GUID " \
-                "WHERE Channels.Name NOT LIKE '%Sling%' AND Channels.Hidden = 0 ORDER BY Channels.Name asc"
+                "WHERE Channels.Name NOT LIKE '%Sling%' AND Channels.Hidden = 0 ORDER BY Channels.Name asc, Channels.Last_Update asc"
         try:
             cursor = self.DB.cursor()
             cursor.execute(query)
