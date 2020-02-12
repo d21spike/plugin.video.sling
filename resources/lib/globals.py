@@ -31,7 +31,7 @@ LEGACY_SUBS = SETTINGS.getSetting('legacy_subs')
 USER_DMA = SETTINGS.getSetting('user_dma')
 USER_OFFSET = SETTINGS.getSetting('user_offset')
 USER_ZIP = SETTINGS.getSetting('user_zip')
-GUIDE_ON_START = SETTINGS.getSetting('start_guide') == 'true'
+GUIDE_ON_START = SETTINGS.getSetting('start_guide')
 
 CACHE = False
 PLUGIN_CACHE = None
