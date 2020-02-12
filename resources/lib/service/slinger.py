@@ -26,6 +26,7 @@ class Slinger(object):
     Auth = None
     DB = None
     EndPoints = None
+    
     First_Pass = True
     Force_Update = False
     Tasks = {}
@@ -84,13 +85,14 @@ class Slinger(object):
 
     def main(self):
         log('Slinger Service: main()')
+        
         self.checkLastUpdate()
         self.checkUpdateIntervals()
         if SETTINGS.getSetting('Enable_EPG') == 'true':
             self.pvrON()
+            xbmc.executebuiltin("ActivateWindow(Home)")
             if SETTINGS.getSetting('Start_Guide') == 'true':
                 xbmc.executebuiltin("ActivateWindow(TVGuide)")
-
 
         while not self.Monitor.abortRequested():
             timestamp = int(time.time())
@@ -116,6 +118,7 @@ class Slinger(object):
 
             if len(self.Tasks):
                 self.doTasks()
+            
             # Sleep for 30 minutes or exit on break
             count = 0
             abort = False
@@ -129,10 +132,11 @@ class Slinger(object):
                         log('Guide Service has been shut down.')
                     abort = True
                     break
-
+                
                 self.checkTracker()
                 if len(self.Tasks):
                     break
+
                 self.updateTracker(state="Idle", job="")
                 count += 1
 
@@ -171,6 +175,7 @@ class Slinger(object):
 
     def updateTracker(self, state, job):
         log('Slinger Service: updateTracker()')
+        
         self.State = state
         self.Current_Job = job
         if self.First_Pass:
@@ -305,7 +310,7 @@ class Slinger(object):
             error = 'updateChannels(): Failed to retrieve channels from DB, exception => %s' % exc
             log(error)
             self.Last_Error = error
-
+        
         subs = binascii.b2a_base64(str.encode(LEGACY_SUBS.replace('+', ','))).decode().strip()
         channels_url = '%s/cms/publish3/domain/channels/v4/%s/%s/%s/1.json' % \
                        (self.EndPoints['cms_url'], USER_OFFSET, USER_DMA, subs)
@@ -327,12 +332,12 @@ class Slinger(object):
                                 channel_count += 1
                             else:
                                 log('Skipping channel %s\r\n%s' % (channel['network_affiliate_name'], json.dumps(db_channels[channel['channel_guid']], indent=4)))
-
+                                
                             progress.update(int((float(channel_count) / len(sub_pack['channels'])) * 100), 'Downloading Channel Info: %s' % channel['network_affiliate_name'])
                             if self.Monitor.abortRequested():
                                 break
                         progress.close()
-
+                        
                         try:
                             query = "SELECT GUID FROM Channels WHERE Protected = 1"
                             cursor = self.DB.cursor()
@@ -551,7 +556,7 @@ class Slinger(object):
 
             if schedule_list:
                 self.saveSlot(channel_guid, schedule_list)
-
+                
         else:
             log('processSchedule(): scheduleList is empty, skipping.' )
         if len(schedule):
@@ -561,14 +566,14 @@ class Slinger(object):
 
     def saveSlot(self, channel_guid, schedule_list):
         log('Slinger Service: saveSlot()')
-
+        
         log('saveSlot(): Saving guide info into DB for channel %s' % channel_guid)
         cursor = self.DB.cursor()
 
         try:
             slot_query = "REPLACE INTO Guide (Channel_GUID, Start, Stop, Name, Description, Thumbnail, Poster, " \
                          "Genre, Rating, Last_Update) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-
+            
             cursor.executemany(slot_query, schedule_list)
             self.DB.commit()
         except sqlite3.Error as err:
@@ -621,7 +626,7 @@ class Slinger(object):
 
     def toggleIPTV(self):
         log('Slinger Service: toggleIPTV()')
-
+        
         if not xbmc.getCondVisibility('System.HasAddon(pvr.iptvsimple)'):
             dialog = xbmcgui.Dialog()
             dialog.notification('Sling', 'Please enable PVR IPTV Simple Client', xbmcgui.NOTIFICATION_INFO, 5000, False)
@@ -676,7 +681,7 @@ class Slinger(object):
                         break
                 progress.close()
             result = True
-
+        
         except sqlite3.Error as err:
             error = 'updateShows(): Failed to retrieve shows from DB, error => %s' % err
             log(error)
@@ -687,7 +692,7 @@ class Slinger(object):
             log(error)
             self.Last_Error = error
             result = False
-
+        
         return result
 
     def updateOnDemand(self):
