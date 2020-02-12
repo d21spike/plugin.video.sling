@@ -26,7 +26,6 @@ class Slinger(object):
     Auth = None
     DB = None
     EndPoints = None
-
     First_Pass = True
     Force_Update = False
     Tasks = {}
@@ -85,7 +84,6 @@ class Slinger(object):
 
     def main(self):
         log('Slinger Service: main()')
-
         self.checkLastUpdate()
         self.checkUpdateIntervals()
         if SETTINGS.getSetting('Enable_EPG') == 'true':
@@ -118,7 +116,6 @@ class Slinger(object):
 
             if len(self.Tasks):
                 self.doTasks()
-
             # Sleep for 30 minutes or exit on break
             count = 0
             abort = False
@@ -136,7 +133,6 @@ class Slinger(object):
                 self.checkTracker()
                 if len(self.Tasks):
                     break
-
                 self.updateTracker(state="Idle", job="")
                 count += 1
 
@@ -175,7 +171,6 @@ class Slinger(object):
 
     def updateTracker(self, state, job):
         log('Slinger Service: updateTracker()')
-
         self.State = state
         self.Current_Job = job
         if self.First_Pass:
