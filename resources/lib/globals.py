@@ -22,6 +22,7 @@ LANGUAGE = SETTINGS.getLocalizedString
 TIMEOUT = 15
 USER_EMAIL = SETTINGS.getSetting('User_Email')
 USER_PASSWORD = SETTINGS.getSetting('User_Password')
+USE_SLINGER = SETTINGS.getSetting(id='Use_Slinger') == 'true'
 ACCESS_TOKEN = SETTINGS.getSetting('access_token')
 ACCESS_TOKEN_JWT = SETTINGS.getSetting('access_token_jwt')
 SUBSCRIBER_ID = SETTINGS.getSetting('subscriber_id')
@@ -31,7 +32,7 @@ LEGACY_SUBS = SETTINGS.getSetting('legacy_subs')
 USER_DMA = SETTINGS.getSetting('user_dma')
 USER_OFFSET = SETTINGS.getSetting('user_offset')
 USER_ZIP = SETTINGS.getSetting('user_zip')
-GUIDE_ON_START = SETTINGS.getSetting('start_guide') == 'true'
+GUIDE_ON_START = SETTINGS.getSetting('start_guide') == 'true' and USE_SLINGER
 
 CACHE = False
 PLUGIN_CACHE = None

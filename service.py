@@ -1,5 +1,6 @@
 import xbmcaddon
+from resources.lib.globals import *
 from resources.lib.service.slinger import Slinger
 
-if xbmcaddon.Addon().getSetting(id='Use_Slinger') == 'true':
+if USE_SLINGER:
     Slinger()
