@@ -210,5 +210,17 @@ def addLink(name, handleID,  url, mode, info=None, art=None, total=0, contextMen
 def timeStamp(date):
     return calendar.timegm(date.timetuple())
 
+
+def subscribedChannel(self, channel_guid):
+    subscribed = False
+    cursor = self.DB.cursor()
+    query = "SELECT Name FROM Channels WHERE GUID = '%s'" % channel_guid
+    cursor.execute(query)
+    channel = cursor.fetchone()
+    if channel is not None:
+        subscribed = True
+
+    return subscribed
+
 from resources.lib.classes.channel import Channel
 from resources.lib.classes.show import Show

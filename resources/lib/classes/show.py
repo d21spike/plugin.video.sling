@@ -161,10 +161,8 @@ class Show(object):
         episode_query = ""
         for episode in season['programs']:
             new_episode, episode_query = self.processEpisode(episode, new_season, new_show, episode_query)
-            # log(json.dumps(new_episode, indent=4))
             new_season['Episodes'][new_episode['Number']] = new_episode
-        # log(json.dumps(new_season['Episodes'], indent=4))
-
+        
         new_season['infoLabels'] = {
             'title': new_season['Name'],
             'plot': new_season['Description'],
@@ -245,11 +243,12 @@ class Show(object):
                 if int(slot['stop'][0:4]) > 2099: slot['stop'] = slot['stop'].replace(slot['stop'][0:4], "2099")
                 stop = timeStamp(stringToDate(slot['stop'].replace('T', ' ').replace('Z', '').replace('0001', '2099'),
                                         '%Y-%m-%d %H:%M:%S'))
-                if start <= timestamp <= stop:
-                    new_episode['Start'] = start
-                    new_episode['Stop'] = stop
-                    new_episode['Playlist_URL'] = slot['qvt']
-                    break
+                if 'channel_guid' in slot:
+                    if subscribedChannel(self, slot['channel_guid']) and (start <= timestamp <= stop):
+                        new_episode['Start'] = start
+                        new_episode['Stop'] = stop
+                        new_episode['Playlist_URL'] = '%s?channel=%s' % (slot['qvt'], slot['channel_guid'])
+                        break
             if new_episode['Playlist_URL'] != '':
                 break
         if new_episode['Playlist_URL'] == '':
@@ -264,9 +263,11 @@ class Show(object):
                     if int(slot['stop'][0:4]) > 2099: slot['stop'] = slot['stop'].replace(slot['stop'][0:4], "2099")
                     stop = timeStamp(stringToDate(slot['stop'].replace('T', ' ').replace('Z', '').replace('0001', '2019'),
                                             '%Y-%m-%d %H:%M:%S'))
-                    new_episode['Start'] = start
-                    new_episode['Stop'] = stop
-                    new_episode['Playlist_URL'] = slot['qvt']
+                    if 'channel_guid' in slot:
+                        if subscribedChannel(self, slot['channel_guid']):
+                            new_episode['Start'] = start
+                            new_episode['Stop'] = stop
+                            new_episode['Playlist_URL'] = '%s?channel=%s' % (slot['qvt'], slot['channel_guid'])
         new_episode['infoLabels'] = {
             'title': new_episode['Name'],
             'plot': new_episode['Description'],

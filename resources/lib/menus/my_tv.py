@@ -97,7 +97,7 @@ def myTVChannel(self, tile):
     if asset['GUID'] != '':
 
         # ======================== Init Channel ========================
-        channel = Channel(asset['GUID'], self.endPoints, self.db)
+        channel = Channel(asset['GUID'], self.endPoints, self.DB)
 
         # ======================== Check On Now and update Art ========================
         if len(channel.On_Now) == 0 or channel.On_Now['Stop'] < timestamp:
@@ -170,7 +170,7 @@ def myTVShow(self, tile):
 
     # ======================== Check if an Asset was returned ========================
     if asset['GUID'] != '':
-        show = Show(asset['GUID'], self.endPoints, self.db)
+        show = Show(asset['GUID'], self.endPoints, self.DB)
         if show.Name != "":
             context_items = [
                 ('Add to Favorite Shows', 'RunPlugin(plugin://plugin.video.sling/?mode=show&guid=%s&action=favorite)' % show.GUID),
@@ -449,17 +449,3 @@ def assetInfo(self, asset):
     asset['infoArt']['fanart'] = asset['Poster']
 
     return asset
-
-# ======================== Subscribed Channel Check ========================
-def subscribedChannel(self, channel_guid):
-    log('subscribedChannel(): Checking channel %s' % channel_guid)
-
-    subscribed = False
-    cursor = self.db.cursor()
-    query = "SELECT Name FROM Channels WHERE GUID = '%s'" % channel_guid
-    cursor.execute(query)
-    channel = cursor.fetchone()
-    if channel is not None:
-        subscribed = True
-
-    return subscribed

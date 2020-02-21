@@ -50,7 +50,7 @@ def onNowRibbon(self):
         if 'tiles' in response:
             for tile in response['tiles']:
                 if 'channel' in tile:
-                    channel = Channel(tile['channel']['guid'], self.endPoints, self.db)
+                    channel = Channel(tile['channel']['guid'], self.endPoints, self.DB)
                     if len(channel.On_Now) == 0 or channel.On_Now['Stop'] < timestamp:
                         result, on_now = channel.onNow()
                         if result: channel.On_Now = on_now

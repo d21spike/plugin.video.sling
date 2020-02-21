@@ -151,25 +151,29 @@ class Slinger(object):
 
         self.close()
 
-    def checkTracker(self, ):
+    def checkTracker(self):
         log('Slinger Service: checkTracker()')
 
         with open(TRACKER_PATH) as tracker_file:
-            json_data = json.load(tracker_file)
-            for key in json_data:
-                log('%s: %s' % (key, str(json_data[key])))
-                if key == "Tasks":
-                    self.Tasks = {}
-                    for task_id in json_data[key]:
-                        self.Tasks[int(task_id)] = json_data[key][task_id]
-                if key == "State":
-                    self.State = json_data[key]
-                if key == "Current_Job":
-                    self.Current_Job = json_data[key]
-                if key == "Last_Update":
-                    self.Last_Update = json_data[key]
-                if key == "Last_Error":
-                    self.Last_Error = json_data[key]
+            try:
+                json_data = json.load(tracker_file)
+                for key in json_data:
+                    log('%s: %s' % (key, str(json_data[key])))
+                    if key == "Tasks":
+                        self.Tasks = {}
+                        for task_id in json_data[key]:
+                            self.Tasks[int(task_id)] = json_data[key][task_id]
+                    if key == "State":
+                        self.State = json_data[key]
+                    if key == "Current_Job":
+                        self.Current_Job = json_data[key]
+                    if key == "Last_Update":
+                        self.Last_Update = json_data[key]
+                    if key == "Last_Error":
+                        self.Last_Error = json_data[key]
+            except:
+                log('Slinger Service: tracker file read error. Recreating')
+                self.updateTracker(state="Init", job="Creating tracker file")
 
         return
 

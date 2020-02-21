@@ -33,7 +33,7 @@ def onDemandChannel(self):
         getChannels(self)
 
     if self.params['guid'] not in self.Channels:
-        new_channel = Channel(self.params['guid'], self.endPoints, self.db)
+        new_channel = Channel(self.params['guid'], self.endPoints, self.DB)
         self.Channels[self.params['guid']] = new_channel
 
     log('On Demand Channel %s Menu' % self.name)
@@ -54,7 +54,7 @@ def onDemandChannelCategory(self):
         getChannels(self)
 
     if self.params['guid'] not in self.Channels:
-        new_channel = Channel(self.params['guid'], self.endPoints, self.db)
+        new_channel = Channel(self.params['guid'], self.endPoints, self.DB)
         self.Channels[self.params['guid']] = new_channel
 
     channel = self.Channels[self.params['guid']]
@@ -140,7 +140,7 @@ def onDemandChannelCategory(self):
 
 def onDemandUpdate(self):
     updated = False
-    channel = Channel(self.params['guid'], self.endPoints, self.db)
+    channel = Channel(self.params['guid'], self.endPoints, self.DB)
     categories = channel.getOnDemandCategories()
     for category in categories:
         category_name = category['Name']

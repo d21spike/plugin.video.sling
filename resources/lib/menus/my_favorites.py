@@ -17,7 +17,7 @@ def getFavorites(self):
             response = response['favorites']
             for favorite in response:
                 if favorite['cmw_info']['type'] == 'channel':
-                    self.Favorites[favorite['guid']] = Channel(favorite['guid'], self.endPoints, self.db)
+                    self.Favorites[favorite['guid']] = Channel(favorite['guid'], self.endPoints, self.DB)
 
 
 def myFavorites(self):

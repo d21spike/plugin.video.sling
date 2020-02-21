@@ -31,7 +31,7 @@ def myShows(self):
         addDir(infoLabels['title'], self.handleID, '', 'show&subset=%s' % subset, infoLabels, infoArt)
 
         query = "SELECT COUNT(Show_GUID) AS Favorites FROM Favorite_Shows"
-        cursor = self.db.cursor()
+        cursor = self.DB.cursor()
         try:
             cursor.execute(query)
             count = cursor.fetchone()
@@ -49,7 +49,7 @@ def myShows(self):
     else:
         begin = self.params['subset'][0]
         end = self.params['subset'][-1]
-        cursor = self.db.cursor()
+        cursor = self.DB.cursor()
         if self.params['subset'] == '09':
             query = "SELECT * FROM Shows WHERE ('A' > UPPER(SUBSTR(Name, 1, 1)) OR 'Z' < UPPER(SUBSTR(Name, 1, 1)" \
                     ")) AND ('a' > UPPER(SUBSTR(Name, 1, 1)) OR 'z' < UPPER(SUBSTR(Name, 1, 1))) ORDER BY NAME ASC"
@@ -63,7 +63,7 @@ def myShows(self):
             cursor.execute(query)
             results = cursor.fetchall()
             for show in results:
-                db_show = Show(show[0], self.endPoints, self.db)
+                db_show = Show(show[0], self.endPoints, self.DB)
                 self.Shows[db_show.GUID] = db_show
                 if self.params['subset'] != 'FV':
                     context_items = [
@@ -90,7 +90,7 @@ def myShows(self):
 
 def myShowsSeasons(self):
     log('My shows seasons Menu')
-    show = Show(self.params['guid'], self.endPoints, self.db)
+    show = Show(self.params['guid'], self.endPoints, self.DB)
     show.getSeasons()
     for season_num in show.Seasons:
         season = show.Seasons[season_num]
@@ -105,7 +105,7 @@ def myShowsSeasons(self):
 def myShowsEpisodes(self):
     log('My shows episodes Menu')
     timestamp = int(time.time())
-    show = Show(self.params['guid'], self.endPoints, self.db)
+    show = Show(self.params['guid'], self.endPoints, self.DB)
     show.getSeasons()
     season = show.Seasons[int(self.params['season'])]
     for episode_number in season['Episodes']:
@@ -115,7 +115,7 @@ def myShowsEpisodes(self):
 
 
 def myShowsSetFavorite(self):
-    show = Show(self.params['guid'], self.endPoints, self.db)
+    show = Show(self.params['guid'], self.endPoints, self.DB)
     if show.setFavorite():
         notificationDialog(LANGUAGE(30110))
     else:
@@ -123,7 +123,7 @@ def myShowsSetFavorite(self):
 
 
 def myShowsResetFavorite(self):
-    show = Show(self.params['guid'], self.endPoints, self.db)
+    show = Show(self.params['guid'], self.endPoints, self.DB)
     if show.resetFavorite():
         notificationDialog(LANGUAGE(30112))
     else:
@@ -131,7 +131,7 @@ def myShowsResetFavorite(self):
 
 
 def myShowsUpdate(self):
-    show = Show(self.params['guid'], self.endPoints, self.db)
+    show = Show(self.params['guid'], self.endPoints, self.DB)
     if show.getSeasons(True):
         notificationDialog(LANGUAGE(30114))
     else:
