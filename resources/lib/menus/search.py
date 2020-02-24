@@ -47,7 +47,7 @@ def executeSearch(self, query):
                     if "SHOWS" in ribbon['title']:
                         for sling_show in ribbon['tiles']:
                             guid = sling_show['invalidation_keys'][0]
-                            show = Show(guid, self.endPoints, self.db)
+                            show = Show(guid, self.endPoints, self.DB)
                             if show.Name != '':
                                 context_items = [
                                     ('Add to Favorite Shows', 'RunPlugin(plugin://plugin.video.sling/?mode=show&guid=%s&'
@@ -65,7 +65,7 @@ def executeSearch(self, query):
                                 if 'PLAY_CONTENT' in sling_movie['actions']:
                                     playback_info = sling_movie['actions']['PLAY_CONTENT']['playback_info']
                                     if 'channel_guid' in playback_info:
-                                        channel = Channel(playback_info['channel_guid'], self.endPoints, self.db)
+                                        channel = Channel(playback_info['channel_guid'], self.endPoints, self.DB)
                                         movie_response = session.get(sling_movie['actions']['ASSET_IVIEW']['url'],
                                                                       headers=HEADERS, verify=VERIFY)
                                         if movie_response is not None:

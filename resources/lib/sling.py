@@ -33,7 +33,7 @@ class Sling(object):
         log('DB Exists => %s\r%s' % (str(xbmcvfs.exists(DB_PATH)), DB_PATH))
         if not xbmcvfs.exists(DB_PATH):
             self.createDB()
-        self.db = sqlite3.connect(DB_PATH)
+        self.DB = sqlite3.connect(DB_PATH)
 
         self.getParams()
 
@@ -144,12 +144,12 @@ class Sling(object):
         if 'sql_add' in debug:
             sql_array = debug['sql_add'].split(',')
             for sql in sql_array:
-                temp = Channel(sql, self.endPoints, self.db)
+                temp = Channel(sql, self.endPoints, self.DB)
                 query = "UPDATE Channels SET Protected = 1 WHERE GUID = '%s'" % sql
                 try:
-                    cursor = self.db.cursor()
+                    cursor = self.DB.cursor()
                     cursor.execute(query)
-                    self.db.commit()
+                    self.DB.commit()
                 except sqlite3.Error as err:
                     log('setSetting(): Failed execute sql_add for %s in DB, error => %s' % (sql, err))
                 except Exception as exc:
@@ -165,9 +165,9 @@ class Sling(object):
             
             query = "DELETE FROM Channels WHERE GUID IN (%s)" % temp_list
             try:
-                cursor = self.db.cursor()
+                cursor = self.DB.cursor()
                 cursor.execute(query)
-                self.db.commit()
+                self.DB.commit()
             except sqlite3.Error as err:
                 log('setSetting(): Failed execute sql_del for %s in DB, error => %s' % (temp_list, err))
             except Exception as exc:
@@ -310,10 +310,10 @@ class Sling(object):
                     'DELETE FROM Seasons; ' \
                     'DELETE FROM Episodes;'
             try:
-                cursor = self.db.cursor()
+                cursor = self.DB.cursor()
                 cursor.executescript(query)
                 cursor.execute('vacuum')
-                self.db.commit()
+                self.DB.commit()
             except sqlite3.Error as err:
                 log('setSetting(): Failed to clear data from DB, error => %s' % err)
             except Exception as exc:
@@ -372,9 +372,9 @@ class Sling(object):
         log('Hiding channel %s...' % channel_guid)
         query = "UPDATE Channels SET Hidden = 1 WHERE GUID = '%s'" % channel_guid
         try:
-            cursor = self.db.cursor()
+            cursor = self.DB.cursor()
             cursor.execute(query)
-            self.db.commit()
+            self.DB.commit()
             notificationDialog(LANGUAGE(30142))
         except sqlite3.Error as err:
             log('setSetting(): Failed to hide channel %s in DB, error => %s' % (channel_guid, err))
@@ -387,9 +387,9 @@ class Sling(object):
         log('Resetting hidden channels...')
         query = "UPDATE Channels SET Hidden = 0"
         try:
-            cursor = self.db.cursor()
+            cursor = self.DB.cursor()
             cursor.execute(query)
-            self.db.commit()
+            self.DB.commit()
             notificationDialog(LANGUAGE(30144))
         except sqlite3.Error as err:
             log('setSetting(): Failed to reset hidden channels in DB, error => %s' % err)
@@ -421,7 +421,7 @@ class Sling(object):
 
         query = "SELECT Name, Playlist_URL FROM Episodes WHERE GUID = '%s'" % guid
         try:
-            cursor = self.db.cursor()
+            cursor = self.DB.cursor()
             cursor.execute(query)
             episode = cursor.fetchone()
             if episode is not None:

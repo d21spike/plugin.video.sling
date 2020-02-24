@@ -33,18 +33,18 @@ def getChannels(self):
                                 if channel['channel_guid'] != '' and '"%s"' % channel['network_affiliate_name'] not in channel_names:
                                     if channel['network_affiliate_name'] not in ('FOX', 'ABC', 'NBC', 'CBS'):
                                         channel_names = '%s,"%s"' % (channel_names, channel['network_affiliate_name']) if channel_names != '' else '"%s"' %channel['network_affiliate_name']
-                                    temp_channel = Channel(channel['channel_guid'], self.endPoints, self.db)
+                                    temp_channel = Channel(channel['channel_guid'], self.endPoints, self.DB)
                                     if temp_channel.GUID != '':
                                         self.Channels[channel['channel_guid']] = temp_channel
                     
                     query = "SELECT GUID FROM Channels WHERE Protected = 1"
                     try:
-                        cursor = self.db.cursor()
+                        cursor = self.DB.cursor()
                         cursor.execute(query)
                         protected = cursor.fetchall()
                         for record in protected:
                             if record[0] not in self.Channels:
-                                self.Channels[record[0]] = Channel(record[0], self.endPoints, self.db)
+                                self.Channels[record[0]] = Channel(record[0], self.endPoints, self.DB)
                     except sqlite3.Error as err:
                         log('setSetting(): Failed retrieve protected records from DB, error => %s' % err)
                     except Exception as exc:
