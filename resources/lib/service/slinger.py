@@ -90,7 +90,6 @@ class Slinger(object):
         self.checkUpdateIntervals()
         if SETTINGS.getSetting('Enable_EPG') == 'true':
             self.pvrON()
-            xbmc.executebuiltin("ActivateWindow(Home)")
             if SETTINGS.getSetting('Start_Guide') == 'true':
                 xbmc.executebuiltin("ActivateWindow(TVGuide)")
 
