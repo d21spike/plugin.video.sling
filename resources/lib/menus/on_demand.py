@@ -119,14 +119,14 @@ def onDemandChannelCategory(self):
                 infoLabels['genre'] = 'Live Program'
                 stamp = datetime.datetime.fromtimestamp(asset['Start']).strftime('%m/%d/%Y')
                 infoLabels['title'] = '%s - %s' % (stamp, infoLabels['title'])
-            addLink(title, self.handleID, asset['Playlist_URL'], mode, infoLabels, infoArt)
+            addLink(title, self.handleID, '%s?channel=%s' % (asset['Playlist_URL'], channel.GUID), mode, infoLabels, infoArt)
         elif asset['Type'] == 'linear':
             if asset['Release_Year'] > 0:
                 infoLabels['genre'] = 'Movie'
                 infoLabels['title'] += ' (%i)' % asset['Release_Year']
             else:
                 infoLabels['genre'] = 'Live Program'
-            addLink(title, self.handleID, asset['Playlist_URL'], mode, infoLabels, infoArt)
+            addLink(title, self.handleID, '%s?channel=%s' % (asset['Playlist_URL'], channel.GUID), mode, infoLabels, infoArt)
         elif asset['Type'] == 'series':
             infoLabels['genre'] = 'Show'
             context_items = [
