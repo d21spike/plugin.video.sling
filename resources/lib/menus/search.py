@@ -78,7 +78,7 @@ def executeSearch(self, query):
                                                     if movie['Type'] == 'movie':
                                                         name = '%s (%i)' % (name, movie['Year'])
                                                         infoLabels['title'] = name
-                                                    addLink(name, self.handleID, movie['Playlist_URL'], 'play',
+                                                    addLink(name, self.handleID, '%s?channel=%s' % (movie['Playlist_URL'], channel.GUID), 'play',
                                                             infoLabels, movie['infoArt'])
                                                     gotResults = True
                         session.close()
