@@ -240,8 +240,8 @@ class Show(object):
             for slot in airing['availability']:
                 start = timeStamp(stringToDate(slot['start'].replace('T', ' ').replace('Z', '').replace('0001', '2019'),
                                          '%Y-%m-%d %H:%M:%S'))
-                if int(slot['stop'][0:4]) > 2099: slot['stop'] = slot['stop'].replace(slot['stop'][0:4], "2099")
-                stop = timeStamp(stringToDate(slot['stop'].replace('T', ' ').replace('Z', '').replace('0001', '2099'),
+                if int(slot['stop'][0:4]) > 2099: slot['stop'] = slot['stop'].replace(slot['stop'][0:4], "2096")
+                stop = timeStamp(stringToDate(slot['stop'].replace('T', ' ').replace('Z', '').replace('0001', '2096'),
                                         '%Y-%m-%d %H:%M:%S'))
                 if 'channel_guid' in slot:
                     if subscribedChannel(self, slot['channel_guid']) and (start <= timestamp <= stop):
@@ -260,8 +260,8 @@ class Show(object):
                     slot = airing['availability'][slot_index]
                     start = timeStamp(stringToDate(slot['start'].replace('T', ' ').replace('Z', '').replace('0001', '2019'),
                                              '%Y-%m-%d %H:%M:%S'))
-                    if int(slot['stop'][0:4]) > 2099: slot['stop'] = slot['stop'].replace(slot['stop'][0:4], "2099")
-                    stop = timeStamp(stringToDate(slot['stop'].replace('T', ' ').replace('Z', '').replace('0001', '2019'),
+                    if int(slot['stop'][0:4]) > 2099: slot['stop'] = slot['stop'].replace(slot['stop'][0:4], "2096")
+                    stop = timeStamp(stringToDate(slot['stop'].replace('T', ' ').replace('Z', '').replace('0001', '2096'),
                                             '%Y-%m-%d %H:%M:%S'))
                     if 'channel_guid' in slot:
                         if subscribedChannel(self, slot['channel_guid']):
