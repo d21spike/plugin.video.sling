@@ -90,7 +90,7 @@ class Slinger(object):
         self.checkUpdateIntervals()
         if SETTINGS.getSetting('Enable_EPG') == 'true':
             self.pvrON()
-            if SETTINGS.getSetting('Start_Guide') == 'true':
+            if GUIDE_ON_START:
                 xbmc.executebuiltin("ActivateWindow(TVGuide)")
 
         while not self.Monitor.abortRequested():
@@ -812,6 +812,5 @@ class Slinger(object):
 
     def close(self):
         log('Slinger Service: close()')
-        self.pvrOFF()
         self.DB.close()
         del self.Monitor
