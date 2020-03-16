@@ -125,6 +125,8 @@ def dumpJSON(string1):
 
 
 def stringToDate(string, date_format):
+    if "." in string:
+        string = string[0:string.index(".")]
     try:
         return datetime.datetime.strptime(str(string), date_format)
     except TypeError:
