@@ -1,15 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<addon id="plugin.video.sling" version="0.0.102" name="Sling" provider-name="d21spike, eracknaphobia">
+<addon id="plugin.video.sling" version="0.0.103" name="Sling" provider-name="d21spike, eracknaphobia">
     <requires>
         <import addon="xbmc.python" version="2.26.0"/>
-        <import addon="script.module.simplecache" version="1.0.0"/>
         <import addon="script.module.requests" version="2.7.0"/>
-        <import addon="script.module.pytz" version="2014.2"/>
-        <import addon="script.module.beautifulsoup4" version="4.3.2"/>
-        <import addon="script.module.mechanize" version="0.2.6"/>
         <import addon="script.module.inputstreamhelper" version="0.3.3"/>
         <import addon="script.module.requests_oauthlib" version="0.7.0"/>
         <import addon="script.module.xmltodict" version="0.11.0"/>
+        <import addon="script.module.pytz" version="2014.2"/>
     </requires>
     <extension point="xbmc.python.pluginsource" library="default.py">
         <provides>video</provides>

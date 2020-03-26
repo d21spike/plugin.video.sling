@@ -126,6 +126,10 @@ class Sling(object):
                 executeSearch(self, self.params['query'])
         if self.mode == 'setting':
             self.setSetting()
+        if self.mode == 'record':
+            self.setRecord()
+        if self.mode == 'del_record':
+            self.delRecord()
 
         xbmcplugin.setContent(int(self.sysARG[1]), CONTENT_TYPE)
         xbmcplugin.addSortMethod(int(self.sysARG[1]), xbmcplugin.SORT_METHOD_UNSORTED)
@@ -435,3 +439,129 @@ class Sling(object):
             log('playEpisode(): Failed to play episode %s from DB, error => %s' % (guid, err))
         except Exception as exc:
             log('playEpisode(): Failed to play episode %s from DB, exception => %s' % (guid, exc))
+
+    def setRecord(self):
+        log('setRecord(): Attempting to record asset %s \nURL: %s' % (self.params['guid'], self.params['asset_url']))
+
+        asset = self.params['guid']
+        asset_url = self.params['asset_url']
+        channel_guid = ''
+        if asset is not None and asset_url is not None:
+            if asset_url != '':
+                response = requests.get(asset_url, headers=HEADERS, verify=VERIFY)
+                if response is not None and response.status_code == 200:
+                    response = response.json()
+                    if 'schedules' in response:
+                        for schedule in response['schedules']:
+                            if 'channel_guid' in schedule:
+                                temp_guid = schedule['channel_guid']
+                                if subscribedChannel(self, temp_guid):
+                                    channel_guid = temp_guid
+                                    break
+                        log('Asset channel guid: %s' % channel_guid)
+                        if channel_guid == '' and len(response['schedules']) == 1:
+                            if 'channel_guid' in response['schedules'][0]:
+                                channel_guid = response['schedules'][0]['channel_guid']
+                    if 'external_id' in response:
+                        asset = response['external_id']
+        message = ''
+        if channel_guid != '':
+            record_url = '%s/rec/v4/rec-create' % self.endPoints['cmwnext_url']
+            payload = {
+                "data": [
+                    {
+                        "external_id": asset,
+                        "channel": channel_guid
+                    }
+                ],
+                "product": "sling",
+                "platform": "browser"
+            }
+            log ('Record URL: %s \nPayload: %s' % (record_url, json.dumps(payload, indent=4)))
+            response = requests.post(record_url, data=json.dumps(payload), auth=self.auth.getAuth(), verify=VERIFY)
+            response = response.json()
+            log (json.dumps(response, indent=4))
+            if 'error_code' in response:
+                message = '%i - %s' % (response['error_code'], response['message'])
+            elif 'error' in response:
+                message = response['error']
+            else:
+                message = 'Recording set'
+        else:
+            message = "Failed to set recording"
+        if message != '':
+            notificationDialog(message)
+
+    def delRecord(self):
+        log('delRecord(): Attempting to delete recorded asset %s \nURL: %s' % (self.params['guid'], self.params['asset_url']))
+        asset = self.params['guid']
+        asset_url = self.params['asset_url']
+        recording_type = ''
+        recording_guid = ''
+        
+        recordings_url = '%s/rec/v4/user-recordings' % self.endPoints['cmwnext_url']
+        payload = {
+            "type": "recorded_by_name",
+            "product": "sling",
+            "platform": "browser"
+        }
+        log('Recordings URL: %s \nPayload: %s' % (recordings_url, json.dumps(payload, indent=4)))
+        if asset is not None:
+            response = requests.post(recordings_url, headers=HEADERS, data=json.dumps(payload), auth=self.auth.getAuth(), verify=VERIFY)
+            log(response.text)
+            if response is not None and response.status_code == 200:
+                response = response.json()
+                if 'ls_recordings' in response:
+                    for recording in response['ls_recordings']:
+                        if recording['external_id'] == asset or recording['_href'] == asset_url:
+                            if 'recording_info' in recording:
+                                if 'guid' in recording['recording_info']:
+                                    recording_guid = recording['recording_info']['guid']
+                                    recording_type = recording['recording_info']['type']
+                                    break
+                if 'rs_recordings' in response and recording_guid == '':
+                    for recording in response['rs_recordings']:
+                        if 'external_id' in recording:
+                            if recording['external_id'] == asset or recording['_href'] == asset_url:
+                                if 'recording_info' in recording:
+                                    if 'guid' in recording['recording_info']:
+                                        recording_guid = recording['recording_info']['guid']
+                                        recording_type = recording['recording_info']['type']
+                                        break
+                if recording_guid == '':
+                    recording_guid = asset
+                    recording_type = 'rs'
+
+        log('Recording Type: %s | GUID: %s' % (recording_type, recording_guid))
+        if recording_type != '' and recording_guid != '':
+            delete_url = '%s/rec/v1/rec-delete' % self.endPoints['cmwnext_url']
+            payload = {
+                "data": [
+                    {
+                        "type": recording_type,
+                        "guid": recording_guid
+                    }
+                ],
+                "product": "sling",
+                "platform": "browser"
+            }
+            message = ''
+            response = requests.post(delete_url, data=json.dumps(payload), auth=self.auth.getAuth(), verify=VERIFY)
+            log(response.text)
+            if response.text != '':
+                response = response.json()
+                log(json.dumps(response, indent=4))
+                message = ''
+                if 'error_code' in response:
+                    message = '%i - %s' % (response['error_code'],
+                                        response['message'])
+                elif 'error' in response:
+                    message = response['error']
+            else:
+                message = 'Recording deleted'
+
+            if message != '':
+                notificationDialog(message)
+        else:
+            notificationDialog('Failed to find selected recording for deletion')
+

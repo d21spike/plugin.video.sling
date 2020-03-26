@@ -1,8 +1,7 @@
 ## GLOBALS ##
 
-import base64, calendar, datetime, hashlib, inputstreamhelper, json, os, pytz, random, re, requests, socket, sys, time
-import traceback, urllib, xbmc, xbmcgui, xbmcplugin, xbmcaddon, xbmcvfs, xmltodict, _strptime, string, sqlite3, binascii
-from simplecache import SimpleCache, use_cache
+import base64, calendar, datetime, hashlib, inputstreamhelper, json, os, random, requests, sys, time, pytz
+import traceback, urllib, xbmc, xbmcgui, xbmcplugin, xbmcaddon, xbmcvfs, xmltodict, string, sqlite3, binascii
 from pytz import timezone
 
 ADDON_NAME = 'Sling'
