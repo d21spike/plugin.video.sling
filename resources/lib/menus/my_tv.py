@@ -81,6 +81,8 @@ def myTVRibbon(self):
                         myTVShow(self, tile)
                     elif action == 'ASSET_RECORDING_IVIEW':
                         myTVRecording(self, tile, session)
+                    elif action == 'FRANCHISE_RECORDING_IVIEW':
+                        myShowRecording(self, tile, session)
                 session.close()
 
 # ======================== My TV Channel (Uses Class) ========================
@@ -154,6 +156,10 @@ def myTVProgram(self, tile, session):
                     ('View Show', 'Container.Update(plugin://plugin.video.sling/?mode=show&guid=%s&name=%s)' %
                      (asset['Show_GUID'], asset['Show_Name']))
                 ]
+            if 'Upcomming' in asset['infoLabels']['title'] or 'Live' in asset['infoLabels']['title']:
+                log (json.dumps(asset, indent=4))
+                context_items.append(('Set to Record', 'RunPlugin(%s?mode=record&guid=%s&asset_url=%s)' %
+                                      (ADDON_URL, asset['GUID'], asset['URL'])))
             if asset['Playlist_URL'] != '':
                 if asset['Playlist_URL'].split('/')[-2] == 'scheduleqvt' and asset['Channel_GUID'] != '':
                     asset['Playlist_URL'] += '?channel=%s' % asset['Channel_GUID']
@@ -178,7 +184,7 @@ def myTVShow(self, tile):
             ]
             addDir(show.Name, self.handleID, '', 'show&guid=%s' % show.GUID, show.infoLabels(), show.infoArt(), context_items)
 
-# ======================== My TV DVR ========================
+# ======================== My TV Program DVR ========================
 def myTVRecording(self, tile, session):
     log('myTVRecording(): Adding asset')
 
@@ -205,10 +211,139 @@ def myTVRecording(self, tile, session):
             if asset['Show_GUID'] != '':
                 context_items.append(('View Show', 'Container.Update(plugin://plugin.video.sling/?mode=show&guid=%s&'
                                                    'name=%s)' % (asset['Show_GUID'], asset['Show_Name'])))
+            context_items.append(('Delete Recording', 'RunPlugin(%s?mode=del_record&guid=%s&asset_url=%s)' %
+                                  (ADDON_URL, asset['GUID'], asset['URL'])))
             if asset['Channel_GUID'] != '':
                 asset['Playlist_URL'] += '?channel=%s' % asset['Channel_GUID']
             addLink(asset['Name'], self.handleID, asset['Playlist_URL'], asset['Mode'],
                     asset['infoLabels'], asset['infoArt'], 1, context_items, properties)
+
+# ======================== My TV Show DVR ========================
+def myShowRecording(self, tile, session):
+    log('myShowRecording(): Adding asset')
+
+    asset = initAsset(self, None)
+    asset = myTVJSON(self, tile, asset)
+    rec_show = Show(asset['GUID'], self.endPoints, self.DB)
+        
+    # ======================== Check if an Asset was returned ========================
+    if asset['URL'] != '':
+        payload = {
+            "franchise": asset['GUID'],
+            "filter": "all",
+            "product": "sling",
+            "platform": "browser"
+        }
+        response = session.post(asset['URL'], headers=HEADERS, data=json.dumps(payload), auth=self.auth.getAuth(), verify=VERIFY)
+        if response.status_code == 200:
+            response = response.json()
+            if 'seasons' in response:
+                for season in response['seasons']:
+                    if 'episodes' in season:
+                        for episode in season['episodes']:
+                            if 'qvt' in episode:
+                                rec_episode = {
+                                    'GUID': '',
+                                    'Show_GUID': rec_show.GUID,
+                                    'Rec_GUID': '',
+                                    'Channel_GUID': '',
+                                    'Name': '',
+                                    'Show_Name': rec_show.Name,
+                                    'Season': 0,
+                                    'Number': 0,
+                                    'Description': '',
+                                    'Thumbnail': rec_show.Thumbnail,
+                                    'Poster': rec_show.Poster,
+                                    'Genre': '',
+                                    'Rating':'',
+                                    'Start': 0,
+                                    'Stop': 0,
+                                    'Duration': 0,
+                                    'Asset_URL': '',
+                                    'Playlist_URL': episode['qvt'],
+                                    'Mode': 'info',
+                                    'infoLabels': {},
+                                    'infoArt': {}
+                                }
+                                
+                                if '_href' in episode:
+                                    rec_episode['Asset_URL'] = episode['_href']
+                                if 'ratings' in episode:
+                                    ratings = ''
+                                    for rating in episode['ratings']:
+                                        ratings = '%s, %s' % (ratings, rating) if ratings != '' else rating
+                                    rec_episode['Rating'] = ratings
+                                if 'title' in episode:
+                                    rec_episode['Show_Name'] = episode['title']
+                                if 'program_guid' in episode:
+                                    rec_episode['GUID'] = episode['program_guid']
+                                if 'thumbnail' in episode:
+                                    if 'url' in episode['thumbnail']:
+                                        rec_episode['Thumbnail'] = episode['thumbnail']['url']
+                                if 'recording_info' in episode:
+                                    info = episode['recording_info']
+                                    if 'channel_guid' in info:
+                                        rec_episode['Channel_GUID'] = info['channel_guid']
+                                    if 'episode_season' in info:
+                                        rec_episode['Season'] = info['episode_season']
+                                    if 'episode_number' in info:
+                                        rec_episode['Number'] = info['episode_number']
+                                    if 'episode_title' in info:
+                                        rec_episode['Name'] = info['episode_title']
+                                    if 'guid' in info:
+                                        rec_episode['Rec_GUID'] = info['guid']
+                                    if 'recstart' in info:
+                                        rec_episode['Start'] = timeStamp(stringToDate(info['recstart'].replace('T', ' ').replace('Z', '').replace('0001', '2019'), '%Y-%m-%d %H:%M:%S'))
+                                    if 'recend' in info:
+                                        rec_episode['Stop'] = timeStamp(stringToDate(info['recend'].replace('T', ' ').replace('Z', '').replace('0001', '2096'), '%Y-%m-%d %H:%M:%S'))
+                                    if 'recstart' in info and 'recend' in info:
+                                        rec_episode['Duration'] = rec_episode['Stop'] - rec_episode['Start']
+                                    if 'playable' in info:
+                                        if info['playable'] == True:
+                                            rec_episode['Mode'] = 'play'
+
+                                            response = requests.get(rec_episode['Asset_URL'], headers=HEADERS, verify=VERIFY)
+                                            if response.status_code == 200:
+                                                response = response.json()
+                                                if 'metadata' in response:
+                                                    if 'description' in response['metadata']:
+                                                        rec_episode['Description'] = response['metadata']['description']
+                                                    if 'genre' in response['metadata']:
+                                                        genres = ''
+                                                    for genre in response['metadata']['genre']:
+                                                        genres = '%s, %s' % (genres, genre) if len(genres) > 0 else genre
+                                                    rec_episode['Genre'] = genres
+                                rec_episode['infoLabels'] = {
+                                    'title': 'S%sE%s - %s' % (str(rec_episode['Season']).zfill(2), str(rec_episode['Number']).zfill(2), rec_episode['Name']),
+                                    'plot': '[B]%s[/B][CR][CR]%s' % (rec_episode['Show_Name'], rec_episode['Description']),
+                                    'genre': rec_episode['Genre'],
+                                    'duration': rec_episode['Duration'],
+                                    'mediatype': 'Video',
+                                    'mpaa': rec_episode['Rating'],
+                                }
+                                rec_episode['infoArt'] = {
+                                    'thumb': rec_episode['Thumbnail'],
+                                    'logo': rec_episode['Thumbnail'],
+                                    'clearlogo': rec_episode['Thumbnail'],
+                                    'poster': rec_episode['Poster'],
+                                    'fanart': rec_episode['Poster']
+                                }
+                                if rec_episode['Mode'] == 'play':
+                                    log(json.dumps(rec_episode, indent=4))
+                                    properties = {}
+                                    if rec_episode['Duration'] != 0:
+                                        properties['totaltime'] = rec_episode['Duration']
+                                    context_items = []
+                                    if rec_episode['Show_GUID'] != '':
+                                        context_items.append(('View Show', 'Container.Update(plugin://plugin.video.sling/?mode=show&guid=%s&'
+                                                            'name=%s)' % (rec_episode['Show_GUID'], rec_episode['Show_Name'])))
+                                    context_items.append(('Delete Recording', 'RunPlugin(%s?mode=del_record&guid=%s&asset_url=%s)' %
+                                                        (ADDON_URL, rec_episode['Rec_GUID'], rec_episode['Asset_URL'])))
+                                    if rec_episode['Channel_GUID'] != '':
+                                        rec_episode['Playlist_URL'] += '?channel=%s' % rec_episode['Channel_GUID']
+                                    addLink(rec_episode['Name'], self.handleID, rec_episode['Playlist_URL'], rec_episode['Mode'],
+                                            rec_episode['infoLabels'], rec_episode['infoArt'], 1, context_items, properties)
+
 
 # ======================== My TV Asset Initialization ========================
 def initAsset(self, asset):
@@ -280,6 +415,14 @@ def myTVJSON(self, mytv, asset):
                 asset['URL'] = mytv['actions']['FRANCHISE_IVIEW']['url']
                 #http://cbd46b77.cms.movetv.com/cms/api/franchises/314d78966a93419ab51e4b953047c933/expand=true;playable=false
                 asset['GUID'] = asset['URL'].split('/')[len(asset['URL'].split('/')) - 2]
+                asset['Type'] = 'Show'
+        if 'FRANCHISE_RECORDING_IVIEW' in mytv['actions']:
+            if 'url' in mytv['actions']['FRANCHISE_RECORDING_IVIEW']:
+                franchise = mytv['actions']['FRANCHISE_RECORDING_IVIEW']
+                asset['URL'] = franchise['url']
+                #https://p-cmwnext.movetv.com/rec/v4/user-franchise-recordings
+                if 'payload' in franchise:
+                    asset['GUID'] = franchise['payload']['franchise']
                 asset['Type'] = 'Show'
         if 'ASSET_RECORDING_IVIEW' in mytv['actions']:
             if 'url' in mytv['actions']['ASSET_RECORDING_IVIEW']:
