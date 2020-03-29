@@ -92,7 +92,8 @@ class Slinger(object):
             xbmc.sleep(2000)
             self.pvrOFF()
             xbmc.sleep(2000)
-            self.pvrON()            if GUIDE_ON_START:
+            self.pvrON()            
+            if GUIDE_ON_START:
                 xbmc.executebuiltin("ActivateWindow(TVGuide)")
 
         while not self.Monitor.abortRequested():
