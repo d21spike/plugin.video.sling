@@ -89,8 +89,10 @@ class Slinger(object):
         self.checkLastUpdate()
         self.checkUpdateIntervals()
         if SETTINGS.getSetting('Enable_EPG') == 'true':
-            self.pvrON()
-            if GUIDE_ON_START:
+            xbmc.sleep(2000)
+            self.pvrOFF()
+            xbmc.sleep(2000)
+            self.pvrON()            if GUIDE_ON_START:
                 xbmc.executebuiltin("ActivateWindow(TVGuide)")
 
         while not self.Monitor.abortRequested():
@@ -220,6 +222,9 @@ class Slinger(object):
             if self.Tasks[id] == "Update Guide":
                 self.updateTracker(state="Working", job="Updating Guide")
                 self.updateGuide()
+                self.pvrOFF()
+                xbmc.sleep(3000)
+                self.pvrON()
             if self.Tasks[id] == "Update On Demand":
                 self.updateTracker(state="Working", job="Updating On Demand")
                 self.updateOnDemand()
