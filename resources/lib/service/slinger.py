@@ -78,6 +78,10 @@ class Slinger(object):
         self.DB = sqlite3.connect(DB_PATH)
 
         if self.DB is not None:
+            if SETTINGS.getSetting('Enable_EPG') == 'true':
+                self.pvrOFF()
+                xbmc.sleep(1000)
+                self.pvrON()
             self.main()
         else:
             log('Slinger __init__: Failed to initialize DB, closing.')
@@ -88,13 +92,8 @@ class Slinger(object):
         
         self.checkLastUpdate()
         self.checkUpdateIntervals()
-        if SETTINGS.getSetting('Enable_EPG') == 'true':
-            xbmc.sleep(2000)
-            self.pvrOFF()
-            xbmc.sleep(2000)
-            self.pvrON()            
-            if GUIDE_ON_START:
-                xbmc.executebuiltin("ActivateWindow(TVGuide)")
+        if SETTINGS.getSetting('Enable_EPG') == 'true' and GUIDE_ON_START:
+            xbmc.executebuiltin("ActivateWindow(TVGuide)")
 
         while not self.Monitor.abortRequested():
             timestamp = int(time.time())
