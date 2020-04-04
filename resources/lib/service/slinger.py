@@ -78,10 +78,6 @@ class Slinger(object):
         self.DB = sqlite3.connect(DB_PATH)
 
         if self.DB is not None:
-            if SETTINGS.getSetting('Enable_EPG') == 'true':
-                self.pvrOFF()
-                xbmc.sleep(1000)
-                self.pvrON()
             self.main()
         else:
             log('Slinger __init__: Failed to initialize DB, closing.')
