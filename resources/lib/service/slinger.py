@@ -218,9 +218,6 @@ class Slinger(object):
             if self.Tasks[id] == "Update Guide":
                 self.updateTracker(state="Working", job="Updating Guide")
                 self.updateGuide()
-                self.pvrOFF()
-                xbmc.sleep(3000)
-                self.pvrON()
             if self.Tasks[id] == "Update On Demand":
                 self.updateTracker(state="Working", job="Updating On Demand")
                 self.updateOnDemand()
@@ -480,6 +477,9 @@ class Slinger(object):
                 progress.close()
 
         self.cleanGuide()
+        self.pvrOFF()
+        xbmc.sleep(1000)
+        self.pvrON()
 
         if xbmc.getCondVisibility('System.HasAddon(pvr.iptvsimple)') and SETTINGS.getSetting('Enable_EPG') == 'true':
             self.checkIPTV()
