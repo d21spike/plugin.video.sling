@@ -1,5 +1,6 @@
 from resources.lib.globals import *
 from resources.lib.classes.auth import Auth
+from xml.sax.saxutils import escape
 
 if sys.version_info.major == 2:
     from SimpleHTTPServer import SimpleHTTPRequestHandler
@@ -136,7 +137,7 @@ class Guide(object):
         channels = self.getChannels()
         for channel_id, title, logo, url, genre in channels:
             channel = '<channel id="%s">\n' % channel_id
-            channel += '    <display-name lang="en">%s</display-name>\n' % title
+            channel += '    <display-name lang="en">%s</display-name>\n' % escape(title)
             channel += '</channel>\n'
             html.write(channel.encode())
             
@@ -167,11 +168,11 @@ class Guide(object):
 
                 prg = ''
                 prg += '<programme start="%s" stop="%s" channel="%s">\n' % (start_time, stop_time, channel_id)
-                prg += '    <title lang="en">%s</title>\n' % title
-                prg += '    <sub-title lang="en">%s</sub-title>\n' % sub_title
-                prg += '    <desc lang="en">%s</desc>\n' % desc
+                prg += '    <title lang="en">%s</title>\n' % escape(title)
+                prg += '    <sub-title lang="en">%s</sub-title>\n' % escape(sub_title)
+                prg += '    <desc lang="en">%s</desc>\n' % escape(desc)
                 for genre in genres:
-                    prg += '    <category lang="en">%s</category>\n' % str(strip(genre)).strip().capitalize()
+                    prg += '    <category lang="en">%s</category>\n' % escape(str(strip(genre)).strip().capitalize())
                 prg += '    <icon src="%s"/>\n' % icon
                 prg += '</programme>\n'
 
