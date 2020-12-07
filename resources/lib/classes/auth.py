@@ -18,15 +18,15 @@ class Auth(object):
     OTS = ''
 
     def __init__(self):
+        log('auth::init()')
         self.deviceID()
         if self.ACCESS == '':
-            self.ACCESS_TOKEN = ''
-            SETTINGS.setSetting('access_token', self.ACCESS_TOKEN)
             self.ACCESS = self.HASH
         self.getAccess()
 
     def deviceID(self):
         global DEVICE_ID
+        log('auth::deviceID()')
         if DEVICE_ID != '': return
         randomID = ""
         randomBag = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
@@ -36,35 +36,52 @@ class Auth(object):
                 randomID += '-'
         SETTINGS.setSetting('device_id', randomID)
         DEVICE_ID = randomID
+        log('auth::deviceID() New ID %s' % DEVICE_ID)
 
     def loggedIn(self):
-        if ACCESS_TOKEN == '': return False, 'ACCESS_TOKEN is blank, not logged in.'
-        token_array = ACCESS_TOKEN.split('.')
-        if len(token_array) == 0: return False, 'ACCESS_TOKEN is corrupt, not logged in.'
+        log('auth:loggedIn()')
+        if self.OTK == '' or self.OTS == '':
+            log('auth:loggedIn() No auth token')
+            return False, 'OAuth access is blank, not logged in.', {}
 
-        user_token = loadJSON(base64.b64decode(token_array[1] + '=='))
-        if 'email' in user_token:
-            if user_token['email'] == USER_EMAIL:
-                return True, 'ACCESS_TOKEN email matches USER_EMAIL, logged in.'
+        auth = OAuth1(self.OCK, self.OCS, self.OTK, self.OTS)
+        user_headers = HEADERS
+        try:
+            user_headers.pop('Content-Type')
+        except:
+            pass
+        response = requests.get(USER_INFO_URL, headers=user_headers, auth=auth, verify=VERIFY)
+        if response.status_code == 200:
+            response_json = response.json()
+            if 'email' in response_json:
+                if response_json['email'] == USER_EMAIL:
+                    log('auth::loggedIn() Account Active')
+                    return True, 'Account email matches USER_EMAIL, logged in.', response_json
+                else:
+                    log('auth::loggedIn() Account Mismatch')
+                    SETTINGS.setSetting('access', '')
+                    SETTINGS.setSetting('user_email', '')
+                    SETTINGS.setSetting('password', '')
+                    return False, 'Account email does not match USER_EMAIL, not logged in.', {}
             else:
-                SETTINGS.setSetting('access_token', '')
+                log('auth::loggedIn() Account info not retrieved')
+                SETTINGS.setSetting('access', '')
                 SETTINGS.setSetting('user_email', '')
                 SETTINGS.setSetting('password', '')
-                return False, 'ACCESS_TOKEN email does not match USER_EMAIL, not logged in.'
+                return False, 'Account info corrupt, not logged in.', {}
         else:
-            SETTINGS.setSetting('access_token', '')
-            return False, 'ACCESS_TOKEN corrupt, not logged in.'
+            log('auth::loggedIn() Access Denied')
+            return False, 'Account info access denied', {}
 
     def getRegionInfo(self):
         global USER_DMA, USER_OFFSET, USER_ZIP
+        log('auth::getRegionInfo()')
         if not self.loggedIn(): return False, 'Must be logged in to retrieve region info.'
-        log('getRegionInfo, Subscriber ID = ' + SUBSCRIBER_ID + ' | Device ID = ' + DEVICE_ID)
-        if SUBSCRIBER_ID == '': return False, 'SUBSCRIBER_ID and DEVICE_ID required ' + \
-                                       'for getRegionInfo'
+        log('auth::getRegionInfo()  Subscriber ID: %s  | Device ID: %s' % (SUBSCRIBER_ID, DEVICE_ID))
+        if SUBSCRIBER_ID == '': return False, 'SUBSCRIBER_ID and DEVICE_ID required for getRegionInfo()'
         if DEVICE_ID == '':
             self.deviceID()
         regionUrl = BASE_GEO.format(SUBSCRIBER_ID, DEVICE_ID)
-        log('getRegionInfo, URL => ' + regionUrl)
         headers = {
             "Host": "p-geo.movetv.com",
             "Connection": "keep-alive",
@@ -93,7 +110,7 @@ class Auth(object):
             if 'longitude' in temp_response:
                 temp_response['longitude'] = '***REDACTED***'
             
-            log("getRegionInfo Response = > " + json.dumps(temp_response, indent=4))
+            log("auth::getRegionInfo() Response => %s" % json.dumps(temp_response, indent=4))
         if response.status_code == 200:
             response = response.json()
             USER_DMA = str(response.get('dma', {}) or '')
@@ -116,33 +133,27 @@ class Auth(object):
         else:
             return False, 'Failed to retrieve user region info.'
 
-    def getUserSubscriptions(self, subURL):
+    def getUserSubscriptions(self):
         global SUBSCRIBER_ID
-        log("getUserSubscriptions => URL: " + subURL)
+        log('auth::getUserSubscriptions()')
+        loggedIn, message, json_data = self.loggedIn()
+        if not loggedIn: return False, 'Must be logged in to retrieve subscriptions.'
+        
+        if json_data is not None:
+            if 'postal_code' in json_data:
+                json_data['postal_code'] = '***REDACTED***'
+            if 'billing_zipcode' in json_data:
+                json_data['billing_zipcode'] = '***REDACTED***'
+            if 'email' in json_data:
+                json_data['email'] = '***REDACTED***'
+            if 'billing_method' in json_data:
+                json_data['billing_method'] = '***REDACTED***'
+            if 'name' in json_data:
+                json_data['name'] = '***REDACTED***'
 
-        if not self.loggedIn(): return False, 'Must be logged in to retrieve subscriptions.'
-        auth = OAuth1(self.OCK, self.OCS, self.OTK, self.OTS)
-        response = requests.get(subURL, headers=HEADERS, auth=auth, verify=VERIFY)
-        temp_response = response.json()
-        if temp_response is not None:
-            if 'postal_code' in temp_response:
-                temp_response['postal_code'] = '***REDACTED***'
-            if 'billing_zipcode' in temp_response:
-                temp_response['billing_zipcode'] = '***REDACTED***'
-            if 'email' in temp_response:
-                temp_response['email'] = '***REDACTED***'
-            if 'billing_method' in temp_response:
-                temp_response['billing_method'] = '***REDACTED***'
-            if 'name' in temp_response:
-                temp_response['name'] = '***REDACTED***'
-
-            log("getUserSubscriptions Response = > " + json.dumps(temp_response, indent=4))
-        if response.status_code == 200:
-            if SUBSCRIBER_ID == '':
-                SUBSCRIBER_ID = response.json()['guid']
-                SETTINGS.setSetting('subscriber_id', SUBSCRIBER_ID)
-
-            subscriptions = response.json()['subscriptionpacks']
+            log("auth::getUserSubscriptions() Response = > " + json.dumps(json_data, indent=4))
+        
+            subscriptions = json_data['subscriptionpacks']
             sub_packs = ''
             legacy_subs = ''
             for subscription in subscriptions:
@@ -168,68 +179,43 @@ class Auth(object):
     def getAuth(self):
         return OAuth1(self.OCK, self.OCS, self.OTK, self.OTS)
 
-    def getOTK(self):
-        if not self.loggedIn(): return False, 'Must be logged in to retrieve OTK.'
+    def getOTK(self, endPoints):
+        log('auth::getOTK()')
         self.deviceID()
         self.getAccess()
 
-        if self.OTL == '':
-            otl_payload = {
-                "email": USER_EMAIL,
-                "password": USER_PASSWORD
-            }
-            response = requests.post(self.OTL_URL, headers=HEADERS, data=json.dumps(otl_payload), \
-                                     verify=VERIFY)
-            log("getOTK Login Response => " + str(response) + "" + str(response.json()))
-            if response.status_code == 200 and 'token' in response.json():
-                self.OTL = response.json()['token']
-                self.setAccess()
-        if self.OTL != '':
-            otk_payload = {
-                "token": self.OTL,
-                "device_guid": DEVICE_ID,
-                "client_application": "Browser"
-            }
-            auth = OAuth1(self.OCK, self.OCS)
-            headers = {
-                "Host": "ums.p.sling.com",
-                "Connection": "keep-alive",
-                "Cache-Control": "no-cache, no-store, must-revalidate",
-                "Origin": "https://watch.sling.com",
-                "User-Agent": USER_AGENT,
-                "Content-Type": "application/json; charset=UTF-8",
-                "Accept": "*/*",
-                "Referer": "https://watch.sling.com/",
-                "Accept-Encoding": "gzip, deflate, br",
-                "Accept-Language": "en-US,en;q=0.9"
-            }
-            response = requests.post(self.OTK_URL, headers=headers, data=json.dumps(otk_payload), auth=auth,
-                                     verify=VERIFY)
-            log("getOTK Auth = > " + str(response) + str(response.json()))
+        # Validate account
+        payload = "email=%s&password=%s&device_guid=%s" % (requests.utils.quote(
+            USER_EMAIL), requests.utils.quote(USER_PASSWORD), requests.utils.quote(DEVICE_ID))
+        account_headers = HEADERS
+        account_headers['Content-Type'] = 'application/x-www-form-urlencoded'
+        auth = OAuth1(self.OCK, self.OCS)
+        response = requests.put('%s/v3/xauth/access_token.json' %
+                                endPoints['ums_url'], headers=account_headers, data=payload, auth=auth, verify=VERIFY)
+        response_json = response.json()
 
-            if response.status_code == 200 and 'access_token' in response.json():
-                json_data = response.json()['access_token']
-                self.OTK = json_data['token']
-                self.OTS = json_data['secret']
-                self.setAccess()
-                return True, 'Successfully retrieved OTK.'
-            else:
-                return False, 'Failed to retrieve OTK.'
+        if response.status_code == 200 and 'oauth_token' in response_json:
+            self.OTK = response_json['oauth_token']
+            self.OTS = response_json['oauth_token_secret']
+            self.OTL = 'NO-LONGER-IN-USE'
+            log('auth::getOTK() Got OAuth tokens')
+
+            self.setAccess()
+            return True, 'Successfully retrieved user OAuth token. \r%s | %s' % (self.OTK, self.OTS)
         else:
-            return False, 'OTL required to retrieve signing token.'
+            log('auth::getOTK() Failed to retrieve OAuth token')
+            return False, 'Failed to retrieve user OAuth token %i' % response.status_code
 
-    def getUserID(self):
-        user_info = ACCESS_TOKEN[ACCESS_TOKEN.find('.') + 1: ACCESS_TOKEN.rfind('.')]
-        json_string = json.loads(base64.b64decode(user_info + "==="))
-
-        return json_string
-
-    def logIn(self, loginURL, email=USER_EMAIL, password=USER_PASSWORD):
-        global ACCESS_TOKEN, USER_EMAIL, USER_PASSWORD
-        log("logIn => URL: " + loginURL + " email: " + email[:5])
-        status, message = self.loggedIn()
+    def logIn(self, endPoints, email=USER_EMAIL, password=USER_PASSWORD):
+        global USER_EMAIL, USER_PASSWORD
+        log('auth::logIn() Email: %s' % email[:5])
+        
+        # Check if already logged in
+        status, message, json_data = self.loggedIn()
+        log("auth::logIn() => Already loggedIn() %r, %s" % (status, message))
         if status: return status, 'Already logged in.'
 
+        # First launch, credentials empty
         if email == '' or password == '':
             # firstrun wizard
             if yesNoDialog(LANGUAGE(30006), no=LANGUAGE(30004), yes=LANGUAGE(30005)):
@@ -242,20 +228,44 @@ class Auth(object):
             else:
                 return False, 'Login Aborted'
 
-        payload = '{"username":"' + email + '","password":"' + password + '"}'
-        response = requests.post(loginURL, headers=HEADERS, data=payload, verify=VERIFY)
-        if response.status_code == 200 and 'access_token' in response.json():
-            SETTINGS.setSetting('access_token', response.json()['access_token'])
-            ACCESS_TOKEN = response.json()['access_token']
-            if self.OTK == '':
-                if self.getOTK():
-                    return True, 'Successfully logged in.'
+        # Check if account exists
+        payload = {
+            'request_context': {
+                'application_name': 'Browser',
+                'interaction_id': 'Browser:%s' % DEVICE_ID[:7],
+                'partner_name': 'Browser',
+                'request_id': str(random.randint(0, 999)),
+                'timestamp': str(time.mktime(datetime.datetime.utcnow().timetuple())).split('.')[0]
+            },
+            'request': {
+                'email': USER_EMAIL
+            }
+        }
+        auth = OAuth1(self.OCK, self.OCS)
+        response = requests.post('%s/user/lookup' % endPoints['extauth_url'], headers=HEADERS, data=json.dumps(payload), auth=auth, verify=VERIFY)
+        response_json = response.json()
+        
+        if response.status_code == 200:
+            log('auth::logIn() =>\r%s' % json.dumps(response_json['response_context'], indent=4))
+            if 'response' in response_json:
+                account = response_json['response']
+                if account['account_status'] == 'active':
+                    SUBSCRIBER_ID = account['guid']
+                    SETTINGS.setSetting('subscriber_id', SUBSCRIBER_ID)
+
+                    if self.OTK == '':
+                        if self.getOTK(endPoints):
+                            return True, 'Successfully logged in.'
+                        else:
+                            return False, "Failed to log in, no otk"
+                    else:
+                        return True, 'Successfully logged in.'
                 else:
-                    return False, "Failed to log in, no otk"
+                    return False, 'Account is not active'
             else:
-                return True, 'Successfully logged in.'
+                return False, 'Failed to validate account'
         else:
-            return False, 'Failed to log in, status code ' + str(response.status_code)
+            return False, 'Unable to validate account'
 
     def logOut(self):
         SETTINGS.setSetting('access_token', '')
@@ -290,10 +300,7 @@ class Auth(object):
 
     def setAccess(self):
         global DEVICE_ID, ADDON_ID
-        if self.ACCESS == self.HASH:
-            key = ADDON_ID.ljust(164, '.')
-        else:
-            key = DEVICE_ID.ljust(164, '.')
+        key = DEVICE_ID.ljust(164, '.')
         payload = ('%s,%s,%s,%s,%s' % (self.OCK, self.OCS, self.OTL, self.OTK, self.OTS))
         new_access = binascii.hexlify(str.encode(self.xor(payload, key)))
         SETTINGS.setSetting('access', new_access)
@@ -312,7 +319,7 @@ class Auth(object):
                     ACCESS_TOKEN_JWT = response['jwt']
 
     def getPlaylist(self, playlist_url, end_points):
-        log('getPlaylist, url = ' + playlist_url)
+        log('auth::getPlaylist() URL: %s' % playlist_url)
         license_key = ''
         response = requests.get(playlist_url, headers=HEADERS, verify=VERIFY)
         if response is not None and response.status_code == 200:
@@ -349,7 +356,7 @@ class Auth(object):
                         license_key = '%s|User-Agent=%s|{"env":"production","user_id":"%s","channel_id":"%s","message":[D{SSM}]}|' % (
                             lic_url, ANDROID_USER_AGENT, SUBSCRIBER_ID, channel_id)
 
-                    log('license_key = ' + license_key)
+                    log('auth::getPlaylist() license_key: %s' % license_key)
             else:
                 if 'vod_info' in video['playback_info']:
                     fod_url = video['playback_info']['vod_info'].get('media_url', '')
@@ -360,7 +367,7 @@ class Auth(object):
                         notificationDialog(response.json()['message'])
                 elif 'linear_info' in video['playback_info'] \
                         and 'disney_stream_service_url' in video['playback_info']['linear_info']:
-                    log('getPlaylist, Inside Disney/ABC')
+                    log('auth::getPlaylist() Inside Disney/ABC')
                     utc_datetime = str(time.mktime(datetime.datetime.utcnow().timetuple())).split('.')[0]
                     sha1_user_id = hashlib.sha1(SUBSCRIBER_ID.encode()).hexdigest()
                     rsa_sign_url = '%s/cmw/v1/rsa/sign' % end_points['cmwnext_url']
@@ -371,7 +378,7 @@ class Auth(object):
                     response = requests.post(rsa_sign_url, headers=stream_headers, data=payload, verify=VERIFY)
                     if response.status_code == 200 and 'signature' in response.json():
                         signature = response.json()['signature']
-                        log('getPlaylist, RSA Signature => %s' % signature)
+                        log('auth::getPlaylist() RSA Signature: %s' % signature)
                         disney_info = video['playback_info']['linear_info']
                         if 'abc' in disney_info['disney_network_code']:
                             brand = '003'
@@ -394,12 +401,12 @@ class Auth(object):
                             payload += '%s=%s&' % (key, params[key])
                         payload = payload[:-1]
                         response = requests.post(service_url, headers=stream_headers, data=payload, verify=VERIFY)
-                        log("Disney response code: %i" % response.status_code)
+                        log("auth::getPlaylist() Disney response code: %i" % response.status_code)
                         if response.status_code == 200:
                             log(str(response.text))
                             session_xml = xmltodict.parse(response.text)
                             service_stream = session_xml['playmanifest']['channel']['assets']['asset']['#text']
-                            log('getPlaylist, XML Stream: ' + str(service_stream))
+                            log('auth::getPlaylist() XML Stream: %s' % str(service_stream))
                             mpd_url = service_stream
 
             asset_id = ''

@@ -59,16 +59,15 @@ class Sling(object):
         log('Addon %s entry...' % ADDON_NAME)
 
         self.checkDebug()
-        loginURL = '%s/sling-api/oauth/authenticate-user' % self.endPoints['micro_ums_url']
-        loggedIn, message = self.auth.logIn(loginURL, USER_EMAIL, USER_PASSWORD)
+        # loginURL = '%s/sling-api/oauth/authenticate-user' % self.endPoints['micro_ums_url']
+        loggedIn, message = self.auth.logIn(self.endPoints, USER_EMAIL, USER_PASSWORD)
         log("Sling Class is logIn() ==> Success: " + str(loggedIn) + " | Message: " + message)
         if loggedIn:
-            log("self.user Subscriptions URL => " + USER_INFO_URL)
-            gotSubs, message = self.auth.getUserSubscriptions(USER_INFO_URL)
+            gotSubs, message = self.auth.getUserSubscriptions()
             self.auth.getAccessJWT(self.endPoints)
             if gotSubs:
                 USER_SUBS = message
-            log("self.user Subscription Attempt, Success => " + str(gotSubs) + "Message => " + message)
+            log("self.user Subscription Attempt, Success => " + str(gotSubs) + " Message => " + message)
         else:
             sys.exit()
 
@@ -224,7 +223,8 @@ class Sling(object):
         except:
             license_key = ''
             external_id = ''
-
+        log("====Here=====")
+        log('%s | %s | %s' % (url, license_key, external_id))
         if 'mpd' in url:
             is_helper = inputstreamhelper.Helper('mpd', drm='widevine')
             if not is_helper.check_inputstream():
@@ -233,6 +233,7 @@ class Sling(object):
             liz.setProperty('inputstreamaddon', 'inputstream.adaptive')
             liz.setProperty('inputstream.adaptive.manifest_type', 'mpd')
             liz.setProperty('inputstream.adaptive.stream_headers', 'User-Agent=' + USER_AGENT)
+
             if license_key != '':
                 liz.setProperty('inputstream.adaptive.license_type', 'com.widevine.alpha')
                 liz.setProperty('inputstream.adaptive.license_key', license_key)

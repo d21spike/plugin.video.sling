@@ -42,6 +42,5 @@
     <setting id="user_dma" type="text" default="" visible="false"/>
     <setting id="user_offset" type="text" default="" visible="false"/>
     <setting id="user_zip" type="text" default="" visible="false"/>
-
     <setting id="update_guide" type="text" default="false" visible="false"/>
 </settings>

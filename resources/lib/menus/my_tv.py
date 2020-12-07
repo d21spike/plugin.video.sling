@@ -528,13 +528,15 @@ def assetJSON(self, myjson, asset):
             asset['Year'] = metadata['release_year']
         if 'genre' in metadata:
             genres = ''
-            for genre in metadata['genre']:
-                genres = '%s, %s' % (genres, genre.capitalize()) if genres != '' else genre.capitalize()
+            if metadata['genre'] is not None:
+                for genre in metadata['genre']:
+                    genres = '%s, %s' % (genres, genre.capitalize()) if genres != '' else genre.capitalize()
             asset['Genre'] = genres
         if 'ratings' in metadata:
             ratings = ''
-            for rating in metadata['ratings']:
-                ratings = '%s, %s' % (ratings, rating.replace('_', ' ')) if ratings != '' else rating.replace('_', ' ')
+            if metadata['ratings'] is not None:
+                for rating in metadata['ratings']:
+                    ratings = '%s, %s' % (ratings, rating.replace('_', ' ')) if ratings != '' else rating.replace('_', ' ')
             asset['Rating'] = ratings
     if 'entitlements' in myjson and asset['Playlist_URL'] == '':
         for entitlement in myjson['entitlements']:

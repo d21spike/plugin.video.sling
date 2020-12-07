@@ -223,12 +223,13 @@ class Show(object):
             if episode['description'] is not None:
                 new_episode['Description'] = episode['description']
         if 'thumbnail' in episode:
-            if 'url' in episode['thumbnail']:
-                new_episode['Thumbnail'] = episode['thumbnail']['url']
-            elif episode['thumbnail'] is not None:
-                new_episode['Thumbnail'] = episode['thumbnail']['href']
+            if episode['thumbnail'] is not None:
+                if 'url' in episode['thumbnail']:
+                    new_episode['Thumbnail'] = episode['thumbnail']['url']
+                elif episode['thumbnail'] is not None:
+                    new_episode['Thumbnail'] = episode['thumbnail']['href']
         if 'background_image' in episode:
-            if 'url' in episode['thumbnail']:
+            if 'url' in episode['background_image']:
                 new_episode['Poster'] = episode['background_image']['url']
             elif episode['background_image'] is not None:
                 new_episode['Poster'] = episode['background_image']['href']
