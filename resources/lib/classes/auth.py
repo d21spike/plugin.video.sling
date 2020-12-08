@@ -71,6 +71,7 @@ class Auth(object):
                 return False, 'Account info corrupt, not logged in.', {}
         else:
             log('auth::loggedIn() Access Denied')
+            SETTINGS.setSetting('access', '')
             return False, 'Account info access denied', {}
 
     def getRegionInfo(self):
