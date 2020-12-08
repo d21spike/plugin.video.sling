@@ -48,12 +48,11 @@ class Slinger(object):
         self.Monitor = xbmc.Monitor()
         self.EndPoints = self.buildEndPoints()
         self.Auth = Auth()
-        loginURL = '%s/sling-api/oauth/authenticate-user' % self.EndPoints['micro_ums_url']
-        loggedIn, message = self.Auth.logIn(loginURL, USER_EMAIL, USER_PASSWORD)
+        loggedIn, message = self.Auth.logIn(self.EndPoints, USER_EMAIL, USER_PASSWORD)
         log("__init__: logIn() ==> Success: " + str(loggedIn) + " | Message: " + message)
         if loggedIn:
             log("__init__: self.user Subscriptions URL => " + USER_INFO_URL)
-            gotSubs, message = self.Auth.getUserSubscriptions(USER_INFO_URL)
+            gotSubs, message = self.Auth.getUserSubscriptions()
             log("__init__: self.user Subscription Attempt, Success => " + str(gotSubs) + "Message => " + message)
             self.Auth.getAccessJWT(self.EndPoints)
             if gotSubs:
