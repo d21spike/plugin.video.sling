@@ -121,7 +121,7 @@ class Guide(object):
             channel_info = '#EXTINF:-1 tvg-id="%s" tvg-name="%s"' % (channel_id, title.replace(' ', '_'))
             if logo is not None:
                 channel_info += ' tvg-logo="%s"' % logo
-            channel_info += ' group-title="Sling TV; %s",%s' % (genre, title)
+            channel_info += ' group-title="Sling TV; %s",%s' % (genre.replace(',', ';'), title)
             html.write(('%s\n' % channel_info).encode())
             url = 'plugin://plugin.video.sling/?mode=play&url=%s' % url
             html.write(('%s\n' % url).encode())
