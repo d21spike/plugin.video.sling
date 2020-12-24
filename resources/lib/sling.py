@@ -62,6 +62,8 @@ class Sling(object):
         # loginURL = '%s/sling-api/oauth/authenticate-user' % self.endPoints['micro_ums_url']
         loggedIn, message = self.auth.logIn(self.endPoints, USER_EMAIL, USER_PASSWORD)
         log("Sling Class is logIn() ==> Success: " + str(loggedIn) + " | Message: " + message)
+        if message != "Already logged in.":
+            notificationDialog(message)
         if loggedIn:
             gotSubs, message = self.auth.getUserSubscriptions()
             self.auth.getAccessJWT(self.endPoints)
@@ -223,7 +225,7 @@ class Sling(object):
         except:
             license_key = ''
             external_id = ''
-        log("====Here=====")
+        
         log('%s | %s | %s' % (url, license_key, external_id))
         if 'mpd' in url:
             is_helper = inputstreamhelper.Helper('mpd', drm='widevine')
@@ -246,9 +248,6 @@ class Sling(object):
 
         while not xbmc.Player().isPlayingVideo():
             xbmc.Monitor().waitForAbort(0.25)
-
-        if xbmc.Player().isPlayingVideo() and len(xbmc.Player().getAvailableAudioStreams()) > 1:
-            xbmc.Player().setAudioStream(0)
 
         if external_id != '':
             play_back_started = time.time()

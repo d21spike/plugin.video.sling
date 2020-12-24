@@ -255,17 +255,22 @@ class Auth(object):
                     SETTINGS.setSetting('subscriber_id', SUBSCRIBER_ID)
 
                     if self.OTK == '':
-                        if self.getOTK(endPoints):
+                        gotOTK, message = self.getOTK(endPoints)
+                        if gotOTK:
                             return True, 'Successfully logged in.'
                         else:
-                            return False, "Failed to log in, no otk"
+                            self.logOut()
+                            return False, "Failed to log in, check credentials"
                     else:
                         return True, 'Successfully logged in.'
                 else:
+                    self.logOut()
                     return False, 'Account is not active'
             else:
+                self.logOut()
                 return False, 'Failed to validate account'
         else:
+            self.logOut()
             return False, 'Unable to validate account'
 
     def logOut(self):
