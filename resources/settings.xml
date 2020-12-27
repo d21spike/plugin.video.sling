@@ -7,22 +7,24 @@
 
     <category label="30119">
         <setting id="Use_Slinger"  type="bool"   label="30119" default="false" />
+        <setting id="Fix_Live"  type="bool"   label="30148" default="false" enable="eq(-1,true)"/>
+        <setting id="Run_Updates"  type="bool"   label="30149" default="true" enable="eq(-2,true)"/>
         <setting label="30118" type="lsep" />
-        <setting id="Channels_Update" type="action" label="30137" action="RunPlugin(plugin://plugin.video.sling/?mode=setting&name=update_channels&value=true)" option="close" enable="eq(-2,true)" />
-        <setting id="Guide_Update" type="action" label="30138" action="RunPlugin(plugin://plugin.video.sling/?mode=setting&name=update_guide&value=true)" option="close" enable="eq(-3,true)" />
-        <setting id="On_Demand_Update" type="action" label="30139" action="RunPlugin(plugin://plugin.video.sling/?mode=setting&name=update_on_demand&value=true)" option="close" enable="eq(-4,true)" />
-        <setting id="Shows_Update" type="action" label="30140" action="RunPlugin(plugin://plugin.video.sling/?mode=setting&name=update_shows&value=true)" option="close" enable="eq(-5,true)" />
-        <setting id="VOD_Update" type="action" label="30141" action="RunPlugin(plugin://plugin.video.sling/?mode=setting&name=update_vod&value=true)" option="close" enable="eq(-6,true)" />
+        <setting id="Channels_Update" type="action" label="30137" action="RunPlugin(plugin://plugin.video.sling/?mode=setting&name=update_channels&value=true)" option="close" enable="eq(-4,true)" />
+        <setting id="Guide_Update" type="action" label="30138" action="RunPlugin(plugin://plugin.video.sling/?mode=setting&name=update_guide&value=true)" option="close" enable="eq(-5,true)" />
+        <setting id="On_Demand_Update" type="action" label="30139" action="RunPlugin(plugin://plugin.video.sling/?mode=setting&name=update_on_demand&value=true)" option="close" enable="eq(-6,true)" />
+        <setting id="Shows_Update" type="action" label="30140" action="RunPlugin(plugin://plugin.video.sling/?mode=setting&name=update_shows&value=true)" option="close" enable="eq(-7,true)" />
+        <setting id="VOD_Update" type="action" label="30141" action="RunPlugin(plugin://plugin.video.sling/?mode=setting&name=update_vod&value=true)" option="close" enable="eq(-8,true)" />
         <setting label="30127" type="lsep" />
-        <setting id="Enable_EPG" type="bool" label="30128" default="false" enable="eq(-8,true)" />
-        <setting id="Guide_Days" type="slider" label="30126" default="2" range="1,1,5" option="int" enable="eq(-1,true) + eq(-9,true)" />
-        <setting id="Start_Guide" type="bool" label="30147" default="false" enable="eq(-10,true)" />
+        <setting id="Enable_EPG" type="bool" label="30128" default="false" enable="eq(-10,true)" />
+        <setting id="Guide_Days" type="slider" label="30126" default="2" range="1,1,5" option="int" enable="eq(-1,true) + eq(-11,true)" />
+        <setting id="Start_Guide" type="bool" label="30147" default="false" enable="eq(-11,true)" />
         <setting label="30120" type="lsep" />
-        <setting id="Channels_Interval" type="slider" label="30121" default="1" range="1,1,7" option="int" enable="eq(-12,true)" />
-        <setting id="Guide_Interval" type="slider" label="30122" default="0.5" range="0,0.5,7" option="float" enable="eq(-13,true)" />
-        <setting id="Shows_Interval" type="slider" label="30123" default="7" range="1,1,30" option="int" enable="eq(-14,true)" />
-        <setting id="On_Demand_Interval" type="slider" label="30124" default="7" range="1,1,30" option="int" enable="eq(-15,true)" />
-        <setting id="VOD_Interval" type="slider" label="30125" default="1" range="1,1,30" option="int" enable="eq(-16,true)" />
+        <setting id="Channels_Interval" type="slider" label="30121" default="1" range="1,1,7" option="int" enable="eq(-14,true)" />
+        <setting id="Guide_Interval" type="slider" label="30122" default="0.5" range="0,0.5,7" option="float" enable="eq(-15,true)" />
+        <setting id="Shows_Interval" type="slider" label="30123" default="7" range="1,1,30" option="int" enable="eq(-16,true)" />
+        <setting id="On_Demand_Interval" type="slider" label="30124" default="7" range="1,1,30" option="int" enable="eq(-17,true)" />
+        <setting id="VOD_Interval" type="slider" label="30125" default="1" range="1,1,30" option="int" enable="eq(-18,true)" />
         <setting label="30136" type="lsep" />
     </category>
     <category label="30130">

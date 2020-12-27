@@ -251,3 +251,11 @@ msgstr ""
 msgctxt "#30147"
 msgid "Open guide on startup"
 msgstr ""
+
+msgctxt "#30148"
+msgid "Temp Fix Live"
+msgstr ""
+
+msgctxt "#30149"
+msgid "Run Updates"
+msgstr ""

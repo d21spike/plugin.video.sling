@@ -76,7 +76,7 @@ class Slinger(object):
             self.createDB()
         self.DB = sqlite3.connect(DB_PATH)
 
-        if self.DB is not None:
+        if self.DB is not None and RUN_UPDATES:
             self.main()
         else:
             log('Slinger __init__: Failed to initialize DB, closing.')

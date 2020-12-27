@@ -339,6 +339,9 @@ class Auth(object):
                     qmx_url = clip['location']
                     break
             if 'UNKNOWN' not in mpd_url:
+                if USE_SLINGER and FIX_LIVE:
+                    mpd_url = 'http://%s:9999/playlist.mpd?%s' % (xbmc.getIPAddress(), mpd_url)
+
                 response = requests.get(qmx_url, headers=HEADERS, verify=VERIFY)
                 if response is not None and response.status_code == 200:
                     qmx = response.json()
