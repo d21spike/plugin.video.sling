@@ -344,6 +344,13 @@ class Auth(object):
 
                 response = requests.get(qmx_url, headers=HEADERS, verify=VERIFY)
                 if response is not None and response.status_code == 200:
+                    # START: CDN Server error temporary fix
+                    message = 'Sorry, our service is currently not available in your region'
+                    if message in response.text:
+                        qmx_url = re.sub(r"p-cdn\d", "p-cdn1", qmx_url)
+                        response = requests.get(qmx_url, headers=HEADERS, verify=VERIFY)
+                    # END: CDN Server error temporary fix
+
                     qmx = response.json()
                     if 'message' in qmx: return
                     lic_url = ''

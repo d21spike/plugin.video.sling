@@ -1,6 +1,6 @@
 ## GLOBALS ##
 
-import base64, calendar, datetime, hashlib, inputstreamhelper, json, os, random, requests, sys, time, pytz
+import base64, calendar, datetime, hashlib, inputstreamhelper, json, os, random, requests, sys, time, pytz, re
 import traceback, urllib, xbmc, xbmcgui, xbmcplugin, xbmcaddon, xbmcvfs, xmltodict, string, sqlite3, binascii
 from pytz import timezone
 
