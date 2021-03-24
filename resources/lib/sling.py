@@ -228,11 +228,11 @@ class Sling(object):
         
         log('%s | %s | %s' % (url, license_key, external_id))
         if 'mpd' in url:
-            is_helper = inputstreamhelper.Helper('mpd', drm='widevine')
-            if not is_helper.check_inputstream():
-                sys.exit()
+            # is_helper = inputstreamhelper.Helper('mpd', drm='widevine')
+            # if not is_helper.check_inputstream():
+            #     sys.exit()
             liz = xbmcgui.ListItem(name, path=url)
-            liz.setProperty('inputstreamaddon', 'inputstream.adaptive')
+            liz.setProperty('inputstream', 'inputstream.adaptive')
             liz.setProperty('inputstream.adaptive.manifest_type', 'mpd')
             liz.setProperty('inputstream.adaptive.stream_headers', 'User-Agent=' + USER_AGENT)
 
