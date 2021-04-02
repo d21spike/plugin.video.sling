@@ -55,11 +55,11 @@ def myChannels(self):
     log('My Channels Menu')
     timestamp = int(time.time())
     if len(self.Channels) == 0: getChannels(self)
-
+    session = createResilientSession()
     for guid in self.Channels:
         if not self.Channels[guid].Hidden:
             if len(self.Channels[guid].On_Now) == 0 or self.Channels[guid].On_Now['Stop'] < timestamp:
-                result, on_now = self.Channels[guid].onNow()
+                result, on_now = self.Channels[guid].onNow(session=session)
                 if result: self.Channels[guid].On_Now = on_now
             infoArt = self.Channels[guid].infoArt()
             if self.Channels[guid].On_Now != {} and self.Channels[guid].On_Now['Stop'] >= timestamp:
@@ -88,3 +88,5 @@ def myChannels(self):
                 ]
                 addDir(self.Channels[guid].Name, self.handleID, '', 'demand&guid=%s' % guid,
                     self.Channels[guid].infoLabels(), self.Channels[guid].infoArt(), context_items)
+
+    session.close()

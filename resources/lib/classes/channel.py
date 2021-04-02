@@ -56,7 +56,7 @@ class Channel(object):
                     if 'channel_guid' in channel_json['schedule']:
                         self.processJSON(channel_json['schedule'])
                         log('Added channel => \r%s' % json.dumps(self.channelInfo(), indent=4))
-                        result, onNow = self.onNow(channel_json)
+                        result, onNow = self.onNow(response_json=channel_json)
                         if result: self.On_Now = onNow
                         log('Added channel %s On Now => \r%s' % (self.Name, json.dumps(self.On_Now, indent=4)))
 
@@ -151,7 +151,7 @@ class Channel(object):
             'On_Demand': self.On_Demand
         }
 
-    def onNow(self, response_json=None):
+    def onNow(self, response_json=None, session=None):
         # http://cbd46b77.cdn.cms.movetv.com/cms/publish3/channel/current_asset/ca0cad8dbb4a4e68962810d8a6aa8b6a.json
         # https://cbd46b77.cdn.cms.movetv.com/cms/publish3/channel/schedule/2ad976f9aa4b4796a52ae3d64b50db9c.json
 
@@ -170,7 +170,11 @@ class Channel(object):
                 url_timestamp = datetime.date.today().strftime("%y%m%d") + datetime.datetime.utcnow().strftime("%H%M")
                 channel_url = "%s/cms/publish3/channel/schedule/24/%s/1/%s.json" % (self.Endpoints['cms_url'],
                                                                                     url_timestamp, self.GUID)
-                response = requests.get(channel_url, headers=HEADERS, verify=VERIFY)
+                if session is None:
+                    response = requests.get(channel_url, headers=HEADERS, verify=VERIFY)
+                else:
+                    response = session.get(channel_url, headers=HEADERS, verify=VERIFY)
+
                 if response is not None and response.status_code == 200:
                     response_json = response.json()
             if response_json is not None:

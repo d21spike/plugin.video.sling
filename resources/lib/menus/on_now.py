@@ -18,7 +18,7 @@ def onNow(self):
     if response is not None and response.status_code == 200:
         response = response.json()
         if 'ribbons' in response:
-            session = requests.Session()
+            session = createResilientSession()
             for ribbon in response['ribbons']:
                 if ribbon['total_tiles'] > 0:
                     infoLabels = {

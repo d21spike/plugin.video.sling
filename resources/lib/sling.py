@@ -227,12 +227,16 @@ class Sling(object):
             external_id = ''
         
         log('%s | %s | %s' % (url, license_key, external_id))
+        liz = xbmcgui.ListItem(name, path=url)
         if 'mpd' in url:
             is_helper = inputstreamhelper.Helper('mpd', drm='widevine')
             if not is_helper.check_inputstream():
                 sys.exit()
-            liz = xbmcgui.ListItem(name, path=url)
-            liz.setProperty('inputstream', 'inputstream.adaptive')
+            if PY == 3:
+                liz.setProperty('inputstream', 'inputstream.adaptive')
+            else:
+                liz.setProperty('inputstreamaddon', 'inputstream.adaptive')
+
             liz.setProperty('inputstream.adaptive.manifest_type', 'mpd')
             liz.setProperty('inputstream.adaptive.stream_headers', 'User-Agent=' + USER_AGENT)
 
@@ -240,11 +244,10 @@ class Sling(object):
                 liz.setProperty('inputstream.adaptive.license_type', 'com.widevine.alpha')
                 liz.setProperty('inputstream.adaptive.license_key', license_key)
             liz.setMimeType('application/dash+xml')
+
             liz.setContentLookup(False)
-            xbmcplugin.setResolvedUrl(int(self.sysARG[1]), True, liz)
-        else:
-            liz = xbmcgui.ListItem(name, path=url)
-            xbmcplugin.setResolvedUrl(int(self.sysARG[1]), True, liz)
+
+        xbmcplugin.setResolvedUrl(int(self.sysARG[1]), True, liz)
 
         while not xbmc.Player().isPlayingVideo():
             xbmc.Monitor().waitForAbort(0.25)

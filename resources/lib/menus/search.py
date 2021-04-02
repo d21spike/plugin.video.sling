@@ -59,7 +59,7 @@ def executeSearch(self, query):
                                        show.infoArt(), context_items)
                                 gotResults = True
                     elif "MOVIES" in ribbon['title']:
-                        session = requests.Session()
+                        session = createResilientSession()
                         for sling_movie in ribbon['tiles']:
                             if 'actions' in sling_movie:
                                 if 'PLAY_CONTENT' in sling_movie['actions']:

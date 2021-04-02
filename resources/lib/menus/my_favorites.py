@@ -25,7 +25,6 @@ def myFavorites(self):
     timestamp = int(time.time())
     if len(self.Favorites) == 0: getFavorites(self)
 
-
     for guid in self.Favorites:
         if len(self.Favorites[guid].On_Now) == 0 or self.Favorites[guid].On_Now['Stop'] < timestamp:
             result, on_now = self.Favorites[guid].onNow()
