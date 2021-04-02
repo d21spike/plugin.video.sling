@@ -10,9 +10,9 @@ ADDON_URL = 'plugin://plugin.video.sling/'
 SETTINGS = xbmcaddon.Addon(id=ADDON_ID)
 SETTINGS_LOC = SETTINGS.getAddonInfo('profile')
 ADDON_PATH = SETTINGS.getAddonInfo('path')
-DB_PATH = xbmc.translatePath(os.path.join(SETTINGS_LOC, 'sling.db'))
-SQL_PATH = xbmc.translatePath(os.path.join(ADDON_PATH, 'resources', 'lib', 'tables.sql'))
-UPDATE_PATH = xbmc.translatePath(os.path.join(SETTINGS_LOC, 'update.now'))
+DB_PATH = xbmcvfs.translatePath(os.path.join(SETTINGS_LOC, 'sling.db'))
+SQL_PATH = xbmcvfs.translatePath(os.path.join(ADDON_PATH, 'resources', 'lib', 'tables.sql'))
+UPDATE_PATH = xbmcvfs.translatePath(os.path.join(SETTINGS_LOC, 'update.now'))
 ADDON_VERSION = SETTINGS.getAddonInfo('version')
 ICON = SETTINGS.getAddonInfo('icon')
 FANART = SETTINGS.getAddonInfo('fanart')
@@ -65,7 +65,7 @@ VERIFY = True
 PRINTABLE = set(string.printable)
 CONTENT_TYPE = 'Episodes'
 
-TRACKER_PATH = xbmc.translatePath(os.path.join(SETTINGS_LOC, 'slinger.json'))
+TRACKER_PATH = xbmcvfs.translatePath(os.path.join(SETTINGS_LOC, 'slinger.json'))
 
 if sys.version_info[0] < 3:
     PY = 2

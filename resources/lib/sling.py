@@ -232,7 +232,7 @@ class Sling(object):
             if not is_helper.check_inputstream():
                 sys.exit()
             liz = xbmcgui.ListItem(name, path=url)
-            liz.setProperty('inputstreamaddon', 'inputstream.adaptive')
+            liz.setProperty('inputstream', 'inputstream.adaptive')
             liz.setProperty('inputstream.adaptive.manifest_type', 'mpd')
             liz.setProperty('inputstream.adaptive.stream_headers', 'User-Agent=' + USER_AGENT)
 
