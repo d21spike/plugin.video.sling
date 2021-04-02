@@ -343,12 +343,14 @@ class Auth(object):
                     mpd_url = 'http://%s:9999/playlist.mpd?%s' % (xbmc.getIPAddress(), mpd_url)
 
                 response = requests.get(qmx_url, headers=HEADERS, verify=VERIFY)
-                if response is not None and response.status_code == 200:
+                if response is not None:
                     # START: CDN Server error temporary fix
                     message = 'Sorry, our service is currently not available in your region'
                     if message in response.text:
                         qmx_url = re.sub(r"p-cdn\d", "p-cdn1", qmx_url)
                         response = requests.get(qmx_url, headers=HEADERS, verify=VERIFY)
+
+                        mpd_url = re.sub(r"p-cdn\d", "p-cdn1", mpd_url)
                     # END: CDN Server error temporary fix
 
                     qmx = response.json()
