@@ -349,6 +349,8 @@ class Auth(object):
                     if message in response.text:
                         qmx_url = re.sub(r"p-cdn\d", "p-cdn1", qmx_url)
                         response = requests.get(qmx_url, headers=HEADERS, verify=VERIFY)
+
+                        mpd_url = re.sub(r"p-cdn\d", "p-cdn1", mpd_url)
                     # END: CDN Server error temporary fix
 
                     qmx = response.json()
