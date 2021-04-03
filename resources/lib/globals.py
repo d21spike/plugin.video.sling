@@ -1,8 +1,26 @@
 ## GLOBALS ##
 
 import base64, calendar, datetime, hashlib, inputstreamhelper, json, os, random, requests, sys, time, pytz, re
-import traceback, urllib, xbmc, xbmcgui, xbmcplugin, xbmcaddon, xbmcvfs, xmltodict, string, sqlite3, binascii
+import traceback, urllib, xmltodict, string, sqlite3, binascii
 from pytz import timezone
+from kodi_six import xbmc, xbmcvfs, xbmcplugin, xbmcgui, xbmcaddon
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
+
+if sys.version_info[0] < 3:
+    PY = 2
+    import urlparse
+    urlLib = urllib
+    urlParse = urlparse
+else:
+    PY = 3
+    urlLib = urllib.parse
+    urlParse = urlLib
+
+try:
+    xbmc.translatePath = xbmcvfs.translatePath
+except AttributeError:
+    pass
 
 ADDON_NAME = 'Sling'
 ADDON_ID = 'plugin.video.sling'
@@ -10,9 +28,9 @@ ADDON_URL = 'plugin://plugin.video.sling/'
 SETTINGS = xbmcaddon.Addon(id=ADDON_ID)
 SETTINGS_LOC = SETTINGS.getAddonInfo('profile')
 ADDON_PATH = SETTINGS.getAddonInfo('path')
-DB_PATH = xbmcvfs.translatePath(os.path.join(SETTINGS_LOC, 'sling.db'))
-SQL_PATH = xbmcvfs.translatePath(os.path.join(ADDON_PATH, 'resources', 'lib', 'tables.sql'))
-UPDATE_PATH = xbmcvfs.translatePath(os.path.join(SETTINGS_LOC, 'update.now'))
+DB_PATH = xbmc.translatePath(os.path.join(SETTINGS_LOC, 'sling.db'))
+SQL_PATH = xbmc.translatePath(os.path.join(ADDON_PATH, 'resources', 'lib', 'tables.sql'))
+UPDATE_PATH = xbmc.translatePath(os.path.join(SETTINGS_LOC, 'update.now'))
 ADDON_VERSION = SETTINGS.getAddonInfo('version')
 ICON = SETTINGS.getAddonInfo('icon')
 FANART = SETTINGS.getAddonInfo('fanart')
@@ -65,17 +83,8 @@ VERIFY = True
 PRINTABLE = set(string.printable)
 CONTENT_TYPE = 'Episodes'
 
-TRACKER_PATH = xbmcvfs.translatePath(os.path.join(SETTINGS_LOC, 'slinger.json'))
+TRACKER_PATH = xbmc.translatePath(os.path.join(SETTINGS_LOC, 'slinger.json'))
 
-if sys.version_info[0] < 3:
-    PY = 2
-    import urlparse
-    urlLib = urllib
-    urlParse = urlparse
-else:
-    PY = 3
-    urlLib = urllib.parse
-    urlParse = urlLib
 
 def log(msg, level=xbmc.LOGDEBUG):
     if DEBUG == False and level != xbmc.LOGERROR: return
@@ -224,6 +233,16 @@ def subscribedChannel(self, channel_guid):
         subscribed = True
 
     return subscribed
+
+
+def createResilientSession():
+    session = requests.Session()
+    retry = Retry(connect=3, backoff_factor=0.5)
+    adapter = HTTPAdapter(max_retries=retry)
+    session.mount('http://', adapter)
+    session.mount('https://', adapter)
+
+    return session
 
 from resources.lib.classes.channel import Channel
 from resources.lib.classes.show import Show

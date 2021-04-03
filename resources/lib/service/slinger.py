@@ -19,8 +19,8 @@ class Slinger(object):
     On_Demand_Interval = 168 * Seconds_Per_Hour  # One Week
     VOD_Interval = 12 * Seconds_Per_Hour  # Twelve Hours
     Guide_Days = 1
-    EPG_Path = os.path.join(xbmcvfs.translatePath(xbmcaddon.Addon().getAddonInfo('profile')), 'sling_epg.xml')
-    Playlist_Path = os.path.join(xbmcvfs.translatePath(xbmcaddon.Addon().getAddonInfo('profile')), 'sling_playlist.m3u')
+    EPG_Path = os.path.join(xbmc.translatePath(xbmcaddon.Addon().getAddonInfo('profile')), 'sling_epg.xml')
+    Playlist_Path = os.path.join(xbmc.translatePath(xbmcaddon.Addon().getAddonInfo('profile')), 'sling_playlist.m3u')
 
     Monitor = None
     Auth = None
@@ -420,7 +420,7 @@ class Slinger(object):
                     start_ts = int(time.mktime(time.strptime(start_str, "%m/%d/%Y %H:%M:%S")))
                     end_ts = int(time.mktime(time.strptime(end_str, "%m/%d/%Y %H:%M:%S")))
 
-                    session = requests.Session()
+                    session = createResilientSession()
                     for channel in channels:
                         channel_guid = channel[0]
                         channel_poster = channel[1]

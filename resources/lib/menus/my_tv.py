@@ -63,7 +63,7 @@ def myTVRibbon(self):
         # ======================== Process Ribbon Tiles ========================
         if 'tiles' in response:
             if len(response['tiles']) > 0:
-                session = requests.Session()
+                session = createResilientSession()
                 for tile in response['tiles']:
                     action = tile['primary_action']
                     if action is None:
