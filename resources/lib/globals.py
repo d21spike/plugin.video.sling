@@ -107,8 +107,8 @@ def okDialog(str1, str2='', str3='', header=ADDON_NAME):
     xbmcgui.Dialog().ok(header, str1, str2, str3)
 
 
-def yesNoDialog(str1, str2='', str3='', header=ADDON_NAME, yes='', no='', autoclose=0):
-    return xbmcgui.Dialog().yesno(header, str1, str2, str3, no, yes, autoclose)
+def yesNoDialog(str1, header=ADDON_NAME, yes='', no='', autoclose=0):
+    return xbmcgui.Dialog().yesno(header, str1, no, yes, autoclose)
 
 
 def notificationDialog(message, header=ADDON_NAME, sound=False, time=1000, icon=ICON):
