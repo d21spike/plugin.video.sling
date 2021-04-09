@@ -127,6 +127,8 @@ class Sling(object):
                 executeSearch(self, self.params['query'])
         if self.mode == 'setting':
             self.setSetting()
+        if self.mode == 'tryRecord':
+            self.tryRecord()
         if self.mode == 'record':
             self.setRecord()
         if self.mode == 'del_record':
@@ -442,6 +444,49 @@ class Sling(object):
             log('playEpisode(): Failed to play episode %s from DB, error => %s' % (guid, err))
         except Exception as exc:
             log('playEpisode(): Failed to play episode %s from DB, exception => %s' % (guid, exc))
+
+    def tryRecord(self):
+        log('tryRecord(): Attempting to get record asset for channel %s @ %s' % (self.params['channel'], self.params['start']))
+
+        channel_guid = self.params['channel']
+        rec_start = int(self.params['start'])
+        url_timestamp = datetime.datetime.fromtimestamp(rec_start).strftime("%y%m%d") + datetime.datetime.fromtimestamp(rec_start).strftime("%H%M")
+        schedule_url = "%s/cms/publish3/channel/schedule/24/%s/1/%s.json" % (self.endPoints['cms_url'], url_timestamp, channel_guid)
+        log('tryRecord(): Schedule URL =>\r%s' % schedule_url)
+
+        asset_found = False
+        response = requests.get(schedule_url, headers=HEADERS, verify=VERIFY)
+        if response.status_code == 200:
+            channel_json = response.json()
+            if channel_json is not None:
+                if 'schedule' in channel_json:
+                    schedule = channel_json['schedule']
+                    if 'scheduleList' in schedule:
+                        for program in schedule['scheduleList']:
+                            if 'schedule_start' in program:
+                                if str(rec_start) in program['schedule_start']:
+                                    log('tryRecord: Found %s' % program['title'])
+                                    if 'external_id' in program:
+                                        asset_id = program['external_id']
+                                        asset_url = '%s/cms/publish3/asset/info/%s.json' % (self.endPoints['cms_url'], asset_id)
+                                        log('tryRecord: Found %s, URL: %s' % (program['title'], asset_url))        
+                                        self.params['guid'] = channel_guid
+                                        self.params['asset_url'] = asset_url
+                                        self.setRecord()
+                                        asset_found = True
+                                    else:
+                                        log('tryRecord: Failed to find asset in schedule')
+                    else:
+                        log('tryRecord: Failed to get schedule listing for channel')
+                else:
+                        log('tryRecord: Failed to get schedule for channel')
+            else:
+                log('tryRecord: Failed to get channel JSON')
+        else:
+            log('tryRecord: Failed to get channel information')
+
+        if not asset_found:
+            notificationDialog("Failed find asset to set recording")
 
     def setRecord(self):
         log('setRecord(): Attempting to record asset %s \nURL: %s' % (self.params['guid'], self.params['asset_url']))

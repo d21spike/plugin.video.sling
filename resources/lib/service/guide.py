@@ -37,17 +37,6 @@ class httpHandler(SimpleHTTPRequestHandler):
             self.end_headers()
             Guide.guide(self.Parent, self.wfile)
             log('Guide Service: Finished.')
-        elif 'playlist.mpd' in path:
-            log('Guide Service: Building MPD playlist...')
-            #self.send_header('Content-Type', 'application/dash+xml')
-            self.send_header('Content-type', 'text/xml')
-            self.end_headers()
-            if '?' in path:
-                mpd_url = path.split('?')[1]
-                Guide.playlist(self.Parent, self.wfile, mpd_url)
-            else:
-                self.wfile.write('No channel guid specified.')
-            log('Guide Service: Finished.')
         elif path == 'stop':
             self.Parent.Abort = True
 
@@ -200,24 +189,6 @@ class Guide(object):
             self.Last_Error = error
 
         html.write('</tv>'.encode())
-
-    def playlist(self, html, mpd_url):
-        log('Guide Service: playlist()')
-
-        response = requests.get(mpd_url, headers=HEADERS, verify=VERIFY)
-        if response.status_code == 200:
-            html_text = response.text
-
-            search_string = 'type="dynamic"'
-            if search_string in html_text:
-                search_string = 'mediaPresentationDuration'
-                if search_string in html_text:
-                    start = html_text.find(search_string)
-                    stop = html_text.find('"', start + len(search_string) + 2)
-                    substitute_string = html_text[start:stop + 2]
-                    html_text = html_text.replace(substitute_string, "")
-            
-            html.write(html_text)
 
     def createDB(self):
         log('Guide Service: createDB()')
