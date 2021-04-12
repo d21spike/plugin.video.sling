@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<addon id="plugin.video.sling" version="2021.4.12.1" name="Sling" provider-name="d21spike, eracknaphobia">
+<addon id="plugin.video.sling" version="2021.4.12.2" name="Sling" provider-name="d21spike, eracknaphobia">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
         <import addon="script.module.requests" />

@@ -45,6 +45,7 @@ def onDemandChannel(self):
     infoLabels['mpaa'] = ''
     categories = channel.onDemandCategories()
     for category in categories:
+        infoLabels['title'] = category['Name']
         addDir(category['Name'], self.handleID, '', 'demand&guid=%s&category=%s' %
                (self.params['guid'], binascii.hexlify(strip(category['Name']).encode()).decode()), infoLabels, channel.infoArt())
     
