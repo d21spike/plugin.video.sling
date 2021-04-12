@@ -1,17 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <settings version="1">
     <section id="plugin.video.sling">
-        <!-- <category label="30009"> -->
         <category id="General" label="30009">
             <group id="1">
-                <!-- <setting id="Enable_Debugging" type="bool"   label="30000" default="false" /> -->
                 <setting id="Enable_Debugging" type="boolean" label="30000">
                     <control type="toggle" />
                     <default>false</default>
                     <level>0</level>
                 </setting>
-
-                <!-- <setting id="User_Email" type="text"   label="30002" default="" /> -->
                 <setting id="User_Email" type="string" label="30002">
                     <constraints>
                         <allowempty>true</allowempty>
@@ -20,8 +16,6 @@
                     <default></default>
                     <level>0</level>
                 </setting>
-
-                <!-- <setting id="User_Password" type="text"   label="30003" default=""  option="hidden"/> -->
                 <setting id="User_Password" type="string" label="30003">
                     <constraints>
                         <allowempty>true</allowempty>
@@ -32,26 +26,19 @@
                     <default></default>
                     <level>0</level>
                 </setting>
-
-                <!-- <setting id="Log_Out" type="action" label="30008" action="RunPlugin(plugin://plugin.video.sling/?mode=logout)" /> -->
                 <setting id="Log_Out" type="action" label="30008" action="RunPlugin(plugin://plugin.video.sling/?mode=logout)">
                     <control type="button" format="action" />
                     <level>0</level>
                 </setting>
             </group>
         </category>
-
-        <!-- <category label="30119"> -->
         <category id="SlingerService" label="30119">
             <group id="1">
-                <!-- <setting id="Use_Slinger"  type="bool"   label="30119" default="false" /> -->
                 <setting id="Use_Slinger" type="boolean" label="30119">
                     <control type="toggle" />
                     <default>false</default>
                     <level>0</level>
                 </setting>
-
-                <!-- <setting id="Run_Updates"  type="bool"   label="30149" default="true" enable="eq(-2,true)"/> -->
                 <setting id="Run_Updates" type="boolean" label="30149">
                     <control type="toggle" />
                     <default>true</default>
@@ -61,10 +48,7 @@
                     <level>0</level>
                 </setting>
             </group>
-
-            <!-- <setting label="30118" type="lsep" /> -->
             <group id="2" label="30118">
-                <!-- <setting id="Channels_Update" type="action" label="30137" action="RunPlugin(plugin://plugin.video.sling/?mode=setting&name=update_channels&value=true)" option="close" enable="eq(-4,true)" /> -->
                 <setting id="Channels_Update" type="action" label="30137" action="RunPlugin(plugin://plugin.video.sling/?mode=setting&name=update_channels&value=true)" option="close">
                     <control type="button" format="action" />
                     <dependencies>
@@ -72,8 +56,6 @@
                     </dependencies>
                     <level>0</level>
                 </setting>
-
-                <!-- <setting id="Guide_Update" type="action" label="30138" action="RunPlugin(plugin://plugin.video.sling/?mode=setting&name=update_guide&value=true)" option="close" enable="eq(-5,true)" /> -->
                 <setting id="Guide_Update" type="action" label="30138" action="RunPlugin(plugin://plugin.video.sling/?mode=setting&name=update_guide&value=true)" option="close">
                     <control type="button" format="action" />
                     <dependencies>
@@ -81,8 +63,6 @@
                     </dependencies>
                     <level>0</level>
                 </setting>
-
-                <!-- <setting id="On_Demand_Update" type="action" label="30139" action="RunPlugin(plugin://plugin.video.sling/?mode=setting&name=update_on_demand&value=true)" option="close" enable="eq(-6,true)" /> -->
                 <setting id="On_Demand_Update" type="action" label="30139" action="RunPlugin(plugin://plugin.video.sling/?mode=setting&name=update_on_demand&value=true)" option="close">
                     <control type="button" format="action" />
                     <dependencies>
@@ -90,8 +70,6 @@
                     </dependencies>
                     <level>0</level>
                 </setting>
-
-                <!-- <setting id="Shows_Update" type="action" label="30140" action="RunPlugin(plugin://plugin.video.sling/?mode=setting&name=update_shows&value=true)" option="close" enable="eq(-7,true)" /> -->
                 <setting id="Shows_Update" type="action" label="30140" action="RunPlugin(plugin://plugin.video.sling/?mode=setting&name=update_shows&value=true)" option="close">
                     <control type="button" format="action" />
                     <dependencies>
@@ -99,8 +77,6 @@
                     </dependencies>
                     <level>0</level>
                 </setting>
-
-                <!-- <setting id="VOD_Update" type="action" label="30141" action="RunPlugin(plugin://plugin.video.sling/?mode=setting&name=update_vod&value=true)" option="close" enable="eq(-8,true)" /> -->
                 <setting id="VOD_Update" type="action" label="30141" action="RunPlugin(plugin://plugin.video.sling/?mode=setting&name=update_vod&value=true)" option="close">
                     <control type="button" format="action" />
                     <dependencies>
@@ -109,10 +85,7 @@
                     <level>0</level>
                 </setting>
             </group>
-
-            <!-- <setting label="30127" type="lsep" /> -->
             <group id="3" label="30127">
-                <!-- <setting id="Enable_EPG" type="bool" label="30128" default="false" enable="eq(-10,true)" /> -->
                 <setting id="Enable_EPG" type="boolean" label="30128">
                     <control type="toggle" />
                     <default>false</default>
@@ -121,8 +94,6 @@
                     </dependencies>
                     <level>0</level>
                 </setting>
-
-                <!-- <setting id="Guide_Days" type="slider" label="30126" default="2" range="1,1,5" option="int" enable="eq(-1,true) + eq(-11,true)" /> -->
                 <setting id="Guide_Days" type="integer" label="30126">
                     <constraints>
                         <minimum>1</minimum>
@@ -141,8 +112,6 @@
                     </dependencies>
                     <level>0</level>
                 </setting>
-
-                <!-- <setting id="Start_Guide" type="bool" label="30147" default="false" enable="eq(-11,true)" /> -->
                 <setting id="Start_Guide" type="boolean" label="30147">
                     <control type="toggle" />
                     <default>false</default>
@@ -152,10 +121,7 @@
                     <level>0</level>
                 </setting>
             </group>
-
-            <!-- <setting label="30120" type="lsep" /> -->
             <group id="4" label="30120">
-                <!-- <setting id="Channels_Interval" type="slider" label="30121" default="1" range="1,1,7" option="int" enable="eq(-14,true)" /> -->
                 <setting id="Channels_Interval" type="integer" label="30121">
                     <constraints>
                         <minimum>1</minimum>
@@ -169,8 +135,6 @@
                     </dependencies>
                     <level>0</level>
                 </setting>
-
-                <!-- <setting id="Guide_Interval" type="slider" label="30122" default="0.5" range="0,0.5,7" option="float" enable="eq(-15,true)" /> -->
                 <setting id="Guide_Interval" type="number" label="30122">
                     <constraints>
                         <minimum>0.5</minimum>
@@ -184,8 +148,6 @@
                     </dependencies>
                     <level>0</level>
                 </setting>
-
-                <!-- <setting id="Shows_Interval" type="slider" label="30123" default="7" range="1,1,30" option="int" enable="eq(-16,true)" /> -->
                 <setting id="Shows_Interval" type="integer" label="30123">
                     <constraints>
                         <minimum>1</minimum>
@@ -199,8 +161,6 @@
                     </dependencies>
                     <level>0</level>
                 </setting>
-
-                <!-- <setting id="On_Demand_Interval" type="slider" label="30124" default="7" range="1,1,30" option="int" enable="eq(-17,true)" /> -->
                 <setting id="On_Demand_Interval" type="integer" label="30124">
                     <constraints>
                         <minimum>1</minimum>
@@ -214,8 +174,6 @@
                     </dependencies>
                     <level>0</level>
                 </setting>
-
-                <!-- <setting id="VOD_Interval" type="slider" label="30125" default="1" range="1,1,30" option="int" enable="eq(-18,true)" /> -->
                 <setting id="VOD_Interval" type="integer" label="30125">
                     <constraints>
                         <minimum>1</minimum>
@@ -229,21 +187,14 @@
                     </dependencies>
                     <level>0</level>
                 </setting>
-
-            <!-- <setting label="30136" type="lsep" /> -->
             </group>
         </category>
-
-        <!-- <category label="30130"> -->
         <category id="Expert" label="30130">
             <group id="1">
-                <!-- <setting id="Delete_DB" type="action" label="30131" action="RunPlugin(plugin://plugin.video.sling/?mode=setting&name=delete_db&value=true)" option="close" /> -->
                 <setting id="Delete_DB" type="action" label="30131" action="RunPlugin(plugin://plugin.video.sling/?mode=setting&name=delete_db&value=true)" option="close">
                     <control type="button" format="action" />
                     <level>3</level>
                 </setting>
-
-                <!-- <setting id="Debug" type="text" label="30135" default="" /> -->
                 <setting id="Debug" type="string" label="30135">
                     <constraints>
                         <allowempty>true</allowempty>
@@ -252,14 +203,10 @@
                     <default></default>
                     <level>3</level>
                 </setting>
-
-                <!-- <setting id="Reset_Hidden" type="action" label="30143" action="RunPlugin(plugin://plugin.video.sling/?mode=setting&name=reset_hidden&value=true)" option="close" /> -->
                 <setting id="Reset_Hidden" type="action" label="30143" action="RunPlugin(plugin://plugin.video.sling/?mode=setting&name=reset_hidden&value=true)" option="close">
                     <control type="button" format="action" />
                     <level>3</level>
                 </setting>
-
-                <!-- <setting id="View_Slinger" type="action" label="30145" action="RunPlugin(plugin://plugin.video.sling/?mode=setting&name=view_slinger&value=true)" option="close" /> -->
                 <setting id="View_Slinger" type="action" label="30145" action="RunPlugin(plugin://plugin.video.sling/?mode=setting&name=view_slinger&value=true)" option="close">
                     <control type="button" format="action" />
                     <level>3</level>
