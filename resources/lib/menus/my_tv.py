@@ -42,11 +42,14 @@ def myTV(self):
         response = response.json()
         if 'ribbons' in response:
             for ribbon in response['ribbons']:
-                log('My TV On Demand Ribbon: %s with %i tiles' % (ribbon['title'], int(ribbon['total_tiles'])))
-                if int(ribbon['total_tiles']) > 0 and ('Rentals' not in ribbon['title'] or allow):
-                    if ribbon['title'] != 'Add Premium Channels & More':
-                        infoLabels['title'] = ribbon['title']
-                        addDir(ribbon['title'], self.handleID, ribbon['href'], 'my_tv', infoLabels, infoArt)
+                try:
+                    log('My TV On Demand Ribbon: %s with %i tiles' % (ribbon['title'], int(ribbon['total_tiles'])))
+                    if int(ribbon['total_tiles']) > 0 and ('Rentals' not in ribbon['title'] or allow):
+                        if ribbon['title'] != 'Add Premium Channels & More':
+                            infoLabels['title'] = ribbon['title']
+                            addDir(ribbon['title'], self.handleID, ribbon['href'], 'my_tv', infoLabels, infoArt)
+                except:
+                    log('Failed to load ribbon:\n %s' % json.dumps(ribbon, indent=4))
 
 # ======================== My TV Ribbon Menu ========================
 def myTVRibbon(self):
