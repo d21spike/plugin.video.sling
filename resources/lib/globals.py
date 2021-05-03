@@ -22,6 +22,7 @@ try:
 except AttributeError:
     pass
 
+KODI_VERSION_MAJOR = int(xbmc.getInfoLabel('System.BuildVersion').split('.')[0])
 ADDON_NAME = 'Sling'
 ADDON_ID = 'plugin.video.sling'
 ADDON_URL = 'plugin://plugin.video.sling/'
