@@ -229,24 +229,33 @@ class Sling(object):
             external_id = ''
         
         log('%s | %s | %s' % (url, license_key, external_id))
-        if 'mpd' in url:
-            is_helper = inputstreamhelper.Helper('mpd', drm='widevine')
+        liz = xbmcgui.ListItem(name, path=url)
+        
+        protocol = 'mpd'
+        drm = 'com.widevine.alpha'
+        mime_type = 'application/dash+xml'
+
+        if protocol in url:
+            is_helper = inputstreamhelper.Helper(protocol, drm=drm)
+
             if not is_helper.check_inputstream():
                 sys.exit()
-            liz = xbmcgui.ListItem(name, path=url)
-            liz.setProperty('inputstreamaddon', 'inputstream.adaptive')
-            liz.setProperty('inputstream.adaptive.manifest_type', 'mpd')
+            if KODI_VERSION_MAJOR >= 19:
+                liz.setProperty('inputstream', is_helper.inputstream_addon)
+            else:
+                liz.setProperty('inputstreamaddon', is_helper.inputstream_addon)
+
+            liz.setProperty('inputstream.adaptive.manifest_type', protocol)
             liz.setProperty('inputstream.adaptive.stream_headers', 'User-Agent=' + USER_AGENT)
 
             if license_key != '':
-                liz.setProperty('inputstream.adaptive.license_type', 'com.widevine.alpha')
+                liz.setProperty('inputstream.adaptive.license_type', drm)
                 liz.setProperty('inputstream.adaptive.license_key', license_key)
-            liz.setMimeType('application/dash+xml')
+            liz.setMimeType(mime_type)
+
             liz.setContentLookup(False)
-            xbmcplugin.setResolvedUrl(int(self.sysARG[1]), True, liz)
-        else:
-            liz = xbmcgui.ListItem(name, path=url)
-            xbmcplugin.setResolvedUrl(int(self.sysARG[1]), True, liz)
+
+        xbmcplugin.setResolvedUrl(int(self.sysARG[1]), True, liz)
 
         while not xbmc.Player().isPlayingVideo():
             xbmc.Monitor().waitForAbort(0.25)

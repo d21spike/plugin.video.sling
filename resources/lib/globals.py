@@ -4,6 +4,7 @@ import base64, calendar, datetime, hashlib, inputstreamhelper, json, os, random,
 import traceback, urllib, xbmc, xbmcgui, xbmcplugin, xbmcaddon, xbmcvfs, xmltodict, string, sqlite3, binascii
 from pytz import timezone
 
+KODI_VERSION_MAJOR = int(xbmc.getInfoLabel('System.BuildVersion').split('.')[0])
 ADDON_NAME = 'Sling'
 ADDON_ID = 'plugin.video.sling'
 ADDON_URL = 'plugin://plugin.video.sling/'
