@@ -22,7 +22,6 @@ TIMEOUT = 15
 USER_EMAIL = SETTINGS.getSetting('User_Email')
 USER_PASSWORD = SETTINGS.getSetting('User_Password')
 USE_SLINGER = SETTINGS.getSetting(id='Use_Slinger') == 'true'
-FIX_LIVE = SETTINGS.getSetting(id='Fix_Live') == 'true'
 RUN_UPDATES = SETTINGS.getSetting(id='Run_Updates') == 'true'
 ACCESS_TOKEN = SETTINGS.getSetting('access_token')
 ACCESS_TOKEN_JWT = SETTINGS.getSetting('access_token_jwt')
