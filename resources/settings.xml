@@ -49,40 +49,45 @@
                 </setting>
             </group>
             <group id="2" label="30118">
-                <setting id="Channels_Update" type="action" label="30137" action="RunPlugin(plugin://plugin.video.sling/?mode=setting&name=update_channels&value=true)" option="close">
+                <setting id="Channels_Update" type="action" label="30137">
+                    <level>0</level>
                     <control type="button" format="action" />
+                    <data>RunPlugin(plugin://plugin.video.sling/?mode=setting&amp;name=update_channels&amp;value=true)</data>
                     <dependencies>
                         <dependency type="enable" setting="Use_Slinger" operator="is">true</dependency>
                     </dependencies>
-                    <level>0</level>
                 </setting>
-                <setting id="Guide_Update" type="action" label="30138" action="RunPlugin(plugin://plugin.video.sling/?mode=setting&name=update_guide&value=true)" option="close">
+                <setting id="Guide_Update" type="action" label="30138">
+                    <level>0</level>
                     <control type="button" format="action" />
+                    <data>RunPlugin(plugin://plugin.video.sling/?mode=setting&amp;name=update_guide&amp;value=true)</data>
                     <dependencies>
                         <dependency type="enable" setting="Use_Slinger" operator="is">true</dependency>
                     </dependencies>
-                    <level>0</level>
                 </setting>
-                <setting id="On_Demand_Update" type="action" label="30139" action="RunPlugin(plugin://plugin.video.sling/?mode=setting&name=update_on_demand&value=true)" option="close">
+                <setting id="On_Demand_Update" type="action" label="30139">
+                    <level>0</level>
                     <control type="button" format="action" />
+                    <data>RunPlugin(plugin://plugin.video.sling/?mode=setting&amp;name=update_on_demand&amp;value=true)</data>
                     <dependencies>
                         <dependency type="enable" setting="Use_Slinger" operator="is">true</dependency>
                     </dependencies>
-                    <level>0</level>
                 </setting>
-                <setting id="Shows_Update" type="action" label="30140" action="RunPlugin(plugin://plugin.video.sling/?mode=setting&name=update_shows&value=true)" option="close">
+                <setting id="Shows_Update" type="action" label="30140">
+                    <level>0</level>
                     <control type="button" format="action" />
+                    <data>RunPlugin(plugin://plugin.video.sling/?mode=setting&amp;name=update_shows&amp;value=true)</data>
                     <dependencies>
                         <dependency type="enable" setting="Use_Slinger" operator="is">true</dependency>
                     </dependencies>
-                    <level>0</level>
                 </setting>
-                <setting id="VOD_Update" type="action" label="30141" action="RunPlugin(plugin://plugin.video.sling/?mode=setting&name=update_vod&value=true)" option="close">
+                <setting id="VOD_Update" type="action" label="30141">
+                    <level>0</level>
                     <control type="button" format="action" />
+                    <data>RunPlugin(plugin://plugin.video.sling/?mode=setting&amp;name=update_vod&amp;value=true)</data>
                     <dependencies>
                         <dependency type="enable" setting="Use_Slinger" operator="is">true</dependency>
                     </dependencies>
-                    <level>0</level>
                 </setting>
             </group>
             <group id="3" label="30127">
@@ -191,9 +196,10 @@
         </category>
         <category id="Expert" label="30130">
             <group id="1">
-                <setting id="Delete_DB" type="action" label="30131" action="RunPlugin(plugin://plugin.video.sling/?mode=setting&name=delete_db&value=true)" option="close">
-                    <control type="button" format="action" />
+                <setting id="Delete_DB" type="action" label="30131">
                     <level>3</level>
+                    <control type="button" format="action" />
+                    <data>RunPlugin(plugin://plugin.video.sling/?mode=setting&amp;name=delete_db&amp;value=true)</data>
                 </setting>
                 <setting id="Debug" type="string" label="30135">
                     <constraints>
@@ -203,28 +209,99 @@
                     <default></default>
                     <level>3</level>
                 </setting>
-                <setting id="Reset_Hidden" type="action" label="30143" action="RunPlugin(plugin://plugin.video.sling/?mode=setting&name=reset_hidden&value=true)" option="close">
-                    <control type="button" format="action" />
+                <setting id="Reset_Hidden" type="action" label="30143">
                     <level>3</level>
+                    <control type="button" format="action" />
+                    <data>RunPlugin(plugin://plugin.video.sling/?mode=setting&amp;name=reset_hidden&amp;value=true)</data>
                 </setting>
-                <setting id="View_Slinger" type="action" label="30145" action="RunPlugin(plugin://plugin.video.sling/?mode=setting&name=view_slinger&value=true)" option="close">
-                    <control type="button" format="action" />
+                <setting id="View_Slinger" type="action" label="30145">
                     <level>3</level>
+                    <control type="button" format="action" />
+                    <data>RunPlugin(plugin://plugin.video.sling/?mode=setting&amp;name=view_slinger&amp;value=true)</data>
                 </setting>
             </group>
         </category>
 
-        <!-- Hidden -->
-        <setting id="access" type="text" default="" visible="false"/>
-        <setting id="access_token" type="text" default="" visible="false"/>
-        <setting id="access_token_jwt" type="text" default="" visible="false"/>
-        <setting id="subscriber_id" type="text" default="" visible="false"/>
-        <setting id="device_id" type="text" default="" visible="false"/>
-        <setting id="user_subs" type="text" default="" visible="false"/>
-        <setting id="legacy_subs" type="text" default="" visible="false"/>
-        <setting id="user_dma" type="text" default="" visible="false"/>
-        <setting id="user_offset" type="text" default="" visible="false"/>
-        <setting id="user_zip" type="text" default="" visible="false"/>
-        <setting id="update_guide" type="text" default="false" visible="false"/>
+        <category id="Hidden">
+            <group id="1">
+                <setting id="access" type="string">
+                    <level>4</level>
+                    <default/>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                </setting>
+                <setting id="access_token" type="string">
+                    <level>4</level>
+                    <default/>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                </setting>
+                <setting id="access_token_jwt" type="string">
+                    <level>4</level>
+                    <default/>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                </setting>
+                <setting id="subscriber_id" type="string">
+                    <level>4</level>
+                    <default/>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                </setting>
+                <setting id="device_id" type="string">
+                    <level>4</level>
+                    <default/>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                </setting>
+                <setting id="user_subs" type="string">
+                    <level>4</level>
+                    <default/>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                </setting>
+                <setting id="legacy_subs" type="string">
+                    <level>4</level>
+                    <default/>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                </setting>
+                <setting id="user_dma" type="string">
+                    <level>4</level>
+                    <default/>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                </setting>
+                <setting id="user_offset" type="string">
+                    <level>4</level>
+                    <default/>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                </setting>
+                <setting id="user_zip" type="string">
+                    <level>4</level>
+                    <default/>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                </setting>
+                <setting id="update_guide" type="string">
+                    <level>4</level>
+                    <default/>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                </setting>
+            </group>
+        </category>
     </section>
 </settings>
