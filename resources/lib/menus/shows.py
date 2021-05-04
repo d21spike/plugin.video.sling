@@ -79,6 +79,10 @@ def myShows(self):
                         ('Remove from Favorite Shows', 'RunPlugin(plugin://plugin.video.sling/?mode=show&guid=%s&'
                                                        'action=unfavorite)' % db_show.GUID)
                     ]
+                context_items.append(('Record All', 'RunPlugin(%s?mode=record_show&type=all&guid=%s)' %
+                                      (ADDON_URL, db_show.GUID)))
+                context_items.append(('Record New', 'RunPlugin(%s?mode=record_show&type=new&guid=%s)' %
+                                      (ADDON_URL, db_show.GUID)))
                 addDir(db_show.Name, self.handleID, '', 'show&guid=%s' % db_show.GUID, db_show.infoLabels(),
                        db_show.infoArt(), context_items)
 

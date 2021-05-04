@@ -131,6 +131,8 @@ class Sling(object):
             self.tryRecord()
         if self.mode == 'record':
             self.setRecord()
+        if self.mode == 'record_show':
+            self.setRecordShow()
         if self.mode == 'del_record':
             self.delRecord()
 
@@ -532,6 +534,41 @@ class Sling(object):
                     {
                         "external_id": asset,
                         "channel": channel_guid
+                    }
+                ],
+                "product": "sling",
+                "platform": "browser"
+            }
+            log ('Record URL: %s \nPayload: %s' % (record_url, json.dumps(payload, indent=4)))
+            response = requests.post(record_url, data=json.dumps(payload), auth=self.auth.getAuth(), verify=VERIFY)
+            response = response.json()
+            log (json.dumps(response, indent=4))
+            if 'error_code' in response:
+                message = '%i - %s' % (response['error_code'], response['message'])
+            elif 'error' in response:
+                message = response['error']
+            else:
+                message = 'Recording set'
+        else:
+            message = "Failed to set recording"
+        if message != '':
+            notificationDialog(message)
+
+    def setRecordShow(self):
+        log('setRecordShow(): Attempting to record show %s, episodes: %s' % (self.params['guid'], self.params['type']))
+
+        asset = self.params['guid']
+        episode_type = self.params['type']
+            
+        message = ''
+        if len(asset) > 0 and len(episode_type) > 0:
+            record_url = '%s/rec/v4/rule-create' % self.endPoints['cmwnext_url']
+            payload = {
+                "data": [
+                    {
+                        "franchise": asset,
+                        "mode": episode_type,
+                        "type": "franchise"
                     }
                 ],
                 "product": "sling",
