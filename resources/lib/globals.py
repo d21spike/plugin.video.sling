@@ -1,8 +1,11 @@
 ## GLOBALS ##
 
 import base64, calendar, datetime, hashlib, inputstreamhelper, json, os, random, requests, sys, time, pytz, re
-import traceback, urllib, xbmc, xbmcgui, xbmcplugin, xbmcaddon, xbmcvfs, xmltodict, string, sqlite3, binascii
+import traceback, urllib, xmltodict, string, sqlite3, binascii
 from pytz import timezone
+import xbmc, xbmcvfs, xbmcplugin, xbmcgui, xbmcaddon
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
 
 KODI_VERSION_MAJOR = int(xbmc.getInfoLabel('System.BuildVersion').split('.')[0])
 ADDON_NAME = 'Sling'
