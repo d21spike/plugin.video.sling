@@ -259,3 +259,7 @@ msgstr ""
 msgctxt "#30149"
 msgid "Run Updates"
 msgstr ""
+
+msgctxt "#30150"
+msgid "Show Progress"
+msgstr ""

@@ -185,6 +185,10 @@ def myTVShow(self, tile):
                 ('Add to Favorite Shows', 'RunPlugin(plugin://plugin.video.sling/?mode=show&guid=%s&action=favorite)' % show.GUID),
                 ('Update Show', 'RunPlugin(plugin://plugin.video.sling/?mode=show&guid=%s&action=update)' % show.GUID)
             ]
+            context_items.append(('Record All', 'RunPlugin(%s?mode=record_show&type=all&guid=%s)' %
+                                      (ADDON_URL, show.GUID)))
+            context_items.append(('Record New', 'RunPlugin(%s?mode=record_show&type=new&guid=%s)' %
+                                    (ADDON_URL, show.GUID)))
             addDir(show.Name, self.handleID, '', 'show&guid=%s' % show.GUID, show.infoLabels(), show.infoArt(), context_items)
 
 # ======================== My TV Program DVR ========================

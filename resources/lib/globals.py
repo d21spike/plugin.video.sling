@@ -42,6 +42,7 @@ USER_EMAIL = SETTINGS.getSetting('User_Email')
 USER_PASSWORD = SETTINGS.getSetting('User_Password')
 USE_SLINGER = SETTINGS.getSetting(id='Use_Slinger') == 'true'
 RUN_UPDATES = SETTINGS.getSetting(id='Run_Updates') == 'true'
+SHOW_PROGRESS = SETTINGS.getSetting(id='Show_Progress') == 'true'
 ACCESS_TOKEN = SETTINGS.getSetting('access_token')
 ACCESS_TOKEN_JWT = SETTINGS.getSetting('access_token_jwt')
 SUBSCRIBER_ID = SETTINGS.getSetting('subscriber_id')

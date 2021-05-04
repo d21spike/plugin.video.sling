@@ -47,6 +47,14 @@
                     </dependencies>
                     <level>0</level>
                 </setting>
+                <setting id="Show_Progress" type="boolean" label="30150">
+                    <control type="toggle" />
+                    <default>true</default>
+                    <dependencies>
+                        <dependency type="enable" setting="Use_Slinger" operator="is">true</dependency>
+                    </dependencies>
+                    <level>0</level>
+                </setting>
             </group>
             <group id="2" label="30118">
                 <setting id="Channels_Update" type="action" label="30137">
