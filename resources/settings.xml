@@ -12,7 +12,7 @@
         <setting label="30127" type="lsep" />
         <setting id="Guide_Days" type="slider" label="30126" default="2" range="1,1,5" option="int" enable="eq(-3,true)" /> <!-- Use Slinger -->
         <setting id="Enable_EPG" type="bool" label="30128" default="false" enable="eq(-4,true)" /> <!-- Use Slinger -->
-        <setting id="Start_Guide" type="bool" label="30147" default="false" enable="eq(-5,true) + eq(-41,true)" /> <!-- Use Slinger & Enable EPG -->
+        <setting id="Start_Guide" type="bool" label="30147" default="false" enable="eq(-5,true) + eq(-1,true)" /> <!-- Use Slinger & Enable EPG -->
         
         <setting label="30156" type="lsep" />
         <setting id="Run_Updates"  type="bool"   label="30149" default="true" enable="eq(-7,true)"/> <!-- Use Slinger -->
