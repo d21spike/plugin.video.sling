@@ -39,14 +39,6 @@
                     <default>false</default>
                     <level>0</level>
                 </setting>
-                <setting id="Run_Updates" type="boolean" label="30149">
-                    <control type="toggle" />
-                    <default>true</default>
-                    <dependencies>
-                        <dependency type="enable" setting="Use_Slinger" operator="is">true</dependency>
-                    </dependencies>
-                    <level>0</level>
-                </setting>
                 <setting id="Show_Progress" type="boolean" label="30150">
                     <control type="toggle" />
                     <default>true</default>
@@ -56,57 +48,7 @@
                     <level>0</level>
                 </setting>
             </group>
-            <group id="2" label="30118">
-                <setting id="Channels_Update" type="action" label="30137">
-                    <level>0</level>
-                    <control type="button" format="action" />
-                    <data>RunPlugin(plugin://plugin.video.sling/?mode=setting&amp;name=update_channels&amp;value=true)</data>
-                    <dependencies>
-                        <dependency type="enable" setting="Use_Slinger" operator="is">true</dependency>
-                    </dependencies>
-                </setting>
-                <setting id="Guide_Update" type="action" label="30138">
-                    <level>0</level>
-                    <control type="button" format="action" />
-                    <data>RunPlugin(plugin://plugin.video.sling/?mode=setting&amp;name=update_guide&amp;value=true)</data>
-                    <dependencies>
-                        <dependency type="enable" setting="Use_Slinger" operator="is">true</dependency>
-                    </dependencies>
-                </setting>
-                <setting id="On_Demand_Update" type="action" label="30139">
-                    <level>0</level>
-                    <control type="button" format="action" />
-                    <data>RunPlugin(plugin://plugin.video.sling/?mode=setting&amp;name=update_on_demand&amp;value=true)</data>
-                    <dependencies>
-                        <dependency type="enable" setting="Use_Slinger" operator="is">true</dependency>
-                    </dependencies>
-                </setting>
-                <setting id="Shows_Update" type="action" label="30140">
-                    <level>0</level>
-                    <control type="button" format="action" />
-                    <data>RunPlugin(plugin://plugin.video.sling/?mode=setting&amp;name=update_shows&amp;value=true)</data>
-                    <dependencies>
-                        <dependency type="enable" setting="Use_Slinger" operator="is">true</dependency>
-                    </dependencies>
-                </setting>
-                <setting id="VOD_Update" type="action" label="30141">
-                    <level>0</level>
-                    <control type="button" format="action" />
-                    <data>RunPlugin(plugin://plugin.video.sling/?mode=setting&amp;name=update_vod&amp;value=true)</data>
-                    <dependencies>
-                        <dependency type="enable" setting="Use_Slinger" operator="is">true</dependency>
-                    </dependencies>
-                </setting>
-            </group>
-            <group id="3" label="30127">
-                <setting id="Enable_EPG" type="boolean" label="30128">
-                    <control type="toggle" />
-                    <default>false</default>
-                    <dependencies>
-                        <dependency type="enable" setting="Use_Slinger" operator="is">true</dependency>
-                    </dependencies>
-                    <level>0</level>
-                </setting>
+            <group id="2" label="30127">
                 <setting id="Guide_Days" type="integer" label="30126">
                     <constraints>
                         <minimum>1</minimum>
@@ -119,9 +61,16 @@
                         <dependency type="enable">
                             <and>
                                 <condition setting="Use_Slinger" operator="is">true</condition>
-                                <condition setting="Enable_EPG" operator="is">true</condition>
                             </and>
                         </dependency>
+                    </dependencies>
+                    <level>0</level>
+                </setting>
+                <setting id="Enable_EPG" type="boolean" label="30128">
+                    <control type="toggle" />
+                    <default>false</default>
+                    <dependencies>
+                        <dependency type="enable" setting="Use_Slinger" operator="is">true</dependency>
                     </dependencies>
                     <level>0</level>
                 </setting>
@@ -130,11 +79,114 @@
                     <default>false</default>
                     <dependencies>
                         <dependency type="enable" setting="Use_Slinger" operator="is">true</dependency>
+                        <dependency type="enable" setting="Enable_EPG" operator="is">true</dependency>
                     </dependencies>
                     <level>0</level>
                 </setting>
             </group>
-            <group id="4" label="30120">
+            <group id="3" label="30156">
+                <setting id="Run_Updates" type="boolean" label="30149">
+                    <control type="toggle" />
+                    <default>true</default>
+                    <dependencies>
+                        <dependency type="enable" setting="Use_Slinger" operator="is">true</dependency>
+                    </dependencies>
+                    <level>0</level>
+                </setting>
+                <setting id="Update_Channels" type="boolean" label="30151">
+                    <control type="toggle" />
+                    <default>true</default>
+                    <dependencies>
+                        <dependency type="enable" setting="Use_Slinger" operator="is">true</dependency>
+                        <dependency type="enable" setting="Run_Updates" operator="is">true</dependency>
+                    </dependencies>
+                    <level>0</level>
+                </setting>
+                <setting id="Update_Guide" type="boolean" label="30152">
+                    <control type="toggle" />
+                    <default>true</default>
+                    <dependencies>
+                        <dependency type="enable" setting="Use_Slinger" operator="is">true</dependency>
+                        <dependency type="enable" setting="Run_Updates" operator="is">true</dependency>
+                    </dependencies>
+                    <level>0</level>
+                </setting>
+                <setting id="Update_On_Demand" type="boolean" label="30153">
+                    <control type="toggle" />
+                    <default>true</default>
+                    <dependencies>
+                        <dependency type="enable" setting="Use_Slinger" operator="is">true</dependency>
+                        <dependency type="enable" setting="Run_Updates" operator="is">true</dependency>
+                    </dependencies>
+                    <level>0</level>
+                </setting>
+                <setting id="Update_Shows" type="boolean" label="30154">
+                    <control type="toggle" />
+                    <default>true</default>
+                    <dependencies>
+                        <dependency type="enable" setting="Use_Slinger" operator="is">true</dependency>
+                        <dependency type="enable" setting="Run_Updates" operator="is">true</dependency>
+                    </dependencies>
+                    <level>0</level>
+                </setting>
+                <setting id="Update_VOD" type="boolean" label="30155">
+                    <control type="toggle" />
+                    <default>true</default>
+                    <dependencies>
+                        <dependency type="enable" setting="Use_Slinger" operator="is">true</dependency>
+                        <dependency type="enable" setting="Run_Updates" operator="is">true</dependency>
+                    </dependencies>
+                    <level>0</level>
+                </setting>
+            </group>
+            <group id="4" label="30118">
+                <setting id="Channels_Update" type="action" label="30137">
+                    <level>0</level>
+                    <control type="button" format="action" />
+                    <data>RunPlugin(plugin://plugin.video.sling/?mode=setting&amp;name=update_channels&amp;value=true)</data>
+                    <dependencies>
+                        <dependency type="enable" setting="Use_Slinger" operator="is">true</dependency>
+                        <dependency type="enable" setting="Run_Updates" operator="is">true</dependency>
+                    </dependencies>
+                </setting>
+                <setting id="Guide_Update" type="action" label="30138">
+                    <level>0</level>
+                    <control type="button" format="action" />
+                    <data>RunPlugin(plugin://plugin.video.sling/?mode=setting&amp;name=update_guide&amp;value=true)</data>
+                    <dependencies>
+                        <dependency type="enable" setting="Use_Slinger" operator="is">true</dependency>
+                        <dependency type="enable" setting="Run_Updates" operator="is">true</dependency>
+                    </dependencies>
+                </setting>
+                <setting id="On_Demand_Update" type="action" label="30139">
+                    <level>0</level>
+                    <control type="button" format="action" />
+                    <data>RunPlugin(plugin://plugin.video.sling/?mode=setting&amp;name=update_on_demand&amp;value=true)</data>
+                    <dependencies>
+                        <dependency type="enable" setting="Use_Slinger" operator="is">true</dependency>
+                        <dependency type="enable" setting="Run_Updates" operator="is">true</dependency>
+                    </dependencies>
+                </setting>
+                <setting id="Shows_Update" type="action" label="30140">
+                    <level>0</level>
+                    <control type="button" format="action" />
+                    <data>RunPlugin(plugin://plugin.video.sling/?mode=setting&amp;name=update_shows&amp;value=true)</data>
+                    <dependencies>
+                        <dependency type="enable" setting="Use_Slinger" operator="is">true</dependency>
+                        <dependency type="enable" setting="Run_Updates" operator="is">true</dependency>
+                    </dependencies>
+                </setting>
+                <setting id="VOD_Update" type="action" label="30141">
+                    <level>0</level>
+                    <control type="button" format="action" />
+                    <data>RunPlugin(plugin://plugin.video.sling/?mode=setting&amp;name=update_vod&amp;value=true)</data>
+                    <dependencies>
+                        <dependency type="enable" setting="Use_Slinger" operator="is">true</dependency>
+                        <dependency type="enable" setting="Run_Updates" operator="is">true</dependency>
+                    </dependencies>
+                </setting>
+            </group>
+            <group id="5" label="30120">
                 <setting id="Channels_Interval" type="integer" label="30121">
                     <constraints>
                         <minimum>1</minimum>

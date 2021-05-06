@@ -76,7 +76,7 @@ class Slinger(object):
             self.createDB()
         self.DB = sqlite3.connect(DB_PATH)
 
-        if self.DB is not None and RUN_UPDATES:
+        if self.DB is not None:
             self.main()
         else:
             log('Slinger __init__: Failed to initialize DB, closing.')
@@ -95,27 +95,28 @@ class Slinger(object):
         while not self.Monitor.abortRequested():
             timestamp = int(time.time())
 
-            self.checkTracker()
-            if (self.Channels_Updated + self.Channels_Interval) < timestamp:
-                if not self.inTasks("Update Channels")[0]:
-                    log('Channels need updated')
-                    self.Tasks[timestamp] = "Update Channels"
-            if (self.Guide_Updated + self.Guide_Interval) < timestamp:
-                if not self.inTasks("Update Guide")[0]:
-                    self.Tasks[timestamp + 1] = "Update Guide"
-            if (self.On_Demand_Updated + self.On_Demand_Interval) < timestamp:
-                if not self.inTasks("Update On Demand")[0]:
-                    self.Tasks[timestamp + 2] = "Update On Demand"
-            if (self.Shows_Updated + self.Shows_Interval) < timestamp:
-                if not self.inTasks("Update Shows")[0]:
-                    self.Tasks[timestamp + 3] = "Update Shows"
-            if (self.VOD_Updated + self.VOD_Interval) < timestamp:
-                if not self.inTasks("Update VOD")[0]:
-                    self.Tasks[timestamp + 4] = "Update VOD"
-            self.updateTracker(state="Idle", job="")
+            if RUN_UPDATES:
+                self.checkTracker()
+                if (self.Channels_Updated + self.Channels_Interval) < timestamp:
+                    if not self.inTasks("Update Channels")[0]:
+                        log('Channels need updated')
+                        self.Tasks[timestamp] = "Update Channels"
+                if (self.Guide_Updated + self.Guide_Interval) < timestamp:
+                    if not self.inTasks("Update Guide")[0]:
+                        self.Tasks[timestamp + 1] = "Update Guide"
+                if (self.On_Demand_Updated + self.On_Demand_Interval) < timestamp:
+                    if not self.inTasks("Update On Demand")[0]:
+                        self.Tasks[timestamp + 2] = "Update On Demand"
+                if (self.Shows_Updated + self.Shows_Interval) < timestamp:
+                    if not self.inTasks("Update Shows")[0]:
+                        self.Tasks[timestamp + 3] = "Update Shows"
+                if (self.VOD_Updated + self.VOD_Interval) < timestamp:
+                    if not self.inTasks("Update VOD")[0]:
+                        self.Tasks[timestamp + 4] = "Update VOD"
+                self.updateTracker(state="Idle", job="")
 
-            if len(self.Tasks):
-                self.doTasks()
+                if len(self.Tasks):
+                    self.doTasks()
             
             # Sleep for 30 minutes or exit on break
             count = 0
@@ -213,19 +214,19 @@ class Slinger(object):
         for id in sorted(self.Tasks.keys()):
             if id < 0:
                 self.Force_Update = True
-            if self.Tasks[id] == "Update Channels":
+            if self.Tasks[id] == "Update Channels" and UPDATE_CHANNELS:
                 self.updateTracker(state="Working", job="Updating Channels")
                 self.updateChannels()
-            if self.Tasks[id] == "Update Guide":
+            if self.Tasks[id] == "Update Guide" and UPDATE_GUIDE:
                 self.updateTracker(state="Working", job="Updating Guide")
                 self.updateGuide()
-            if self.Tasks[id] == "Update On Demand":
+            if self.Tasks[id] == "Update On Demand" and UPDATE_ON_DEMAND:
                 self.updateTracker(state="Working", job="Updating On Demand")
                 self.updateOnDemand()
-            if self.Tasks[id] == "Update Shows":
+            if self.Tasks[id] == "Update Shows" and UPDATE_SHOWS:
                 self.updateTracker(state="Working", job="Updating Shows")
                 self.updateShows()
-            if self.Tasks[id] == "Update VOD":
+            if self.Tasks[id] == "Update VOD" and UPDATE_VOD:
                 self.updateTracker(state="Working", job="Updating VOD")
                 self.updateVOD()
 

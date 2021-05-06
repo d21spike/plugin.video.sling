@@ -41,8 +41,15 @@ TIMEOUT = 15
 USER_EMAIL = SETTINGS.getSetting('User_Email')
 USER_PASSWORD = SETTINGS.getSetting('User_Password')
 USE_SLINGER = SETTINGS.getSetting(id='Use_Slinger') == 'true'
-RUN_UPDATES = SETTINGS.getSetting(id='Run_Updates') == 'true'
 SHOW_PROGRESS = SETTINGS.getSetting(id='Show_Progress') == 'true'
+
+RUN_UPDATES = SETTINGS.getSetting(id='Run_Updates') == 'true'
+UPDATE_CHANNELS = SETTINGS.getSetting(id='Update_Channels') == 'true'
+UPDATE_GUIDE = SETTINGS.getSetting(id='Update_Guide') == 'true'
+UPDATE_ON_DEMAND = SETTINGS.getSetting(id='Update_On_Demand') == 'true'
+UPDATE_SHOWS = SETTINGS.getSetting(id='Update_Shows') == 'true'
+UPDATE_VOD = SETTINGS.getSetting(id='Update_VOD') == 'true'
+
 ACCESS_TOKEN = SETTINGS.getSetting('access_token')
 ACCESS_TOKEN_JWT = SETTINGS.getSetting('access_token_jwt')
 SUBSCRIBER_ID = SETTINGS.getSetting('subscriber_id')

@@ -263,3 +263,27 @@ msgstr ""
 msgctxt "#30150"
 msgid "Show Progress"
 msgstr ""
+
+msgctxt "#30151"
+msgid "Update Channels"
+msgstr ""
+
+msgctxt "#30152"
+msgid "Update Guide"
+msgstr ""
+
+msgctxt "#30153"
+msgid "Update  On Demand"
+msgstr ""
+
+msgctxt "#30154"
+msgid "Update Shows"
+msgstr ""
+
+msgctxt "#30155"
+msgid "Update VOD"
+msgstr ""
+
+msgctxt "#30156"
+msgid "Slinger Updates"
+msgstr ""
