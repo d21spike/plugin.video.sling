@@ -47,6 +47,11 @@
                     </dependencies>
                     <level>0</level>
                 </setting>
+                <setting id="Show_Off_Air" type="boolean" label="30157">
+                    <control type="toggle" />
+                    <default>false</default>
+                    <level>0</level>
+                </setting>
             </group>
             <group id="2" label="30127">
                 <setting id="Guide_Days" type="integer" label="30126">

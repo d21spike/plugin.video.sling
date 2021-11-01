@@ -66,8 +66,8 @@ def myChannels(self):
                 infoArt['thumb'] = self.Channels[guid].On_Now['Thumbnail']
                 infoArt['poster'] = self.Channels[guid].On_Now['Poster']
 
-            if self.Channels[guid].infoLabels()['duration'] > 0 and 'OFF-AIR' not in \
-                    self.Channels[guid].infoLabels()['plot']:
+            if self.Channels[guid].infoLabels()['duration'] > 0 and ('OFF-AIR' not in \
+                    self.Channels[guid].infoLabels()['plot'] or SHOW_OFF_AIR):
                 if self.Channels[guid].On_Demand:
                     url = ('%s?mode=demand&guid=%s' % (ADDON_URL, guid))
 

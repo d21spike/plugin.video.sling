@@ -42,6 +42,7 @@ USER_EMAIL = SETTINGS.getSetting('User_Email')
 USER_PASSWORD = SETTINGS.getSetting('User_Password')
 USE_SLINGER = SETTINGS.getSetting(id='Use_Slinger') == 'true'
 SHOW_PROGRESS = SETTINGS.getSetting(id='Show_Progress') == 'true'
+SHOW_OFF_AIR = SETTINGS.getSetting(id='Show_Off_Air') == 'true'
 
 RUN_UPDATES = SETTINGS.getSetting(id='Run_Updates') == 'true'
 UPDATE_CHANNELS = SETTINGS.getSetting(id='Update_Channels') == 'true'

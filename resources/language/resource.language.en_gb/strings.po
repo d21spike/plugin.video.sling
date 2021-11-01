@@ -287,3 +287,7 @@ msgstr ""
 msgctxt "#30156"
 msgid "Slinger Updates"
 msgstr ""
+
+msgctxt "#30157"
+msgid "Show Off-Air Channels"
+msgstr ""
