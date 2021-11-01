@@ -8,33 +8,34 @@
     <category label="30119">
         <setting id="Use_Slinger"  type="bool"   label="30119" default="false" />
         <setting id="Show_Progress"  type="bool"   label="30150" default="true" enable="eq(-1,true)"/>
+        <setting id="Show_Off_Air"  type="bool"   label="30157" default="false"/>
         
         <setting label="30127" type="lsep" />
-        <setting id="Guide_Days" type="slider" label="30126" default="2" range="1,1,5" option="int" enable="eq(-3,true)" /> <!-- Use Slinger -->
-        <setting id="Enable_EPG" type="bool" label="30128" default="false" enable="eq(-4,true)" /> <!-- Use Slinger -->
-        <setting id="Start_Guide" type="bool" label="30147" default="false" enable="eq(-5,true) + eq(-1,true)" /> <!-- Use Slinger & Enable EPG -->
+        <setting id="Guide_Days" type="slider" label="30126" default="2" range="1,1,5" option="int" enable="eq(-4,true)" /> <!-- Use Slinger -->
+        <setting id="Enable_EPG" type="bool" label="30128" default="false" enable="eq(-5,true)" /> <!-- Use Slinger -->
+        <setting id="Start_Guide" type="bool" label="30147" default="false" enable="eq(-6,true) + eq(-1,true)" /> <!-- Use Slinger & Enable EPG -->
         
         <setting label="30156" type="lsep" />
-        <setting id="Run_Updates"  type="bool"   label="30149" default="true" enable="eq(-7,true)"/> <!-- Use Slinger -->
-        <setting id="Update_Channels" type="bool" label="30151" default="false" enable="eq(-8,true) + eq(-1,true)" /> <!-- Use Slinger & Run Updates -->
-        <setting id="Update_Guide" type="bool" label="30152" default="false" enable="eq(-9,true) + eq(-2,true)" /> <!-- Use Slinger & Run Updates -->
-        <setting id="Update_On_Demand" type="bool" label="30153" default="false" enable="eq(-10,true) + eq(-3,true)" /> <!-- Use Slinger & Run Updates -->
-        <setting id="Update_Shows" type="bool" label="30154" default="false" enable="eq(-11,true) + eq(-4,true)" /> <!-- Use Slinger & Run Updates -->
-        <setting id="Update_VOD" type="bool" label="30155" default="false" enable="eq(-12,true) + eq(-5,true)" /> <!-- Use Slinger & Run Updates -->
+        <setting id="Run_Updates"  type="bool"   label="30149" default="true" enable="eq(-8,true)"/> <!-- Use Slinger -->
+        <setting id="Update_Channels" type="bool" label="30151" default="false" enable="eq(-9,true) + eq(-1,true)" /> <!-- Use Slinger & Run Updates -->
+        <setting id="Update_Guide" type="bool" label="30152" default="false" enable="eq(-10,true) + eq(-2,true)" /> <!-- Use Slinger & Run Updates -->
+        <setting id="Update_On_Demand" type="bool" label="30153" default="false" enable="eq(-11,true) + eq(-3,true)" /> <!-- Use Slinger & Run Updates -->
+        <setting id="Update_Shows" type="bool" label="30154" default="false" enable="eq(-12,true) + eq(-4,true)" /> <!-- Use Slinger & Run Updates -->
+        <setting id="Update_VOD" type="bool" label="30155" default="false" enable="eq(-13,true) + eq(-5,true)" /> <!-- Use Slinger & Run Updates -->
         
         <setting label="30118" type="lsep" />
-        <setting id="Channels_Update" type="action" label="30137" action="RunPlugin(plugin://plugin.video.sling/?mode=setting&amp;name=update_channels&amp;value=true)" option="close" enable="eq(-14,true) + eq(-7,true)" />  <!-- Use Slinger & Run Updates -->
-        <setting id="Guide_Update" type="action" label="30138" action="RunPlugin(plugin://plugin.video.sling/?mode=setting&amp;name=update_guide&amp;value=true)" option="close" enable="eq(-15,true) + eq(-8,true)" />  <!-- Use Slinger & Run Updates -->
-        <setting id="On_Demand_Update" type="action" label="30139" action="RunPlugin(plugin://plugin.video.sling/?mode=setting&amp;name=update_on_demand&amp;value=true)" option="close" enable="eq(-16,true) + eq(-9,true)" />  <!-- Use Slinger & Run Updates -->
-        <setting id="Shows_Update" type="action" label="30140" action="RunPlugin(plugin://plugin.video.sling/?mode=setting&amp;name=update_shows&amp;value=true)" option="close" enable="eq(-17,true) + eq(-10,true)" />  <!-- Use Slinger & Run Updates -->
-        <setting id="VOD_Update" type="action" label="30141" action="RunPlugin(plugin://plugin.video.sling/?mode=setting&amp;name=update_vod&amp;value=true)" option="close" enable="eq(-18,true) + eq(-11,true)" />  <!-- Use Slinger & Run Updates -->
+        <setting id="Channels_Update" type="action" label="30137" action="RunPlugin(plugin://plugin.video.sling/?mode=setting&amp;name=update_channels&amp;value=true)" option="close" enable="eq(-15,true) + eq(-7,true)" />  <!-- Use Slinger & Run Updates -->
+        <setting id="Guide_Update" type="action" label="30138" action="RunPlugin(plugin://plugin.video.sling/?mode=setting&amp;name=update_guide&amp;value=true)" option="close" enable="eq(-16,true) + eq(-8,true)" />  <!-- Use Slinger & Run Updates -->
+        <setting id="On_Demand_Update" type="action" label="30139" action="RunPlugin(plugin://plugin.video.sling/?mode=setting&amp;name=update_on_demand&amp;value=true)" option="close" enable="eq(-17,true) + eq(-9,true)" />  <!-- Use Slinger & Run Updates -->
+        <setting id="Shows_Update" type="action" label="30140" action="RunPlugin(plugin://plugin.video.sling/?mode=setting&amp;name=update_shows&amp;value=true)" option="close" enable="eq(-18,true) + eq(-10,true)" />  <!-- Use Slinger & Run Updates -->
+        <setting id="VOD_Update" type="action" label="30141" action="RunPlugin(plugin://plugin.video.sling/?mode=setting&amp;name=update_vod&amp;value=true)" option="close" enable="eq(-19,true) + eq(-11,true)" />  <!-- Use Slinger & Run Updates -->
         
         <setting label="30120" type="lsep" />
-        <setting id="Channels_Interval" type="slider" label="30121" default="1" range="1,1,7" option="int" enable="eq(-20,true)" /> <!-- Use Slinger -->
-        <setting id="Guide_Interval" type="slider" label="30122" default="0.5" range="0,0.5,7" option="float" enable="eq(-21,true)" /> <!-- Use Slinger -->
-        <setting id="Shows_Interval" type="slider" label="30123" default="7" range="1,1,30" option="int" enable="eq(-22,true)" /> <!-- Use Slinger -->
-        <setting id="On_Demand_Interval" type="slider" label="30124" default="7" range="1,1,30" option="int" enable="eq(-23,true)" /> <!-- Use Slinger -->
-        <setting id="VOD_Interval" type="slider" label="30125" default="1" range="1,1,30" option="int" enable="eq(-24,true)" /> <!-- Use Slinger -->
+        <setting id="Channels_Interval" type="slider" label="30121" default="1" range="1,1,7" option="int" enable="eq(-21,true)" /> <!-- Use Slinger -->
+        <setting id="Guide_Interval" type="slider" label="30122" default="0.5" range="0,0.5,7" option="float" enable="eq(-22,true)" /> <!-- Use Slinger -->
+        <setting id="Shows_Interval" type="slider" label="30123" default="7" range="1,1,30" option="int" enable="eq(-23,true)" /> <!-- Use Slinger -->
+        <setting id="On_Demand_Interval" type="slider" label="30124" default="7" range="1,1,30" option="int" enable="eq(-24,true)" /> <!-- Use Slinger -->
+        <setting id="VOD_Interval" type="slider" label="30125" default="1" range="1,1,30" option="int" enable="eq(-25,true)" /> <!-- Use Slinger -->
         <setting label="30136" type="lsep" />
     </category>
     <category label="30130">
