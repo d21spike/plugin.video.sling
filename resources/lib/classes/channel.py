@@ -86,7 +86,11 @@ class Channel(object):
                 for genre in metadata['genre']:
                     genres = '%s, %s' % (genres, genre) if len(genres) > 0 else genre
                 self.Genre = genres
-            self.Poster = metadata['default_schedule_image']['url'] if 'default_schedule_image' in metadata else self.Poster
+            # self.Poster = metadata['default_schedule_image']['url'] if 'default_schedule_image' in metadata else self.Poster
+            if 'default_schedule_image' in metadata:
+                if metadata['default_schedule_image'] is not None:
+                    if 'url' in metadata['default_schedule_image']:
+                        self.Poster = metadata['default_schedule_image']['url'] 
             self.Language = metadata['language'] if 'language' in metadata else ''
         if self.Poster == FANART and 'default_schedule_image' in channel_json:
             self.Poster = channel_json['default_schedule_image']['url'] if channel_json['default_schedule_image'] is not None else self.Poster
